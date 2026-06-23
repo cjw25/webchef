@@ -8,7 +8,7 @@ import lombok.Setter;
 
 @Getter
 @Setter
-public class SiteUserDTO {
+public class UserDTO {
 
     private Long id;
 
