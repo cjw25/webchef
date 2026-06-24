@@ -14,7 +14,6 @@
     padding: 0 40px;
 }
 
-/* 하단 숨겨진 메타버스 바 */
 .metaverse-dock {
     position: fixed;
     left: 50%;
@@ -32,14 +31,12 @@
     overflow: hidden;
 }
 
-/* 마우스 올리면 올라옴 */
 .metaverse-dock:hover,
 .metaverse-dock.dock-open {
     bottom: 0;
     box-shadow: 0 -18px 60px rgba(189, 29, 29, 0.22);
 }
 
-/* 손잡이 */
 .dock-handle {
     height: 42px;
     display: flex;

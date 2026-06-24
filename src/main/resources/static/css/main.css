@@ -137,7 +137,7 @@ a {
     color: #bd1d1d;
 }
 
-/* Dashboard preview */
+/* Dashboard */
 .hero-dashboard {
     display: flex;
     justify-content: center;
@@ -568,16 +568,6 @@ a {
 .study-link {
     color: #bd1d1d;
     font-weight: 900;
-}
-
-/* Footer */
-.footer {
-    padding: 30px 0;
-    border-top: 1px solid #eee;
-    background: #fafafa;
-    text-align: center;
-    color: #777;
-    font-size: 14px;
 }
 
 /* Responsive */
