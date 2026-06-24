@@ -1,62 +1,42 @@
 <!DOCTYPE html>
 <html lang="ko" xmlns:th="http://www.thymeleaf.org">
-<head>
-  <meta charset="UTF-8">
-  <title>WebChef 2D 메타버스</title>
-
-  <link rel="stylesheet" href="/css/header.css">
-  <link rel="stylesheet" href="/css/metaverse.css">
-  <link rel="stylesheet" href="/css/footer.css">
-
-  <script src="/js/footer.js" defer></script>
-  <script src="/js/metaverse.js" defer></script>
-</head>
 <body>
 
-<div th:replace="~{fragments/header :: header}"></div>
+<footer class="site-footer" th:fragment="footer">
 
-<main class="metaverse-page">
+  <div class="footer-content">
+    <p>© 2026 WebChef. 자취생을 위한 요리 학습 플랫폼.</p>
+  </div>
 
-  <section class="metaverse-header">
-    <div>
-      <span>WEBGL METAVERSE</span>
-      <h1>WebChef 2D 메타버스</h1>
-      <p>자취방, 요리 강의실, 커뮤니티 광장을 WebGL로 체험하는 공간입니다.</p>
+  <div class="metaverse-dock" id="metaverseDock">
+
+    <div class="dock-handle">
+      <span></span>
+      <p>2D Metaverse</p>
     </div>
 
-    <a href="/" class="back-btn">메인으로 돌아가기</a>
-  </section>
+    <div class="dock-content">
 
-  <section class="unity-wrapper">
-
-    <div class="unity-top-bar">
-      <div>
-        <strong>WebChef Room</strong>
-        <p>Unity WebGL 실행 화면</p>
+      <div class="dock-info">
+        <strong>WebChef 2D 메타버스</strong>
+        <p>하단 바를 올려 WebChef 2D 메타버스에 입장하세요.</p>
       </div>
 
-      <button type="button" id="fullscreenBtn">전체화면</button>
-    </div>
+      <div class="dock-actions">
+        <button type="button" id="metaverseLaunchBtn">
+          메타버스 입장
+        </button>
 
-    <div id="unity-container" class="unity-container">
-      <canvas id="unity-canvas" tabindex="-1"></canvas>
-
-      <div id="unity-loading-bar">
-        <div class="loading-text">WebChef 메타버스 불러오는 중...</div>
-
-        <div class="progress-bg">
-          <div id="unity-progress-bar-full"></div>
-        </div>
+        <a href="/course/list">
+          강의 먼저 보기
+        </a>
       </div>
 
-      <div id="unity-warning"></div>
     </div>
 
-  </section>
+  </div>
 
-</main>
-
-<div th:replace="~{fragments/footer :: footer}"></div>
+</footer>
 
 </body>
 </html>

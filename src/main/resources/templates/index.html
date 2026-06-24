@@ -6,6 +6,9 @@
 
     <link rel="stylesheet" href="/css/header.css">
     <link rel="stylesheet" href="/css/main.css">
+    <link rel="stylesheet" href="/css/footer.css">
+
+    <script src="/js/footer.js" defer></script>
 </head>
 <body>
 
@@ -223,9 +226,7 @@
 
 </main>
 
-<footer class="footer">
-    <p>© 2026 WebChef. 자취생을 위한 요리 학습 플랫폼.</p>
-</footer>
+<div th:replace="~{fragments/footer :: footer}"></div>
 
 </body>
 </html>
