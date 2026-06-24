@@ -29,13 +29,13 @@ public class UserController {
 
     @GetMapping("/user/login")
     public String loginPage() {
-        return "user/login";
+        return "login";
     }
 
     @GetMapping("/user/create")
     public String createPage(Model model) {
         model.addAttribute("request", new UserCreateRequest());
-        return "user/create";
+        return "create";
     }
 
     @PostMapping("/user/create")
@@ -57,7 +57,7 @@ public class UserController {
     @GetMapping("/user/find-id")
     public String findIdPage(Model model) {
         model.addAttribute("request", new FindIdRequest());
-        return "user/find-id";
+        return "find-id";
     }
 
     @PostMapping("/user/find-id")
@@ -78,7 +78,7 @@ public class UserController {
     @GetMapping("/user/find-password")
     public String findPasswordPage(Model model) {
         model.addAttribute("request", new FindPasswordRequest());
-        return "user/find-password";
+        return "find-password";
     }
 
     @PostMapping("/user/find-password")
@@ -109,7 +109,7 @@ public class UserController {
         Page<UserResponse> paging = userService.getUsers(page);
         model.addAttribute("paging", paging);
 
-        return "user/list";
+        return "list";
     }
 
     @PreAuthorize("hasRole('ADMIN')")
@@ -121,7 +121,7 @@ public class UserController {
         UserResponse user = userService.getUser(id);
         model.addAttribute("user", user);
 
-        return "user/view";
+        return "view";
     }
 
     @PreAuthorize("hasRole('ADMIN')")
@@ -139,7 +139,7 @@ public class UserController {
         model.addAttribute("user", user);
         model.addAttribute("request", request);
 
-        return "user/update";
+        return "update";
     }
 
     @PreAuthorize("hasRole('ADMIN')")
