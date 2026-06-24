@@ -1,120 +1,283 @@
 package com.example.fivechef.WebChef.controller;
 
-import com.example.fivechef.WebChef.dto.UserDTO;
-import com.example.fivechef.WebChef.entity.User;
+import com.example.fivechef.WebChef.dto.FindIdRequest;
+import com.example.fivechef.WebChef.dto.FindPasswordRequest;
+import com.example.fivechef.WebChef.dto.UserCreateRequest;
+import com.example.fivechef.WebChef.dto.UserResponse;
+import com.example.fivechef.WebChef.dto.UserUpdateRequest;
+import com.example.fivechef.WebChef.entity.Role;
 import com.example.fivechef.WebChef.service.UserService;
-import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Page;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.validation.BindingResult;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.HashMap;
+import java.util.Map;
 
 @RequiredArgsConstructor
 @Controller
 public class UserController {
+
     private final UserService userService;
 
-    @GetMapping("/user/List")
+    // =========================
+    // 화면용
+    // =========================
+
+    @GetMapping("/user/login")
+    public String loginPage() {
+        return "user/login";
+    }
+
+    @GetMapping("/user/create")
+    public String createPage(Model model) {
+        model.addAttribute("request", new UserCreateRequest());
+        return "user/create";
+    }
+
+    @PostMapping("/user/create")
+    public String createUser(
+            UserCreateRequest request,
+            Model model
+    ) {
+        try {
+            userService.createUser(request);
+        } catch (Exception e) {
+            model.addAttribute("errorMessage", e.getMessage());
+            model.addAttribute("request", request);
+            return "user/create";
+        }
+
+        return "redirect:/user/login";
+    }
+
+    @GetMapping("/user/find-id")
+    public String findIdPage(Model model) {
+        model.addAttribute("request", new FindIdRequest());
+        return "user/find-id";
+    }
+
+    @PostMapping("/user/find-id")
+    public String findId(
+            FindIdRequest request,
+            Model model
+    ) {
+        try {
+            String username = userService.findUsername(request.getName(), request.getEmail());
+            model.addAttribute("foundUsername", username);
+        } catch (Exception e) {
+            model.addAttribute("errorMessage", e.getMessage());
+        }
+
+        return "user/find-id";
+    }
+
+    @GetMapping("/user/find-password")
+    public String findPasswordPage(Model model) {
+        model.addAttribute("request", new FindPasswordRequest());
+        return "user/find-password";
+    }
+
+    @PostMapping("/user/find-password")
+    public String findPassword(
+            FindPasswordRequest request,
+            Model model
+    ) {
+        try {
+            String temporaryPassword = userService.resetPassword(
+                    request.getUsername(),
+                    request.getEmail()
+            );
+
+            model.addAttribute("temporaryPassword", temporaryPassword);
+        } catch (Exception e) {
+            model.addAttribute("errorMessage", e.getMessage());
+        }
+
+        return "user/find-password";
+    }
+
+    @PreAuthorize("hasRole('ADMIN')")
+    @GetMapping("/user/list")
     public String list(
             Model model,
-            @RequestParam(value="page", defaultValue = "0") int page
-    ){
-        Page<User> paging = userService.list(page);
+            @RequestParam(value = "page", defaultValue = "0") int page
+    ) {
+        Page<UserResponse> paging = userService.getUsers(page);
         model.addAttribute("paging", paging);
+
         return "user/list";
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @GetMapping("/user/view/{id}")
     public String view(
             Model model,
-            @PathVariable("id") Long id,
-            UserDTO userDTO
-    ){
-        User user = userService.view(id);
-        if (user == null){
-            return "redirect:/";
-        }
+            @PathVariable("id") Long id
+    ) {
+        UserResponse user = userService.getUser(id);
         model.addAttribute("user", user);
+
         return "user/view";
     }
 
-    @GetMapping("/user/chuga")
-    public String chuga(
-            Model model,
-            UserDTO userDTO
-    ){
-        return "user/chuga";
-    }
-
-    @GetMapping("/user/sujung/{id}")
-    public String sujung(
+    @PreAuthorize("hasRole('ADMIN')")
+    @GetMapping("/user/update/{id}")
+    public String updatePage(
             Model model,
             @PathVariable("id") Long id
-    ){
-        User user = userService.view(id);
+    ) {
+        UserResponse user = userService.getUser(id);
+
+        UserUpdateRequest request = new UserUpdateRequest();
+        request.setName(user.getName());
+        request.setEmail(user.getEmail());
+
         model.addAttribute("user", user);
-        return "user/sakje";
+        model.addAttribute("request", request);
+
+        return "user/update";
     }
 
-    @PostMapping("/user/chugaProc")
-    public String chugaProc(
-            @Valid UserDTO userDTO,
-            BindingResult bindingResult
-    ){
-        if(bindingResult.hasErrors()){
-            return "user/chuga";
-        }
-
-        if(!userDTO.getPassword().equals(userDTO.getPasswordChk())){
-            bindingResult.rejectValue("passwordChk", "passwordInCorrect",
-                    "2개의 패스워드가 일치하지 않습니다.");
-            return "user/chuga";
-        }
-
-        try{
-            userService.chugaProc(userDTO);
-        } catch (DataIntegrityViolationException e){
-            bindingResult.reject("signupFailed", "이미 등록된 사용자입니다.");
-            return "user/chuga";
+    @PreAuthorize("hasRole('ADMIN')")
+    @PostMapping("/user/update/{id}")
+    public String updateUser(
+            @PathVariable("id") Long id,
+            UserUpdateRequest request,
+            Model model
+    ) {
+        try {
+            userService.updateUser(id, request);
         } catch (Exception e) {
-            bindingResult.reject("chugaFailed", e.getMessage());
-            return "user/chuga";
+            model.addAttribute("errorMessage", e.getMessage());
+            model.addAttribute("request", request);
+            return "user/update";
         }
+
+        return "redirect:/user/view/" + id;
+    }
+
+    @PreAuthorize("hasRole('ADMIN')")
+    @PostMapping("/user/delete/{id}")
+    public String deleteUser(@PathVariable("id") Long id) {
+        userService.deleteUser(id);
         return "redirect:/user/list";
     }
 
-    @PostMapping("/user/sujungProc")
-    public String sujungPorc(
-            UserDTO userDTO
-    )
-    {
-
-        User user = userService.view(userDTO.getId());
-
-        if(user == null){
-            return "redirect:/";
-        }
-
-        userService.sujungProc(userDTO);
-        return "redirect:/User/view/" + userDTO.getId();
+    @PreAuthorize("hasRole('ADMIN')")
+    @PostMapping("/user/role/{id}")
+    public String changeRole(
+            @PathVariable("id") Long id,
+            @RequestParam("role") Role role
+    ) {
+        userService.changeRole(id, role);
+        return "redirect:/user/view/" + id;
     }
 
-    @PostMapping("/user/sakjeProc")
-    public String sakjeProc(
-            UserDTO userDTO
-    ){
-        userService.sakjeProc(userDTO);
-        return "redirect:/user/list";
+    // =========================
+    // API용
+    // =========================
+
+    @ResponseBody
+    @PostMapping("/api/users/register")
+    public Map<String, Object> apiRegister(@RequestBody UserCreateRequest request) {
+        userService.createUser(request);
+
+        Map<String, Object> result = new HashMap<>();
+        result.put("success", true);
+        result.put("message", "회원가입이 완료되었습니다.");
+
+        return result;
     }
 
-    @GetMapping("/user/login")
-    public String login() {
-        return "user/login";
+    @ResponseBody
+    @PostMapping("/api/user/find-id")
+    public Map<String, Object> apiFindId(@RequestBody FindIdRequest request) {
+        String username = userService.findUsername(request.getName(), request.getEmail());
+
+        Map<String, Object> result = new HashMap<>();
+        result.put("success", true);
+        result.put("username", username);
+
+        return result;
+    }
+
+    @ResponseBody
+    @PostMapping("/api/user/reset-password")
+    public Map<String, Object> apiResetPassword(@RequestBody FindPasswordRequest request) {
+        String temporaryPassword = userService.resetPassword(
+                request.getUsername(),
+                request.getEmail()
+        );
+
+        Map<String, Object> result = new HashMap<>();
+        result.put("success", true);
+        result.put("temporaryPassword", temporaryPassword);
+
+        return result;
+    }
+
+    @ResponseBody
+    @PreAuthorize("hasRole('ADMIN')")
+    @GetMapping("/api/users")
+    public Page<UserResponse> apiUsers(
+            @RequestParam(value = "page", defaultValue = "0") int page
+    ) {
+        return userService.getUsers(page);
+    }
+
+    @ResponseBody
+    @PreAuthorize("hasRole('ADMIN')")
+    @GetMapping("/api/users/{id}")
+    public UserResponse apiUser(@PathVariable("id") Long id) {
+        return userService.getUser(id);
+    }
+
+    @ResponseBody
+    @PreAuthorize("hasRole('ADMIN')")
+    @PutMapping("/api/users/{id}")
+    public Map<String, Object> apiUpdate(
+            @PathVariable("id") Long id,
+            @RequestBody UserUpdateRequest request
+    ) {
+        userService.updateUser(id, request);
+
+        Map<String, Object> result = new HashMap<>();
+        result.put("success", true);
+        result.put("message", "회원 정보가 수정되었습니다.");
+
+        return result;
+    }
+
+    @ResponseBody
+    @PreAuthorize("hasRole('ADMIN')")
+    @DeleteMapping("/api/users/{id}")
+    public Map<String, Object> apiDelete(@PathVariable("id") Long id) {
+        userService.deleteUser(id);
+
+        Map<String, Object> result = new HashMap<>();
+        result.put("success", true);
+        result.put("message", "회원이 삭제되었습니다.");
+
+        return result;
+    }
+
+    @ResponseBody
+    @PreAuthorize("hasRole('ADMIN')")
+    @PatchMapping("/api/users/{id}/role")
+    public Map<String, Object> apiChangeRole(
+            @PathVariable("id") Long id,
+            @RequestParam("role") Role role
+    ) {
+        userService.changeRole(id, role);
+
+        Map<String, Object> result = new HashMap<>();
+        result.put("success", true);
+        result.put("message", "권한이 변경되었습니다.");
+
+        return result;
     }
 }

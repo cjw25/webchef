@@ -1,27 +1,36 @@
-//package com.example.fivechef.WebChef.controller;
-//
-//import com.example.fivechef.WebChef.dto.ChatRequestDTO;
-//import com.example.fivechef.WebChef.dto.ChatResponseDTO;
-//import com.example.fivechef.WebChef.service.ChatService;
-//import org.springframework.http.ResponseEntity;
-//import org.springframework.web.bind.annotation.PostMapping;
-//import org.springframework.web.bind.annotation.RequestBody;
-//import org.springframework.web.bind.annotation.RequestMapping;
-//import org.springframework.web.bind.annotation.RestController;
-//
-//@RestController
-//@RequestMapping("/api/chat")
-//public class ChatController {
-//
-//    private final ChatService chatService;
-//
-//    public ChatController(ChatService chatService) {
-//        this.chatService = chatService;
-//    }
-//
-////    @PostMapping("/ask")
-////    public ResponseEntity<ChatResponseDTO> ask(@RequestBody ChatRequestDTO request) {
-////        //String answer = chatService.askToAI(request.getQuestion());
-////        // return ResponseEntity.ok(new ChatResponseDTO(answer))
-////  }
-//}
+package com.example.fivechef.WebChef.controller;
+
+import com.example.fivechef.WebChef.dto.ChatRequest;
+import com.example.fivechef.WebChef.dto.ChatResponse;
+import com.example.fivechef.WebChef.service.ChatService;
+import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.Authentication;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.*;
+
+@RequiredArgsConstructor
+@Controller
+public class ChatController {
+
+    private final ChatService chatService;
+
+    @GetMapping("/chatbot")
+    public String chatbotPage() {
+        return "chatbot/index";
+    }
+
+    @ResponseBody
+    @PostMapping("/api/chatbot/message")
+    public ChatResponse sendMessage(
+            @RequestBody ChatRequest request,
+            Authentication authentication
+    ) {
+        String username = "anonymous";
+
+        if (authentication != null && authentication.isAuthenticated()) {
+            username = authentication.getName();
+        }
+
+        return chatService.ask(request, username);
+    }
+}
