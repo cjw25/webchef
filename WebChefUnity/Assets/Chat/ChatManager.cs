@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using TMPro;
+using UnityEngine.SceneManagement;
 
 public class ChatManager : MonoBehaviour
 {
@@ -14,44 +15,130 @@ public class ChatManager : MonoBehaviour
     public TMP_Text bubbleText;
 
     [Header("채팅 환경 설정")]
-    public float chatDisplayTime = 5f; // 채팅이 화면에 유지될 시간 (5초)
+    public float chatDisplayTime = 5f;
 
     private Coroutine bubbleCoroutine;
-    // 전체 채팅 내역을 저장해둘 리스트
     private List<string> chatHistory = new List<string>();
+
+    public static ChatManager Instance;
+
+    private void Awake()
+    {
+        if (Instance == null)
+        {
+            Instance = this;
+            DontDestroyOnLoad(gameObject);
+            SceneManager.sceneLoaded += OnSceneLoaded;
+        }
+        else
+        {
+            // ★ 중복 방역 핵심: 이미 살아남아 넘어온 진짜 매니저가 있다면, 새로 로드된 방의 가짜 매니저는 자폭합니다.
+            Destroy(gameObject);
+        }
+    }
+
+    private void OnDestroy()
+    {
+        // 싱글톤 본인일 때만 이벤트를 해제하도록 안전장치 추가
+        if (Instance == this)
+        {
+            SceneManager.sceneLoaded -= OnSceneLoaded;
+        }
+    }
+
+    // 새로운 방에 올 때마다 자동으로 UI와 플레이어를 안전하게 재연결합니다.
+    private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
+    {
+        // 만약 내가 진짜 싱글톤 인스턴스가 아니라면 아래 연결 연산을 수행하지 않고 나갑니다.
+        if (Instance != this) return;
+
+        // 1. 방을 이동했으므로 기존 말풍선 UI 상태 리셋
+        if (speechBubbleObject != null) speechBubbleObject.SetActive(false);
+        if (bubbleText != null) bubbleText.text = "";
+
+        // 2. 새 방에 있는 입력창(InputField)을 하이어라키에서 새로 찾아 완벽하게 연결합니다.
+        TMP_InputField newInputField = GameObject.FindObjectOfType<TMP_InputField>(true);
+        if (newInputField != null)
+        {
+            chatInput = newInputField;
+
+            chatInput.onEndEdit.RemoveAllListeners();
+            chatInput.onSubmit.RemoveAllListeners();
+            chatInput.onSubmit.AddListener(OnChatSubmit);
+        }
+
+        // 3. 새 방의 대화창(Text)을 더 안정적으로 추적합니다.
+        TMP_Text[] allTexts = GameObject.FindObjectsOfType<TMP_Text>(true);
+        foreach (TMP_Text t in allTexts)
+        {
+            // 오브젝트 이름에 'Chat'이 포함되어 있고, 캐릭터 머리 위 말풍선 텍스트가 아니라면 진짜 대화창입니다.
+            if (t.gameObject.name.Contains("Chat") && t.gameObject.name != "BubbleText")
+            {
+                chatWindow = t;
+                break;
+            }
+        }
+
+        // 4. 새 방으로 넘어온 진짜 플레이어를 추적해 머리 위 말풍선 연결고리를 새로 고칩니다.
+        RefreshSpeechBubbleReference();
+
+        // 5. 입력창 포커스 리셋
+        ResetFocus();
+    }
 
     void Start()
     {
+        if (Instance != this) return;
+
         if (chatWindow != null) chatWindow.text = "";
         if (speechBubbleObject != null) speechBubbleObject.SetActive(false);
 
-        // [1. 렉 방지 치트키] 시작하자마자 주요 한글을 미리 뇌에 주입해 둡니다.
-        if (chatWindow != null && chatWindow.font != null)
-        {
-            chatWindow.font.HasCharacters("ㄱ<<<ㄲㄴㄷㄸㄹㅁㅂㅃㅅㅆㅇㅈㅉㅊㅋㅌㅍㅎ가나다라마바사아자차카타파하따짜째씁");
-        }
-
         if (chatInput != null)
         {
-            // [2. 중복 방지] 기존에 남아있을 수 있는 리스너를 완전히 청소한 뒤 오직 엔터(onSubmit)만 등록합니다.
             chatInput.onEndEdit.RemoveAllListeners();
             chatInput.onSubmit.RemoveAllListeners();
             chatInput.onSubmit.AddListener(OnChatSubmit);
         }
     }
 
+    void Update()
+    {
+        if (Instance != this) return;
+
+        // 엔터키 입력 처리
+        if (Input.GetKeyDown(KeyCode.Return) || Input.GetKeyDown(KeyCode.KeypadEnter))
+        {
+            if (chatInput != null && !chatInput.isFocused)
+            {
+                StartCoroutine(ActivateChatInputDeferred());
+            }
+        }
+
+        // ESC 입력 처리
+        if (Input.GetKeyDown(KeyCode.Escape))
+        {
+            if (chatInput != null && chatInput.isFocused)
+            {
+                chatInput.text = "";
+                ResetFocus();
+            }
+        }
+    }
+
+    IEnumerator ActivateChatInputDeferred()
+    {
+        yield return null;
+        if (chatInput != null)
+        {
+            chatInput.ActivateInputField();
+        }
+    }
+
     void OnChatSubmit(string text)
     {
-        // 1. 이미 입력창이 비어있거나 공백이면 즉시 무시 (중복 전송 완벽 차단)
         if (string.IsNullOrEmpty(text.Trim())) return;
-
-        // 2. 글을 보내자마자 바로 입력창 내용부터 비워버립니다.
         chatInput.text = "";
-
-        // 3. 진짜 전송 처리는 딱 '한 번'만 진행합니다.
         SendChatMessage(text);
-
-        // 4. 입력창 포커스 해제
         ResetFocus();
     }
 
@@ -59,10 +146,9 @@ public class ChatManager : MonoBehaviour
     {
         string formattedMessage = $"[{senderName}]: {message}";
         chatHistory.Add(formattedMessage);
-
-        // 실시간 매개변수를 넘겨주어 과부하를 최소화합니다.
         UpdateChatWindowText(formattedMessage);
 
+        RefreshSpeechBubbleReference();
         if (speechBubbleObject != null)
         {
             ShowSpeechBubble(message);
@@ -75,10 +161,9 @@ public class ChatManager : MonoBehaviour
     {
         string formattedMessage = $"[일촌]: {message}";
         chatHistory.Add(formattedMessage);
-
-        // [3. 렉 박멸] 전체 리스트를 조립하지 않고 새 메시지만 즉시 덧붙여 연산량을 줄입니다.
         UpdateChatWindowText(formattedMessage);
 
+        RefreshSpeechBubbleReference();
         if (speechBubbleObject != null)
         {
             ShowSpeechBubble(message);
@@ -87,16 +172,30 @@ public class ChatManager : MonoBehaviour
         StartCoroutine(RemoveChatAfterDelay(formattedMessage, chatDisplayTime));
     }
 
-    // 5초 뒤에 특정 채팅을 지워주는 타이머 함수
+    void RefreshSpeechBubbleReference()
+    {
+        GameObject realPlayer = GameObject.FindGameObjectWithTag("Player");
+        if (realPlayer != null)
+        {
+            Canvas[] canvases = realPlayer.GetComponentsInChildren<Canvas>(true);
+            foreach (Canvas canvas in canvases)
+            {
+                if (canvas.name == "SpeechBubbleCanvas")
+                {
+                    speechBubbleObject = canvas.gameObject;
+                    bubbleText = canvas.GetComponentInChildren<TMP_Text>(true);
+                    break;
+                }
+            }
+        }
+    }
+
     IEnumerator RemoveChatAfterDelay(string messageToRemove, float delay)
     {
         yield return new WaitForSeconds(delay);
-
         if (chatHistory.Contains(messageToRemove))
         {
             chatHistory.Remove(messageToRemove);
-
-            // 오래된 글이 지워져서 새로고침할 때만 1회 정렬해 줍니다.
             if (chatWindow != null)
             {
                 chatWindow.text = string.Join("\n", chatHistory);
@@ -104,12 +203,9 @@ public class ChatManager : MonoBehaviour
         }
     }
 
-    // 리스트에 저장된 대화 내용을 최적화하여 화면에 그려주는 함수
     void UpdateChatWindowText(string newEntry)
     {
         if (chatWindow == null) return;
-
-        // 텍스트가 아예 비어있으면 첫 줄로 넣고, 있으면 줄바꿈 후 이어붙여 렉을 없앱니다.
         if (string.IsNullOrEmpty(chatWindow.text))
         {
             chatWindow.text = newEntry;
@@ -117,26 +213,6 @@ public class ChatManager : MonoBehaviour
         else
         {
             chatWindow.text += "\n" + newEntry;
-        }
-    }
-
-    void Update()
-    {
-        if (Input.GetKeyDown(KeyCode.Return) || Input.GetKeyDown(KeyCode.KeypadEnter))
-        {
-            if (chatInput != null && !chatInput.isFocused)
-            {
-                chatInput.ActivateInputField();
-            }
-        }
-
-        if (Input.GetKeyDown(KeyCode.Escape))
-        {
-            if (chatInput != null && chatInput.isFocused)
-            {
-                chatInput.text = "";
-                ResetFocus();
-            }
         }
     }
 
