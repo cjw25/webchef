@@ -1,202 +1,231 @@
 <!DOCTYPE html>
-<html lang="ko">
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
 <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta charset="UTF-8">
     <title>WebChef</title>
-    <link rel="stylesheet" href="./css/main.css" />
+
+    <link rel="stylesheet" href="/css/header.css">
+    <link rel="stylesheet" href="/css/main.css">
 </head>
 <body>
 
-<header class="header">
-    <div class="logo">
-        <img src="/iMg/webchef-icon.svg" alt="WebChef 로고" class="logo-img">
-        <span class="logo-text">WebChef</span>
-    </div>
-    <nav class="nav">
-        <a href="#">강의</a>
-        <a href="#">학습 플랜</a>
-        <a href="#">자취 팁</a>
-        <a href="#">커뮤니티</a>
-    </nav>
-
-    <div class="header-actions">
-        <a href="#" class="login">로그인</a>
-        <a href="#" class="signup">회원가입</a>
-    </div>
-</header>
+<div th:replace="~{fragments/header :: header}"></div>
 
 <main>
-    <section class="hero">
-        <div class="hero-text">
-            <p class="badge">혼자 살아도, 차근차근.</p>
 
-            <h1>
-                오늘의 작은 배움이,<br />
-                내일의 <span>자취 실력</span>이 된다
-            </h1>
+    <section class="hero-section">
+        <div class="hero-inner">
 
-            <p class="hero-desc">
-                요리, 청소, 예산 관리까지.<br />
-                웹셰프와 함께 더 쉽고, 더 똑똑한 자취 생활을 시작하세요.
-            </p>
+            <div class="hero-text">
+                <span class="hero-badge">혼자 살아도, 차근차근.</span>
 
-            <div class="hero-buttons">
-                <a href="#" class="primary-btn">지금 시작하기 <span>→</span></a>
-                <a href="#" class="secondary-btn">강의 둘러보기</a>
-            </div>
-        </div>
+                <h1>
+                    오늘의 작은 배움이,<br>
+                    내일의 <strong>자취 실력</strong>이 된다
+                </h1>
 
-        <div class="hero-preview">
-            <div class="dashboard">
-                <div class="dashboard-header">
-                    <strong>WebChef</strong>
-                    <div class="dashboard-icons">
-                        <span>🔔</span>
-                        <span>👤</span>
-                    </div>
-                </div>
+                <p>
+                    냉장고 속 재료를 입력하면 지금 만들 수 있는 요리와 강의를 추천해드립니다.
+                    요리 강의, 자취 요리 팁, 커뮤니티까지 WebChef에서 한 번에 시작하세요.
+                </p>
 
-                <div class="dashboard-body">
-                    <aside class="side-menu">
-                        <div class="active">⌂ 홈</div>
-                        <div>▣ 내 강의</div>
-                        <div>☑ 학습 플랜</div>
-                        <div>♡ 북마크</div>
-                        <div>◎ 수료증</div>
-                    </aside>
+                <form action="/fridge/search" method="get" class="hero-search-form">
+                    <input type="text" name="keyword" placeholder="냉장고 속 재료를 입력하세요. 예: 계란, 김치, 참치">
+                    <button type="submit">요리 찾기</button>
+                </form>
 
-                    <div class="dashboard-content">
-                        <div class="section-title">
-                            <h3>내 강의</h3>
-                            <a href="#">전체 보기 ›</a>
-                        </div>
-
-                        <div class="mini-cards">
-                            <div class="mini-card">
-                                <div class="mini-img food"></div>
-                                <p>10분 완성 한 끼 요리</p>
-                                <span class="status">진행 중</span>
-                                <div class="progress">
-                                    <div style="width:60%"></div>
-                                </div>
-                                <small>60%</small>
-                            </div>
-
-                            <div class="mini-card">
-                                <div class="mini-img clean"></div>
-                                <p>똑똑한 청소 루틴</p>
-                                <span class="status">진행 중</span>
-                                <div class="progress">
-                                    <div style="width:35%"></div>
-                                </div>
-                                <small>35%</small>
-                            </div>
-
-                            <div class="mini-card">
-                                <div class="mini-img money"></div>
-                                <p>월급 관리 첫걸음</p>
-                                <span class="status light">예정</span>
-                                <div class="progress">
-                                    <div style="width:0%"></div>
-                                </div>
-                                <small>0%</small>
-                            </div>
-                        </div>
-
-                        <div class="goal-box">
-                            <div>
-                                <strong>이번 주 학습 목표</strong>
-                                <p>2 / 3 강의 수강</p>
-                            </div>
-                            <div class="goal-progress">
-                                <div></div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="streak-box">
-                        <p>연속 학습</p>
-                        <strong>🔥 3일</strong>
-                    </div>
+                <div class="hero-buttons">
+                    <a href="/fridge" class="primary-btn">냉장고를 부탁해</a>
+                    <a href="/course/list" class="secondary-btn">강의 둘러보기</a>
                 </div>
             </div>
+
+            <div class="hero-dashboard">
+                <div class="dashboard-card">
+
+                    <div class="dashboard-top">
+                        <div>
+                            <h3>WebChef Dashboard</h3>
+                            <p>오늘도 자취 실력 성장 중</p>
+                        </div>
+                        <span>🔥 3일 연속 학습</span>
+                    </div>
+
+                    <div class="dashboard-body">
+
+                        <aside class="dashboard-menu">
+                            <span class="active">홈</span>
+                            <span>내 강의</span>
+                            <span>학습 플랜</span>
+                            <span>북마크</span>
+                        </aside>
+
+                        <div class="dashboard-content">
+
+                            <div class="dashboard-title">
+                                <h3>내 강의</h3>
+                                <a href="/course/list">전체 보기</a>
+                            </div>
+
+                            <div class="mini-course-list">
+
+                                <div class="mini-course-card">
+                                    <span class="course-status">진행 중</span>
+                                    <h4>10분 완성 한 끼 요리</h4>
+                                    <div class="mini-progress">
+                                        <div style="width: 60%;"></div>
+                                    </div>
+                                    <p>60% 완료</p>
+                                </div>
+
+                                <div class="mini-course-card">
+                                    <span class="course-status">진행 중</span>
+                                    <h4>자취방 청소 루틴</h4>
+                                    <div class="mini-progress">
+                                        <div style="width: 35%;"></div>
+                                    </div>
+                                    <p>35% 완료</p>
+                                </div>
+
+                                <div class="mini-course-card">
+                                    <span class="course-status soon">예정</span>
+                                    <h4>식비 절약 장보기</h4>
+                                    <div class="mini-progress">
+                                        <div style="width: 0%;"></div>
+                                    </div>
+                                    <p>0% 완료</p>
+                                </div>
+
+                            </div>
+
+                            <div class="weekly-goal-box">
+                                <div>
+                                    <h4>이번 주 학습 목표</h4>
+                                    <p>2 / 3 강의 수강 완료</p>
+                                </div>
+
+                                <div class="weekly-progress">
+                                    <div></div>
+                                </div>
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </div>
+            </div>
+
         </div>
     </section>
 
-    <section class="content-section">
-        <div class="left-area">
-            <div class="section-heading">
-                <h2>🔥 이번 주 인기 강의</h2>
-                <a href="#">전체 보기 ›</a>
+    <section class="popular-section">
+        <div class="section-header">
+            <div>
+                <span>POPULAR COURSE</span>
+                <h2>이번 주 인기 강의</h2>
             </div>
-
-            <div class="course-list">
-                <article class="course-card">
-                    <div class="course-img course-food"></div>
-                    <p class="category">요리</p>
-                    <h3>자취생을 위한<br />만능 볶음밥 5가지</h3>
-                    <div class="course-meta">⏱ 12분 · 초급</div>
-                </article>
-
-                <article class="course-card">
-                    <div class="course-img course-room"></div>
-                    <p class="category">생활</p>
-                    <h3>좁은 공간도 깔끔하게,<br />수납 노하우</h3>
-                    <div class="course-meta">⏱ 18분 · 초급</div>
-                </article>
-
-                <article class="course-card">
-                    <div class="course-img course-budget"></div>
-                    <p class="category">재테크</p>
-                    <h3>지출 줄이는<br />고정비 점검법</h3>
-                    <div class="course-meta">⏱ 15분 · 초급</div>
-                </article>
-
-                <article class="course-card">
-                    <div class="course-img course-clean"></div>
-                    <p class="category">청소</p>
-                    <h3>욕실 곰팡이 예방<br />5분 루틴</h3>
-                    <div class="course-meta">⏱ 10분 · 초급</div>
-                </article>
-            </div>
+            <a href="/course/list">전체 보기 ></a>
         </div>
 
-        <div class="right-area">
-            <div class="tip-card">
+        <div class="course-grid">
+
+            <article class="course-card">
+                <div class="course-thumb thumb-one"></div>
+                <div class="course-info">
+                    <span>요리</span>
+                    <h3>자취생을 위한 만능 볶음밥 5가지</h3>
+                    <p>냉장고 속 남은 재료로 간단하게 한 끼를 완성해보세요.</p>
+                </div>
+            </article>
+
+            <article class="course-card">
+                <div class="course-thumb thumb-two"></div>
+                <div class="course-info">
+                    <span>생활</span>
+                    <h3>좁은 공간도 깔끔하게, 수납 노하우</h3>
+                    <p>자취방 공간을 효율적으로 정리하는 방법을 배웁니다.</p>
+                </div>
+            </article>
+
+            <article class="course-card">
+                <div class="course-thumb thumb-three"></div>
+                <div class="course-info">
+                    <span>식비 절약</span>
+                    <h3>일주일 식비 줄이는 장보기 루틴</h3>
+                    <p>필요한 재료만 사고 버리는 음식을 줄이는 현실적인 방법.</p>
+                </div>
+            </article>
+
+            <article class="course-card">
+                <div class="course-thumb thumb-four"></div>
+                <div class="course-info">
+                    <span>청소</span>
+                    <h3>욕실 곰팡이 예방 5분 루틴</h3>
+                    <p>자취방 욕실을 오래 깨끗하게 유지하는 관리 방법.</p>
+                </div>
+            </article>
+
+        </div>
+    </section>
+
+    <section class="recommend-section">
+
+        <div class="tip-card">
+            <div class="card-title">
+                <span>TODAY TIP</span>
                 <h2>오늘의 자취 팁</h2>
-                <div class="tip-content">
-                    <p>
-                        양파를 보관할 땐<br />
-                        신문지에 싸서 통풍이 잘 되는<br />
-                        곳에 두면 더 오래 신선해요.
-                    </p>
-                    <span class="onion">🧅</span>
-                </div>
-                <a href="#">더 많은 팁 보러가기 ›</a>
             </div>
 
-            <div class="study-card">
-                <h2>나의 학습 현황</h2>
-
-                <div class="study-body">
-                    <div class="circle">
-                        <span>67%</span>
-                        <small>전체 progress</small>
-                    </div>
-
-                    <ul>
-                        <li>✅ 완료 강의 <strong>8개</strong></li>
-                        <li>📕 수강 중 강의 <strong>3개</strong></li>
-                        <li>📅 예정 강의 <strong>4개</strong></li>
-                    </ul>
+            <div class="tip-content">
+                <div>
+                    <h3>양파를 오래 보관하려면?</h3>
+                    <p>
+                        양파는 습기에 약하기 때문에 신문지에 싸서 통풍이 잘 되는 곳에 보관하면
+                        더 오래 신선하게 유지할 수 있습니다.
+                    </p>
+                    <a href="/tips/list">자취 팁 보러가기 ></a>
                 </div>
-
-                <a href="#">학습 플랜 보러가기 ›</a>
+                <div class="tip-icon">🧅</div>
             </div>
         </div>
+
+        <div class="study-card">
+            <div class="card-title">
+                <span>MY LEARNING</span>
+                <h2>나의 학습 현황</h2>
+            </div>
+
+            <div class="circle-progress">
+                <strong>67%</strong>
+                <span>전체 진행률</span>
+            </div>
+
+            <ul class="study-list">
+                <li>
+                    <span><em class="green-dot"></em>완료 강의</span>
+                    <strong>8개</strong>
+                </li>
+                <li>
+                    <span><em class="red-dot"></em>수강 중 강의</span>
+                    <strong>3개</strong>
+                </li>
+                <li>
+                    <span><em class="gray-dot"></em>예정 강의</span>
+                    <strong>4개</strong>
+                </li>
+            </ul>
+
+            <a href="/mypage" class="study-link">학습 플랜 보러가기 ></a>
+        </div>
+
     </section>
+
 </main>
+
+<footer class="footer">
+    <p>© 2026 WebChef. 자취생을 위한 요리 학습 플랫폼.</p>
+</footer>
 
 </body>
 </html>

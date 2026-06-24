@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<body>
+
+<header class="site-header" th:fragment="header">
+    <div class="header-inner">
+
+        <div class="logo-area">
+            <a href="/" class="logo-link">
+                <img src="/img/webchef-logo.png" alt="WebChef 로고" class="logo-img">
+            </a>
+        </div>
+
+        <nav class="gnb">
+
+            <!-- 냉장고를 부탁해 -->
+            <div class="gnb-item">
+                <a href="/fridge" class="gnb-link">냉장고를 부탁해</a>
+
+                <div class="mega-menu single">
+                    <div class="mega-inner">
+                        <div class="mega-title-box">
+                            <h3>냉장고를 부탁해</h3>
+                            <p>
+                                냉장고 속 재료를 입력하면<br>
+                                지금 만들 수 있는 요리와 강의를 찾아드립니다.
+                            </p>
+                        </div>
+
+                        <div class="mega-search-box">
+                            <form action="/fridge/search" method="get">
+                                <input type="text" name="keyword" placeholder="예: 계란, 김치, 참치, 양파">
+                                <button type="submit">검색</button>
+                            </form>
+
+                            <div class="keyword-tags">
+                                <a href="/fridge/search?keyword=계란">계란</a>
+                                <a href="/fridge/search?keyword=김치">김치</a>
+                                <a href="/fridge/search?keyword=참치">참치</a>
+                                <a href="/fridge/search?keyword=양파">양파</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 요리 강의 -->
+            <div class="gnb-item">
+                <a href="/course/list" class="gnb-link">요리 강의</a>
+
+                <div class="mega-menu">
+                    <div class="mega-inner">
+
+                        <div class="mega-title-box">
+                            <h3>요리 강의</h3>
+                            <p>
+                                자취생을 위한 단계별 요리 강의를<br>
+                                분류, 난이도, 인기순으로 찾아보세요.
+                            </p>
+                        </div>
+
+                        <div class="mega-column">
+                            <h4>분류</h4>
+                            <a href="/course/list">전체보기</a>
+                            <a href="/course/list?category=KOREAN">한식</a>
+                            <a href="/course/list?category=CHINESE">중식</a>
+                            <a href="/course/list?category=JAPANESE">일식</a>
+                            <a href="/course/list?category=WESTERN">양식</a>
+                            <a href="/course/list?category=DESSERT">간식 / 디저트</a>
+                            <a href="/course/list?category=ETC">기타</a>
+                        </div>
+
+                        <div class="mega-column">
+                            <h4>난이도</h4>
+                            <a href="/course/list?difficulty=EASY">쉬움</a>
+                            <a href="/course/list?difficulty=NORMAL">보통</a>
+                            <a href="/course/list?difficulty=HARD">어려움</a>
+                        </div>
+
+                        <div class="mega-column">
+                            <h4>베스트</h4>
+                            <a href="/course/list?sort=popular">인기 시청 순</a>
+                            <a href="/course/list?sort=search">인기 검색 순</a>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+
+            <!-- 자취 요리 팁 -->
+            <div class="gnb-item">
+                <a href="/tips/list" class="gnb-link">자취 요리 팁</a>
+
+                <div class="mega-menu">
+                    <div class="mega-inner">
+
+                        <div class="mega-title-box">
+                            <h3>자취 요리 팁</h3>
+                            <p>
+                                재료 손질, 보관, 조리도구 관리까지<br>
+                                자취 생활에 필요한 팁을 확인하세요.
+                            </p>
+                        </div>
+
+                        <div class="mega-column">
+                            <h4>팁 카테고리</h4>
+                            <a href="/tips/list">전체보기</a>
+                            <a href="/tips/list?category=INGREDIENT_PREP">재료손질법</a>
+                            <a href="/tips/list?category=INGREDIENT_STORE">재료보관법</a>
+                            <a href="/tips/list?category=TOOL_MANAGE">조리도구 관리법</a>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+
+            <!-- 우리들의 대화 -->
+            <div class="gnb-item">
+                <a href="/community/list" class="gnb-link">우리들의 대화</a>
+
+                <div class="mega-menu">
+                    <div class="mega-inner">
+
+                        <div class="mega-title-box">
+                            <h3>우리들의 대화</h3>
+                            <p>
+                                자취생들이 서로 레시피와 생활 팁을<br>
+                                공유하는 커뮤니티입니다.
+                            </p>
+                        </div>
+
+                        <div class="mega-column">
+                            <h4>커뮤니티</h4>
+                            <a href="/community/list">전체보기</a>
+                            <a href="/community/list?category=RECIPE_TIP">레시피 꿀팁</a>
+                            <a href="/community/list?category=SHOPPING_TIP">장보기 팁</a>
+                            <a href="/community/list?category=TOOL_TIP">간편 조리 도구 팁</a>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+
+            <!-- 고객센터 -->
+            <div class="gnb-item">
+                <a href="/notice/list" class="gnb-link">고객센터</a>
+
+                <div class="mega-menu">
+                    <div class="mega-inner">
+
+                        <div class="mega-title-box">
+                            <h3>고객센터</h3>
+                            <p>
+                                공지사항과 문의사항을 확인하고<br>
+                                필요한 도움을 받아보세요.
+                            </p>
+                        </div>
+
+                        <div class="mega-column">
+                            <h4>고객센터</h4>
+                            <a href="/notice/list">전체보기</a>
+                            <a href="/notice/list">공지사항</a>
+                            <a href="/inquiry/list">1 : 1 문의</a>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+
+        </nav>
+
+        <div class="header-auth">
+            <a href="/user/login" class="login-link">로그인</a>
+            <a href="/user/create" class="join-link">회원가입</a>
+        </div>
+
+    </div>
+</header>
+
+</body>
+</html>
