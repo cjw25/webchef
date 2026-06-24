@@ -612,6 +612,14 @@ PrefabInstance:
       propertyPath: targetDoorName
       value: Door_To_Room1
       objectReference: {fileID: 0}
+    - target: {fileID: 2150794144069831775, guid: 76eaa04675561d948a4bf81839c75665, type: 3}
+      propertyPath: m_Size.y
+      value: 6
+      objectReference: {fileID: 0}
+    - target: {fileID: 2150794144069831775, guid: 76eaa04675561d948a4bf81839c75665, type: 3}
+      propertyPath: m_Offset.y
+      value: 2.5
+      objectReference: {fileID: 0}
     - target: {fileID: 2307622853910778185, guid: 76eaa04675561d948a4bf81839c75665, type: 3}
       propertyPath: m_Name
       value: Door_To_Room2
