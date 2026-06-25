@@ -1,9 +1,11 @@
 using System.Collections;
 using System.Collections.Generic;
+using Unity.Netcode; // ★ 유니티 넷코드 라이브러리 추가
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
-public class RoomManager : MonoBehaviour
+// ★ 멀티플레이어용 서버 씬 관리 및 RPC 통신을 위해 NetworkBehaviour를 상속받습니다.
+public class RoomManager : NetworkBehaviour
 {
     private static RoomManager _instance;
 
@@ -13,7 +15,6 @@ public class RoomManager : MonoBehaviour
         {
             if (_instance == null)
             {
-                // 하이어라키에 혹시 이미 있는지 한 번 더 체크
                 _instance = FindObjectOfType<RoomManager>();
 
                 if (_instance == null)
@@ -32,7 +33,6 @@ public class RoomManager : MonoBehaviour
 
     private void Awake()
     {
-        // 최상위 부모가 없는 상태에서만 DontDestroyOnLoad가 작동하므로 부모 관계를 끊어줍니다.
         transform.SetParent(null);
 
         if (_instance == null)
@@ -46,67 +46,96 @@ public class RoomManager : MonoBehaviour
         }
     }
 
-    // 유니티 공식 씬 로드 완료 이벤트 등록
-    private void OnEnable()
+    public override void OnNetworkSpawn()
     {
-        SceneManager.sceneLoaded += OnSceneLoaded;
+        // 서버인 경우에만 넷코드의 씬 동기화 이벤트에 내 함수를 결합합니다.
+        if (IsServer)
+        {
+            NetworkManager.Singleton.SceneManager.OnLoadComplete += OnMultiplayerSceneLoadComplete;
+        }
     }
 
-    private void OnDisable()
+    public override void OnNetworkDespawn()
     {
-        SceneManager.sceneLoaded -= OnSceneLoaded;
+        if (IsServer && NetworkManager.Singleton != null && NetworkManager.Singleton.SceneManager != null)
+        {
+            NetworkManager.Singleton.SceneManager.OnLoadComplete -= OnMultiplayerSceneLoadComplete;
+        }
     }
 
-    // 씬 로드가 완전히 끝나고 화면이 전환된 '직후'에 실행되는 안전지대 함수
-    private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
+    // ★ [멀티플레이 핵심 기능] 클라이언트가 문을 밟았을 때 서버에게 방 이동을 요청하는 함수
+    public void RequestChangeRoom(string sceneName, string doorName, ulong clientId)
+    {
+        targetDoorName = doorName;
+
+        // 만약 내가 방장(Server)이라면 즉시 씬을 전환합니다.
+        if (IsServer)
+        {
+            NetworkManager.Singleton.SceneManager.LoadScene(sceneName, LoadSceneMode.Single);
+        }
+        else
+        {
+            // 내가 손님(Client)이라면 서버에게 씬을 바꿔달라고 네트워크 원격 요청을 보냅니다.
+            RequestChangeRoomServerRpc(sceneName, doorName, clientId);
+        }
+    }
+
+    // 클라이언트가 호출하면 서버 컴퓨터에서 실행되는 네트워크 안전장치
+    [ServerRpc(RequireOwnership = false)]
+    private void RequestChangeRoomServerRpc(string sceneName, string doorName, ulong clientId)
+    {
+        targetDoorName = doorName;
+        // 서버가 전권을 쥐고 모든 클라이언트의 씬을 동기화하여 전환시킵니다.
+        NetworkManager.Singleton.SceneManager.LoadScene(sceneName, LoadSceneMode.Single);
+    }
+
+    // ★ [멀티플레이 핵심 개조] 씬 로드가 끝난 후 서버가 플레이어들의 위치를 정밀 동기화시키는 함수
+    private void OnMultiplayerSceneLoadComplete(ulong clientId, string sceneName, LoadSceneMode loadSceneMode)
     {
         if (string.IsNullOrEmpty(targetDoorName)) return;
 
-        // 다음 방에 배치된 타겟 문 오브젝트를 찾습니다.
+        // 새 방에서 목적지 문을 정확하게 찾아냅니다.
         GameObject targetDoor = GameObject.Find(targetDoorName);
 
         if (targetDoor != null)
         {
-            // 방에 존재하고 있는 플레이어를 태그나 컴포넌트로 정확히 찾아옵니다.
-            GameObject player = GameObject.FindWithTag("Player");
-            if (player == null) player = FindObjectOfType<PlayerMove>()?.gameObject;
+            // 방에 진입한 특정 '클라이언트 ID'를 가진 플레이어 오브젝트만 쏙 골라내어 조준합니다.
+            NetworkObject playerNetObj = NetworkManager.Singleton.ConnectedClients[clientId].PlayerObject;
 
-            if (player != null)
+            if (playerNetObj != null)
             {
-                // ★ [파고듦 및 백턴 원천 차단 핵심 연산]
-                // 1. 플레이어의 물리 엔진을 순간적으로 잠재웁니다.
-                Rigidbody2D playerRb = player.GetComponent<Rigidbody2D>();
-                Collider2D playerCol = player.GetComponent<Collider2D>();
+                // 1. 해당 플레이어의 물리와 스크립트를 정지시킵니다.
+                Rigidbody2D playerRb = playerNetObj.GetComponent<Rigidbody2D>();
+                Collider2D playerCol = playerNetObj.GetComponent<Collider2D>();
+                PlayerMove playerMove = playerNetObj.GetComponent<PlayerMove>();
 
                 if (playerRb != null) { playerRb.velocity = Vector2.zero; playerRb.simulated = false; }
                 if (playerCol != null) playerCol.enabled = false;
+                if (playerMove != null) playerMove.enabled = false;
 
-                // 2. 매니저(나 자신)가 아니라 '플레이어'의 위치를 문의 살짝 아래 안전 구역으로 강제 이동시킵니다!
+                // 2. 문의 살짝 아래 안전 구역 스폰 좌표 계산
                 Vector3 spawnPosition = targetDoor.transform.position + (Vector3.down * 1.5f);
-                player.transform.position = spawnPosition;
 
-                // 3. 물리적 잔상 버그가 세척되도록 1프레임 뒤에 콜라이더를 켜주는 코루틴 실행
-                StartCoroutine(SafeActivationRoutine(playerRb, playerCol));
+                // 3. 서버가 강제로 해당 플레이어의 트랜스폼 위치를 덮어씌워 20명 화면 전체에 동기화합니다.
+                playerNetObj.transform.position = spawnPosition;
+
+                // 4. 네트워크 오차를 세척하기 위해 코루틴으로 안전하게 깨웁니다.
+                StartCoroutine(SafeActivationRoutineMultiplayer(playerRb, playerCol, playerMove));
             }
         }
     }
 
-    private IEnumerator SafeActivationRoutine(Rigidbody2D rb, Collider2D col)
+    private IEnumerator SafeActivationRoutineMultiplayer(Rigidbody2D rb, Collider2D col, PlayerMove move)
     {
-        // 새로운 씬의 물리 좌표가 완벽하게 동기화될 때까지 정밀 대기
+        // 전 세계 인터넷 가속도가 완벽히 좌표를 인지할 때까지 1프레임 대기
         yield return new WaitForEndOfFrame();
 
-        // 이제 문 충돌 영역을 완벽하게 벗어났으므로 안전하게 플레이어를 깨웁니다.
+        // 안전 구역에 안착했으므로 물리, 콜라이더, 스크립트를 다시 가동합니다.
         if (rb != null) rb.simulated = true;
         if (col != null) col.enabled = true;
+        if (move != null) move.enabled = true;
 
-        // 이동이 완전히 끝났으므로 목적지 데이터 초기화
+        // 목적지 데이터 초기화
         targetDoorName = "";
-    }
-
-    public void ChangeRoom(string sceneName, string doorName)
-    {
-        targetDoorName = doorName;
-        SceneManager.LoadScene(sceneName);
     }
 }

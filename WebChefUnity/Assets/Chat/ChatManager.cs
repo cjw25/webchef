@@ -3,21 +3,18 @@ using System.Collections.Generic;
 using UnityEngine;
 using TMPro;
 using UnityEngine.SceneManagement;
+using Unity.Netcode; // ★ 유니티 넷코드 라이브러리 추가
 
-public class ChatManager : MonoBehaviour
+// ★ 멀티플레이어 통신(RPC)을 위해 NetworkBehaviour를 상속받습니다.
+public class ChatManager : NetworkBehaviour
 {
     [Header("전체 채팅창 UI")]
     public TMP_InputField chatInput;
     public TMP_Text chatWindow;
 
-    [Header("캐릭터 머리 위 말풍선 UI")]
-    public GameObject speechBubbleObject;
-    public TMP_Text bubbleText;
-
     [Header("채팅 환경 설정")]
     public float chatDisplayTime = 5f;
 
-    private Coroutine bubbleCoroutine;
     private List<string> chatHistory = new List<string>();
 
     public static ChatManager Instance;
@@ -32,46 +29,39 @@ public class ChatManager : MonoBehaviour
         }
         else
         {
-            // ★ 중복 방역 핵심: 이미 살아남아 넘어온 진짜 매니저가 있다면, 새로 로드된 방의 가짜 매니저는 자폭합니다.
             Destroy(gameObject);
         }
     }
 
-    private void OnDestroy()
+    public override void OnDestroy()
     {
-        // 싱글톤 본인일 때만 이벤트를 해제하도록 안전장치 추가
+        // 넷코드 자체의 내장 OnDestroy 시스템을 먼저 한 번 실행해 주는 안전장치
+        base.OnDestroy();
+
         if (Instance == this)
         {
             SceneManager.sceneLoaded -= OnSceneLoaded;
         }
     }
 
-    // 새로운 방에 올 때마다 자동으로 UI와 플레이어를 안전하게 재연결합니다.
     private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
     {
-        // 만약 내가 진짜 싱글톤 인스턴스가 아니라면 아래 연결 연산을 수행하지 않고 나갑니다.
         if (Instance != this) return;
 
-        // 1. 방을 이동했으므로 기존 말풍선 UI 상태 리셋
-        if (speechBubbleObject != null) speechBubbleObject.SetActive(false);
-        if (bubbleText != null) bubbleText.text = "";
-
-        // 2. 새 방에 있는 입력창(InputField)을 하이어라키에서 새로 찾아 완벽하게 연결합니다.
+        // 1. 새 방에 있는 입력창(InputField)을 새로 찾아 완벽하게 연결합니다.
         TMP_InputField newInputField = GameObject.FindObjectOfType<TMP_InputField>(true);
         if (newInputField != null)
         {
             chatInput = newInputField;
-
             chatInput.onEndEdit.RemoveAllListeners();
             chatInput.onSubmit.RemoveAllListeners();
             chatInput.onSubmit.AddListener(OnChatSubmit);
         }
 
-        // 3. 새 방의 대화창(Text)을 더 안정적으로 추적합니다.
+        // 2. 새 방의 대화창(Text)을 자동으로 새로 고칩니다.
         TMP_Text[] allTexts = GameObject.FindObjectsOfType<TMP_Text>(true);
         foreach (TMP_Text t in allTexts)
         {
-            // 오브젝트 이름에 'Chat'이 포함되어 있고, 캐릭터 머리 위 말풍선 텍스트가 아니라면 진짜 대화창입니다.
             if (t.gameObject.name.Contains("Chat") && t.gameObject.name != "BubbleText")
             {
                 chatWindow = t;
@@ -79,19 +69,13 @@ public class ChatManager : MonoBehaviour
             }
         }
 
-        // 4. 새 방으로 넘어온 진짜 플레이어를 추적해 머리 위 말풍선 연결고리를 새로 고칩니다.
-        RefreshSpeechBubbleReference();
-
-        // 5. 입력창 포커스 리셋
         ResetFocus();
     }
 
     void Start()
     {
         if (Instance != this) return;
-
         if (chatWindow != null) chatWindow.text = "";
-        if (speechBubbleObject != null) speechBubbleObject.SetActive(false);
 
         if (chatInput != null)
         {
@@ -105,7 +89,6 @@ public class ChatManager : MonoBehaviour
     {
         if (Instance != this) return;
 
-        // 엔터키 입력 처리
         if (Input.GetKeyDown(KeyCode.Return) || Input.GetKeyDown(KeyCode.KeypadEnter))
         {
             if (chatInput != null && !chatInput.isFocused)
@@ -114,7 +97,6 @@ public class ChatManager : MonoBehaviour
             }
         }
 
-        // ESC 입력 처리
         if (Input.GetKeyDown(KeyCode.Escape))
         {
             if (chatInput != null && chatInput.isFocused)
@@ -128,66 +110,74 @@ public class ChatManager : MonoBehaviour
     IEnumerator ActivateChatInputDeferred()
     {
         yield return null;
-        if (chatInput != null)
-        {
-            chatInput.ActivateInputField();
-        }
+        if (chatInput != null) chatInput.ActivateInputField();
     }
 
     void OnChatSubmit(string text)
     {
         if (string.IsNullOrEmpty(text.Trim())) return;
         chatInput.text = "";
-        SendChatMessage(text);
+
+        // ★ [멀티플레이 개조] 내가 쓴 글을 내 화면에 바로 띄우지 않고 서버(RPC)로 전송합니다.
+        // 유저 이름 대신 넷코드 고유의 ClientId를 함께 전달합니다.
+        ulong myClientId = NetworkManager.Singleton.LocalClientId;
+        SendChatMessageServerRpc(myClientId, text);
+
         ResetFocus();
     }
 
-    public void OnReceiveChatMessage(string senderName, string message)
+    // ★ [멀티플레이 핵심 - ServerRpc] 
+    // 클라이언트가 엔터를 치면 이 함수를 통해 서버 컴퓨터로 채팅 데이터가 먼저 수집됩니다.
+    [ServerRpc(RequireOwnership = false)]
+    private void SendChatMessageServerRpc(ulong senderClientId, string message)
     {
-        string formattedMessage = $"[{senderName}]: {message}";
+        // 서버가 전 세계 20명의 유저(Client)들에게 이 채팅 내용을 똑같이 뿌려줍니다.
+        ReceiveChatMessageClientRpc(senderClientId, message);
+    }
+
+    // ★ [멀티플레이 핵심 - ClientRpc]
+    // 서버가 신호를 주면 방에 있는 20명 플레이어들의 컴퓨터에서 동시에 이 함수가 실행됩니다.
+    [ClientRpc]
+    private void ReceiveChatMessageClientRpc(ulong senderClientId, string message)
+    {
+        // 1. 전체 채팅창 UI 갱신 연산
+        string formattedMessage = $"[유저 {senderClientId}]: {message}";
         chatHistory.Add(formattedMessage);
         UpdateChatWindowText(formattedMessage);
 
-        RefreshSpeechBubbleReference();
-        if (speechBubbleObject != null)
+        // 2. ★ [가장 중요] 방 안의 모든 플레이어 중 "진짜 이 채팅을 친 주인"을 정확하게 조준합니다.
+        foreach (PlayerMove player in GameObject.FindObjectsOfType<PlayerMove>())
         {
-            ShowSpeechBubble(message);
-        }
-
-        StartCoroutine(RemoveChatAfterDelay(formattedMessage, chatDisplayTime));
-    }
-
-    void SendChatMessage(string message)
-    {
-        string formattedMessage = $"[일촌]: {message}";
-        chatHistory.Add(formattedMessage);
-        UpdateChatWindowText(formattedMessage);
-
-        RefreshSpeechBubbleReference();
-        if (speechBubbleObject != null)
-        {
-            ShowSpeechBubble(message);
-        }
-
-        StartCoroutine(RemoveChatAfterDelay(formattedMessage, chatDisplayTime));
-    }
-
-    void RefreshSpeechBubbleReference()
-    {
-        GameObject realPlayer = GameObject.FindGameObjectWithTag("Player");
-        if (realPlayer != null)
-        {
-            Canvas[] canvases = realPlayer.GetComponentsInChildren<Canvas>(true);
-            foreach (Canvas canvas in canvases)
+            NetworkObject netObj = player.GetComponent<NetworkObject>();
+            // 넷코드 ID 검증을 거쳐 일치하는 타겟을 정밀 타격합니다.
+            if (netObj != null && netObj.OwnerClientId == senderClientId)
             {
-                if (canvas.name == "SpeechBubbleCanvas")
+                // 해당 플레이어 머리 위에 붙어있는 말풍선 캔버스를 찾습니다.
+                Canvas[] canvases = player.GetComponentsInChildren<Canvas>(true);
+                foreach (Canvas canvas in canvases)
                 {
-                    speechBubbleObject = canvas.gameObject;
-                    bubbleText = canvas.GetComponentInChildren<TMP_Text>(true);
-                    break;
+                    if (canvas.name == "SpeechBubbleCanvas")
+                    {
+                        GameObject bubbleObj = canvas.gameObject;
+                        TMP_Text bText = canvas.GetComponentInChildren<TMP_Text>(true);
+
+                        if (bText != null) bText.text = message;
+                        if (bubbleObj != null)
+                        {
+                            bubbleObj.SetActive(true);
+                            // 이전 타이머 코루틴이 돌고 있다면 정지 연산 처리 후 새로 구동
+                            ChatBubbleTimeout timeoutScript = bubbleObj.GetComponent<ChatBubbleTimeout>();
+                            if (timeoutScript == null) timeoutScript = bubbleObj.AddComponent<ChatBubbleTimeout>();
+                            timeoutScript.TriggerHide(3f);
+                        }
+                        break;
+                    }
                 }
+                break;
             }
         }
+
+        StartCoroutine(RemoveChatAfterDelay(formattedMessage, chatDisplayTime));
     }
 
     IEnumerator RemoveChatAfterDelay(string messageToRemove, float delay)
@@ -206,14 +196,8 @@ public class ChatManager : MonoBehaviour
     void UpdateChatWindowText(string newEntry)
     {
         if (chatWindow == null) return;
-        if (string.IsNullOrEmpty(chatWindow.text))
-        {
-            chatWindow.text = newEntry;
-        }
-        else
-        {
-            chatWindow.text += "\n" + newEntry;
-        }
+        if (string.IsNullOrEmpty(chatWindow.text)) chatWindow.text = newEntry;
+        else chatWindow.text += "\n" + newEntry;
     }
 
     void ResetFocus()
@@ -230,18 +214,22 @@ public class ChatManager : MonoBehaviour
         if (chatInput == null) return false;
         return chatInput.isFocused;
     }
+}
 
-    void ShowSpeechBubble(string message)
+// ★ 멀티플레이어 말풍선 개별 타이머 소멸 처리를 위한 도우미 클래스
+public class ChatBubbleTimeout : MonoBehaviour
+{
+    private Coroutine currentCoroutine;
+
+    public void TriggerHide(float delay)
     {
-        if (bubbleCoroutine != null) StopCoroutine(bubbleCoroutine);
-        if (bubbleText != null) bubbleText.text = message;
-        if (speechBubbleObject != null) speechBubbleObject.SetActive(true);
-        bubbleCoroutine = StartCoroutine(HideBubbleAfterDelay(3f));
+        if (currentCoroutine != null) StopCoroutine(currentCoroutine);
+        currentCoroutine = StartCoroutine(HideRoutine(delay));
     }
 
-    IEnumerator HideBubbleAfterDelay(float delay)
+    private IEnumerator HideRoutine(float delay)
     {
         yield return new WaitForSeconds(delay);
-        if (speechBubbleObject != null) speechBubbleObject.SetActive(false);
+        gameObject.SetActive(false);
     }
 }

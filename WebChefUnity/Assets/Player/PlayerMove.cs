@@ -1,9 +1,11 @@
 using System.Collections;
 using System.Collections.Generic;
+using Unity.Netcode; // ★ 멀티플레이를 위해 반드시 추가해야 합니다!
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
-public class PlayerMove : MonoBehaviour
+// ★ MonoBehaviour 대신 NetworkBehaviour를 상속받아야 네트워크 연산이 가능합니다.
+public class PlayerMove : NetworkBehaviour
 {
     [Header("이동 설정")]
     public float moveSpeed = 5f;
@@ -12,35 +14,20 @@ public class PlayerMove : MonoBehaviour
     private Collider2D playerCollider;
     private Vector2 moveInput;
 
-    // ★ [통과 차단 핵심] 문에 비비면서 위로 파고드는 것을 막는 상태 플래그
+    // ★ 문에 비비면서 위로 파고드는 것을 막는 상태 플래그 (멀티에서도 그대로 유지)
     private bool isFrozen = false;
 
+    // 싱글톤(Instance)은 내 화면의 '나 자신(LocalPlayer)'을 쉽게 찾기 위한 용도로만 재정의합니다.
     public static PlayerMove Instance;
 
     private void Awake()
     {
-        if (Instance == null)
-        {
-            Instance = this;
-            DontDestroyOnLoad(gameObject);
-            SceneManager.sceneLoaded += HandleNewSceneSetup;
-        }
-        else
-        {
-            Destroy(gameObject);
-            return;
-        }
+        // 멀티플레이어는 오브젝트가 여러 개 생성되므로 Awake에서 DontDestroyOnLoad를 성급히 걸지 않고,
+        // OnNetworkSpawn(네트워크에 본인이 등록될 때)에서 내 캐릭터인 경우에만 초기화하도록 변경합니다.
     }
 
-    private void OnDestroy()
-    {
-        if (Instance == this)
-        {
-            SceneManager.sceneLoaded -= HandleNewSceneSetup;
-        }
-    }
-
-    void Start()
+    // ★ [멀티플레이 핵심] 서버/클라이언트 네트워크에 이 캐릭터가 탄생할 때 실행되는 함수
+    public override void OnNetworkSpawn()
     {
         rb = GetComponent<Rigidbody2D>();
         playerCollider = GetComponent<Collider2D>();
@@ -51,13 +38,38 @@ public class PlayerMove : MonoBehaviour
             rb.constraints = RigidbodyConstraints2D.FreezeRotation;
         }
 
-        isFrozen = false; // 시작 시 이동 제한 초기화
-        ExecuteTeleportProcess();
+        isFrozen = false;
+
+        // 내 컴퓨터가 조종하는 '내 캐릭터'일 때만 작동하는 규칙
+        if (IsOwner)
+        {
+            Instance = this;
+            DontDestroyOnLoad(gameObject);
+            SceneManager.sceneLoaded += HandleNewSceneSetup;
+
+            ExecuteTeleportProcess();
+        }
+        else
+        {
+            // ★ 타인의 캐릭터라면 내 화면에서 물리 충돌 연산이 엉키지 않도록 리지드바디 물리 시뮬레이션을 잠시 꺼둡니다.
+            // 타인 캐릭터의 위치는 Netcode(NetworkTransform 등)가 서버를 통해 자동으로 움직여줍니다.
+            if (rb != null) rb.simulated = false;
+        }
     }
 
-    // ★ [문 스크립트 전용 연동 함수] 문에 닿는 그 한 프레임에 손발을 완전히 묶어버립니다.
+    public override void OnNetworkDespawn()
+    {
+        if (IsOwner)
+        {
+            SceneManager.sceneLoaded -= HandleNewSceneSetup;
+        }
+    }
+
+    // ★ [문 스크립트 전용 연동 함수] 문에 닿는 그 한 프레임에 손발을 완전히 묶어버립니다. (내 캐릭터만)
     public void FreezeMovement()
     {
+        if (!IsOwner) return;
+
         isFrozen = true;
         moveInput = Vector2.zero;
         if (rb != null)
@@ -69,7 +81,7 @@ public class PlayerMove : MonoBehaviour
 
     private void HandleNewSceneSetup(Scene scene, LoadSceneMode mode)
     {
-        if (Instance != this) return;
+        if (!IsOwner) return;
 
         // ★ 문에서 꺼버린 나 자신(스크립트)을 새 방에 왔으니 다시 깨웁니다!
         this.enabled = true;
@@ -130,6 +142,9 @@ public class PlayerMove : MonoBehaviour
 
     void Update()
     {
+        // ★ [멀티 핵심] 내가 소유한 내 캐릭터가 아니라면 키보드 입력을 완전히 무시합니다.
+        if (!IsOwner) return;
+
         // ★ 마비 상태이거나 채팅 창 입력 중이면 모든 키보드 입력을 차단하고 정지시킵니다.
         if (isFrozen || (ChatManager.Instance != null && ChatManager.Instance.IsTyping()))
         {
@@ -149,8 +164,8 @@ public class PlayerMove : MonoBehaviour
 
     void FixedUpdate()
     {
-        // ★ 얼어붙은 상태가 아닐 때만 물리적 가속도를 부여합니다.
-        if (!isFrozen && rb != null && rb.simulated)
+        // ★ 내가 조종하는 캐릭터이면서, 얼어붙은 상태가 아닐 때만 물리적 가속도를 부여합니다.
+        if (IsOwner && !isFrozen && rb != null && rb.simulated)
         {
             rb.velocity = moveInput * moveSpeed;
         }
