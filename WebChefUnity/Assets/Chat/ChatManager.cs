@@ -74,6 +74,7 @@ public class ChatManager : NetworkBehaviour
 
     void Start()
     {
+
         if (Instance != this) return;
         if (chatWindow != null) chatWindow.text = "";
 
