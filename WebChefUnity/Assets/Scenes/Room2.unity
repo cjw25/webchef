@@ -152,11 +152,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4440319073067699987, guid: 76eaa04675561d948a4bf81839c75665, type: 3}
       propertyPath: m_LocalPosition.x
-      value: 6.985603
+      value: 5.23
       objectReference: {fileID: 0}
     - target: {fileID: 4440319073067699987, guid: 76eaa04675561d948a4bf81839c75665, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 3.6979651
+      value: 2.66
       objectReference: {fileID: 0}
     - target: {fileID: 4440319073067699987, guid: 76eaa04675561d948a4bf81839c75665, type: 3}
       propertyPath: m_LocalPosition.z
@@ -190,6 +190,22 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 6741084189497356584, guid: 76eaa04675561d948a4bf81839c75665, type: 3}
+      propertyPath: nextSceneName
+      value: Room1
+      objectReference: {fileID: 0}
+    - target: {fileID: 6741084189497356584, guid: 76eaa04675561d948a4bf81839c75665, type: 3}
+      propertyPath: spawnDirection
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 6741084189497356584, guid: 76eaa04675561d948a4bf81839c75665, type: 3}
+      propertyPath: targetDoorName
+      value: Door_To_Room2
+      objectReference: {fileID: 0}
+    - target: {fileID: 6741084189497356584, guid: 76eaa04675561d948a4bf81839c75665, type: 3}
+      propertyPath: spawnOffsetAmount
+      value: -1.5
+      objectReference: {fileID: 0}
     - target: {fileID: 7618319313827253099, guid: 76eaa04675561d948a4bf81839c75665, type: 3}
       propertyPath: GlobalObjectIdHash
       value: 2686364537
@@ -198,30 +214,8 @@ PrefabInstance:
     - {fileID: 1802613832973547313, guid: 76eaa04675561d948a4bf81839c75665, type: 3}
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents:
-    - targetCorrespondingSourceObject: {fileID: 2307622853910778185, guid: 76eaa04675561d948a4bf81839c75665, type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 244442752}
+    m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 76eaa04675561d948a4bf81839c75665, type: 3}
---- !u!1 &244442751 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: 2307622853910778185, guid: 76eaa04675561d948a4bf81839c75665, type: 3}
-  m_PrefabInstance: {fileID: 244442750}
-  m_PrefabAsset: {fileID: 0}
---- !u!114 &244442752
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 244442751}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 4279629ce20837647aedaa612ef7f25c, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  nextSceneName: Room
-  targetDoorName: Door_To_Room2
 --- !u!1 &1222076286
 GameObject:
   m_ObjectHideFlags: 0
@@ -447,6 +441,10 @@ PrefabInstance:
     - target: {fileID: 6353993582777852003, guid: 75d9a281da7defd4b8e333d21cabd088, type: 3}
       propertyPath: GlobalObjectIdHash
       value: 3205290260
+      objectReference: {fileID: 0}
+    - target: {fileID: 6353993582777852003, guid: 75d9a281da7defd4b8e333d21cabd088, type: 3}
+      propertyPath: InScenePlacedSourceGlobalObjectIdHash
+      value: 3569520476
       objectReference: {fileID: 0}
     - target: {fileID: 6564974102688261394, guid: 75d9a281da7defd4b8e333d21cabd088, type: 3}
       propertyPath: m_Name

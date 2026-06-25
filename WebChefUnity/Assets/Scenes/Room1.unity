@@ -725,6 +725,10 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 6741084189497356584, guid: 76eaa04675561d948a4bf81839c75665, type: 3}
+      propertyPath: spawnOffsetAmount
+      value: -1.5
+      objectReference: {fileID: 0}
     - target: {fileID: 7751993900877931996, guid: 76eaa04675561d948a4bf81839c75665, type: 3}
       propertyPath: m_Name
       value: Room Manager
