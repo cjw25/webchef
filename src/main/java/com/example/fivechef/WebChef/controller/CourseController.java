@@ -22,7 +22,8 @@ public class CourseController {
 
     private final CourseService courseService;
 
-    @GetMapping("/list")
+    // 강의 목록 페이지
+    @GetMapping({"", "/list"})
     public String courseList(
             @RequestParam(required = false) CourseCategory category,
             @RequestParam(required = false) CourseDifficulty difficulty,
@@ -41,6 +42,7 @@ public class CourseController {
             courseList = courseService.getOpenCourseList();
         }
 
+        model.addAttribute("viewMode", "list");
         model.addAttribute("courseList", courseList);
         model.addAttribute("categories", CourseCategory.values());
         model.addAttribute("difficulties", CourseDifficulty.values());
@@ -48,9 +50,10 @@ public class CourseController {
         model.addAttribute("selectedDifficulty", difficulty);
         model.addAttribute("keyword", keyword);
 
-        return "course/course-list";
+        return "course";
     }
 
+    // 강의 상세
     @GetMapping("/{courseId}")
     public String courseDetail(
             @PathVariable Long courseId,
@@ -58,21 +61,25 @@ public class CourseController {
     ) {
         CourseDetailResponse course = courseService.getCourseDetail(courseId);
 
+        model.addAttribute("viewMode", "detail");
         model.addAttribute("course", course);
 
-        return "course/course-detail";
+        return "course";
     }
 
+    // 강의 등록 화면
     @GetMapping("/create")
     public String courseCreateForm(Model model) {
+        model.addAttribute("viewMode", "create");
         model.addAttribute("courseCreateRequest", new CourseCreateRequest());
         model.addAttribute("categories", CourseCategory.values());
         model.addAttribute("difficulties", CourseDifficulty.values());
         model.addAttribute("statuses", CourseStatus.values());
 
-        return "course/course-create";
+        return "course";
     }
 
+    // 강의 등록 처리
     @PostMapping("/create")
     public String createCourse(
             @ModelAttribute CourseCreateRequest request
@@ -82,6 +89,7 @@ public class CourseController {
         return "redirect:/course/" + courseId;
     }
 
+    // 강의 수정 화면
     @GetMapping("/{courseId}/edit")
     public String courseEditForm(
             @PathVariable Long courseId,
@@ -100,15 +108,17 @@ public class CourseController {
         request.setDifficulty(course.getDifficulty());
         request.setStatus(course.getStatus());
 
+        model.addAttribute("viewMode", "edit");
         model.addAttribute("courseId", courseId);
         model.addAttribute("courseUpdateRequest", request);
         model.addAttribute("categories", CourseCategory.values());
         model.addAttribute("difficulties", CourseDifficulty.values());
         model.addAttribute("statuses", CourseStatus.values());
 
-        return "course/course-edit";
+        return "course";
     }
 
+    // 강의 수정 처리
     @PostMapping("/{courseId}/edit")
     public String updateCourse(
             @PathVariable Long courseId,
@@ -119,6 +129,7 @@ public class CourseController {
         return "redirect:/course/" + courseId;
     }
 
+    // 강의 삭제 처리
     @PostMapping("/{courseId}/delete")
     public String deleteCourse(
             @PathVariable Long courseId
