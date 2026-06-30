@@ -151,3 +151,46 @@ a {
 .list4:hover {
   background-color: #FFE3E3;
 }
+
+.cook-box {
+  display: flex;
+  padding: 0px 100px;
+  justify-content: space-between;
+}
+
+.box-container {
+  display: flex;
+  flex-direction: column;
+}
+
+.food-img {
+  width: 350px;
+  height: 350px;
+}
+
+.box-line {
+  width: 350px;
+  height: 20px;
+  background: #C70000;
+  margin-top: -3px;
+}
+
+.skills-box {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px 0px;
+}
+
+.tag-level {
+  background: #DADADA;
+  padding: 8px 20px;
+  border-radius: 30px;
+}
+
+.tag-time {
+  background: #C2C2C2;
+  padding: 8px 20px;
+  border-radius: 30px;
+}
+
