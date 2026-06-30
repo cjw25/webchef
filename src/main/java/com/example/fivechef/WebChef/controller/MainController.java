@@ -23,4 +23,9 @@ public class MainController {
 
         return "index";
     }
+
+    @GetMapping("/community")
+    public String Page(Model model) {
+        return "community";
+    }
 }
