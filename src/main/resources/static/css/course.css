@@ -29,15 +29,125 @@ a {
 }
 
 .category {
+  display: flex;
   flex-direction: column;
   padding: 50px 100px;
-  gap: 50px;
+  gap: 25px;
 }
 
 .category1 {
-  display: inline-block;
-  border: 3px solid #9962e0;
+  width: 750px;
+  border: 3px solid #FFC3C3;
+  border-radius: 5px;
+  padding : 20px;
+}
+
+.all {
+  padding : 12px 20px;
+  background : #FFC3C3;
+  border-radius: 5px;
+  }
+
+.korean
+{padding : 0px 20px;}
+
+.chinese
+{padding : 0px 20px;}
+
+.japanese
+{padding : 0px 20px;}
+
+.western
+{padding : 0px 20px;}
+
+.dessert
+{padding : 0px 20px;}
+
+.etc
+{padding : 0px 20px;}
+
+.category2 {
+  width: 750px;
+  border: 3px solid #FF8686;
+  border-radius: 5px;
+  padding : 20px;
+}
+
+.level {
+  padding : 12px 20px;
+  background : #FF8686;
   border-radius: 5px;
 }
 
+.easy
+{padding : 0px 20px;}
 
+.normal
+{padding : 0px 20px;}
+
+.hard
+{padding : 0px 20px;}
+
+.category3 {
+  width: 750px;
+  border: 3px solid #FF6B6B;
+  border-radius: 5px;
+  padding : 20px;
+}
+
+.best {
+  padding : 12px 20px;
+  background : #FF6B6B;
+  border-radius: 5px;
+}
+
+.watch
+{padding : 0px 20px;}
+
+.search
+{padding : 0px 20px;}
+
+.intro {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 40px 100px;
+}
+
+
+.title strong {
+  color: #C70000;
+}
+
+.list1 {
+  border: 3px solid #C7C7C7;
+  padding: 10px 20px;
+}
+
+.list2 {
+  border: 3px solid #C7C7C7;
+  padding: 10px 20px;
+}
+
+.list3 {
+  border: 3px solid #C7C7C7;
+  padding: 10px 20px;
+}
+
+.list4 {
+  border: 3px solid #C7C7C7;
+  padding: 10px 20px;
+}
+
+.list1:hover {
+  background-color: #FFE3E3;
+}
+.list2:hover {
+  background-color: #FFE3E3;
+}
+.list3:hover {
+  background-color: #FFE3E3;
+}
+.list4:hover {
+  background-color: #FFE3E3;
+}
