@@ -154,9 +154,21 @@ a {
 
 .cook-box {
   display: flex;
-  padding: 0px 100px;
+  padding: 50px 100px;
   justify-content: space-between;
 }
+
+/*.cook-box2 {
+  display: flex;
+  padding: 10px 100px;
+  justify-content: space-between;
+}
+
+.cook-box3 {
+  display: flex;
+  padding: 50px 100px;
+  justify-content: space-between;
+}*/
 
 .box-container {
   display: flex;
@@ -179,12 +191,14 @@ a {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  font-size: 15px;
+  font-weight: bold;
   padding: 20px 0px;
 }
 
 .tag-level {
   background: #DADADA;
-  padding: 8px 20px;
+  padding: 8px 25px;
   border-radius: 30px;
 }
 
@@ -192,5 +206,10 @@ a {
   background: #C2C2C2;
   padding: 8px 20px;
   border-radius: 30px;
+}
+
+.bottom {
+  height: 200px;
+  background: linear-gradient(to bottom, #FFFFFF, #FFC7C7);
 }
 
