@@ -1,3 +1,12 @@
+:root {
+    --webchef-red: #bd1d1d;
+    --webchef-red-dark: #9f1717;
+    --webchef-light-red: #fff3f3;
+    --webchef-border: #e5e5e5;
+    --webchef-container: 1560px;
+    --webchef-side-padding: 64px;
+}
+
 * {
     margin: 0;
     padding: 0;
@@ -22,11 +31,12 @@ a {
 }
 
 .hero-inner {
-    max-width: 1560px;
+    width: 100%;
+    max-width: var(--webchef-container);
     margin: 0 auto;
-    padding: 88px 64px;
+    padding: 88px var(--webchef-side-padding);
     display: grid;
-    grid-template-columns: 1fr 1.05fr;
+    grid-template-columns: minmax(0, 1fr) minmax(640px, 1.05fr);
     gap: 70px;
     align-items: center;
 }
@@ -37,7 +47,7 @@ a {
     padding: 12px 24px;
     border-radius: 999px;
     background: #ffecec;
-    color: #bd1d1d;
+    color: var(--webchef-red);
     font-size: 17px;
     font-weight: 900;
 }
@@ -51,7 +61,7 @@ a {
 }
 
 .hero-text h1 strong {
-    color: #bd1d1d;
+    color: var(--webchef-red);
 }
 
 .hero-text p {
@@ -81,7 +91,7 @@ a {
 }
 
 .hero-search-form input:focus {
-    border-color: #bd1d1d;
+    border-color: var(--webchef-red);
 }
 
 .hero-search-form button {
@@ -89,7 +99,7 @@ a {
     height: 58px;
     border: none;
     border-radius: 14px;
-    background: #bd1d1d;
+    background: var(--webchef-red);
     color: #fff;
     font-size: 17px;
     font-weight: 900;
@@ -97,7 +107,7 @@ a {
 }
 
 .hero-search-form button:hover {
-    background: #9f1717;
+    background: var(--webchef-red-dark);
 }
 
 .hero-buttons {
@@ -118,12 +128,12 @@ a {
 }
 
 .primary-btn {
-    background: #bd1d1d;
+    background: var(--webchef-red);
     color: #fff;
 }
 
 .primary-btn:hover {
-    background: #9f1717;
+    background: var(--webchef-red-dark);
 }
 
 .secondary-btn {
@@ -133,18 +143,19 @@ a {
 }
 
 .secondary-btn:hover {
-    border-color: #bd1d1d;
-    color: #bd1d1d;
+    border-color: var(--webchef-red);
+    color: var(--webchef-red);
 }
 
 /* Dashboard */
 .hero-dashboard {
     display: flex;
-    justify-content: center;
+    justify-content: flex-end;
 }
 
 .dashboard-card {
-    width: 760px;
+    width: 100%;
+    max-width: 760px;
     min-height: 440px;
     border: 1px solid #e2e2e2;
     border-radius: 26px;
@@ -164,7 +175,7 @@ a {
 
 .dashboard-top h3 {
     margin-bottom: 4px;
-    color: #bd1d1d;
+    color: var(--webchef-red);
     font-size: 22px;
     font-weight: 950;
 }
@@ -178,7 +189,7 @@ a {
     padding: 9px 14px;
     border-radius: 999px;
     background: #fff2f2;
-    color: #bd1d1d;
+    color: var(--webchef-red);
     font-size: 14px;
     font-weight: 900;
 }
@@ -207,7 +218,7 @@ a {
 
 .dashboard-menu .active {
     background: #ffe8e8;
-    color: #bd1d1d;
+    color: var(--webchef-red);
 }
 
 .dashboard-content {
@@ -268,7 +279,7 @@ a {
     float: right;
     padding: 6px 10px;
     border-radius: 8px;
-    background: #bd1d1d;
+    background: var(--webchef-red);
     color: #fff;
     font-size: 12px;
     font-weight: 900;
@@ -276,7 +287,7 @@ a {
 
 .course-status.soon {
     background: #ffcaca;
-    color: #bd1d1d;
+    color: var(--webchef-red);
 }
 
 .mini-course-card h4 {
@@ -297,7 +308,7 @@ a {
 
 .mini-progress div {
     height: 100%;
-    background: #bd1d1d;
+    background: var(--webchef-red);
 }
 
 .mini-course-card p {
@@ -335,14 +346,15 @@ a {
 .weekly-progress div {
     width: 72%;
     height: 100%;
-    background: #bd1d1d;
+    background: var(--webchef-red);
 }
 
 /* Popular */
 .popular-section {
-    max-width: 1560px;
+    width: 100%;
+    max-width: var(--webchef-container);
     margin: 0 auto;
-    padding: 58px 64px 36px;
+    padding: 58px var(--webchef-side-padding) 36px;
 }
 
 .section-header {
@@ -355,7 +367,7 @@ a {
 .section-header span {
     display: block;
     margin-bottom: 8px;
-    color: #bd1d1d;
+    color: var(--webchef-red);
     font-size: 13px;
     font-weight: 950;
     letter-spacing: 1px;
@@ -373,7 +385,7 @@ a {
 }
 
 .section-header a:hover {
-    color: #bd1d1d;
+    color: var(--webchef-red);
 }
 
 .course-grid {
@@ -422,7 +434,7 @@ a {
 .course-info span {
     display: inline-block;
     margin-bottom: 10px;
-    color: #bd1d1d;
+    color: var(--webchef-red);
     font-size: 14px;
     font-weight: 900;
 }
@@ -442,9 +454,10 @@ a {
 
 /* Recommend */
 .recommend-section {
-    max-width: 1560px;
+    width: 100%;
+    max-width: var(--webchef-container);
     margin: 0 auto;
-    padding: 22px 64px 76px;
+    padding: 22px var(--webchef-side-padding) 76px;
     display: grid;
     grid-template-columns: 1fr 1fr;
     gap: 28px;
@@ -462,7 +475,7 @@ a {
 .card-title span {
     display: block;
     margin-bottom: 8px;
-    color: #bd1d1d;
+    color: var(--webchef-red);
     font-size: 13px;
     font-weight: 950;
     letter-spacing: 1px;
@@ -478,7 +491,7 @@ a {
     min-height: 210px;
     padding: 30px;
     border-radius: 20px;
-    background: #fff3f3;
+    background: var(--webchef-light-red);
     display: flex;
     align-items: center;
     justify-content: space-between;
@@ -499,12 +512,23 @@ a {
 }
 
 .tip-content a {
-    color: #bd1d1d;
+    color: var(--webchef-red);
     font-weight: 900;
 }
 
 .tip-icon {
-    font-size: 74px;
+    min-width: 110px;
+    height: 110px;
+    border-radius: 50%;
+    border: 1px solid rgba(189, 29, 29, 0.22);
+    background: rgba(189, 29, 29, 0.08);
+    color: rgba(189, 29, 29, 0.72);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 17px;
+    font-weight: 950;
+    letter-spacing: 1px;
 }
 
 .circle-progress {
@@ -513,8 +537,8 @@ a {
     margin: 0 auto 26px;
     border-radius: 50%;
     border: 16px solid #eee;
-    border-top-color: #bd1d1d;
-    border-left-color: #bd1d1d;
+    border-top-color: var(--webchef-red);
+    border-left-color: var(--webchef-red);
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -558,7 +582,7 @@ a {
 }
 
 .red-dot {
-    background: #bd1d1d;
+    background: var(--webchef-red);
 }
 
 .gray-dot {
@@ -566,18 +590,168 @@ a {
 }
 
 .study-link {
-    color: #bd1d1d;
+    color: var(--webchef-red);
     font-weight: 900;
 }
 
+/* Floating Actions */
+.floating-actions {
+    position: fixed;
+    right: 34px;
+    bottom: 34px;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    z-index: 1200;
+}
+
+.floating-btn {
+    position: relative;
+    width: 74px;
+    height: 74px;
+    border-radius: 50%;
+    border: 1px solid rgba(189, 29, 29, 0.24);
+    background: rgba(255, 255, 255, 0.58);
+    color: var(--webchef-red);
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+    box-shadow:
+        0 18px 42px rgba(0, 0, 0, 0.16),
+        inset 0 1px 0 rgba(255, 255, 255, 0.75);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    transition: 0.22s ease;
+}
+
+.floating-btn::before {
+    content: "";
+    position: absolute;
+    inset: 7px;
+    border-radius: 50%;
+    border: 1px solid rgba(189, 29, 29, 0.14);
+    pointer-events: none;
+}
+
+.floating-btn span {
+    position: absolute;
+    z-index: 1;
+    font-weight: 950;
+    line-height: 1;
+    transition: 0.22s ease;
+    white-space: nowrap;
+}
+
+.default-text {
+    font-size: 20px;
+    letter-spacing: -0.4px;
+    opacity: 1;
+    transform: translateY(0);
+}
+
+.hover-text {
+    font-size: 13px;
+    letter-spacing: -0.6px;
+    opacity: 0;
+    transform: translateY(12px);
+}
+
+.floating-btn:hover {
+    transform: translateY(-5px);
+    background: rgba(189, 29, 29, 0.9);
+    color: #fff;
+    border-color: rgba(189, 29, 29, 0.5);
+    box-shadow:
+        0 22px 52px rgba(189, 29, 29, 0.28),
+        inset 0 1px 0 rgba(255, 255, 255, 0.28);
+}
+
+.floating-btn:hover .default-text {
+    opacity: 0;
+    transform: translateY(-12px);
+}
+
+.floating-btn:hover .hover-text {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+.floating-meta {
+    border-color: rgba(17, 17, 17, 0.18);
+    color: #222;
+}
+
+.floating-meta::before {
+    border-color: rgba(17, 17, 17, 0.12);
+}
+
+.floating-meta:hover {
+    background: rgba(17, 17, 17, 0.9);
+    color: #fff;
+    border-color: rgba(17, 17, 17, 0.4);
+    box-shadow:
+        0 22px 52px rgba(17, 17, 17, 0.24),
+        inset 0 1px 0 rgba(255, 255, 255, 0.28);
+}
+
+/* 모바일 대응 */
+@media (max-width: 768px) {
+    .floating-actions {
+        right: 20px;
+        bottom: 20px;
+        gap: 10px;
+    }
+
+    .floating-btn {
+        width: 62px;
+        height: 62px;
+    }
+
+    .default-text {
+        font-size: 16px;
+    }
+
+    .hover-text {
+        font-size: 11px;
+    }
+}
+
 /* Responsive */
+@media (max-width: 1400px) {
+    :root {
+        --webchef-side-padding: 40px;
+    }
+
+    .hero-inner {
+        grid-template-columns: 1fr 0.95fr;
+        gap: 46px;
+    }
+
+    .hero-text h1 {
+        font-size: 54px;
+    }
+
+    .hero-text p {
+        font-size: 18px;
+    }
+}
+
 @media (max-width: 1200px) {
+    :root {
+        --webchef-side-padding: 28px;
+    }
+
     .hero-inner {
         grid-template-columns: 1fr;
     }
 
+    .hero-dashboard {
+        justify-content: flex-start;
+    }
+
     .dashboard-card {
-        width: 100%;
+        max-width: 100%;
     }
 
     .course-grid {
@@ -590,11 +764,13 @@ a {
 }
 
 @media (max-width: 768px) {
-    .hero-inner,
-    .popular-section,
-    .recommend-section {
-        padding-left: 24px;
-        padding-right: 24px;
+    :root {
+        --webchef-side-padding: 24px;
+    }
+
+    .hero-inner {
+        padding-top: 56px;
+        padding-bottom: 56px;
     }
 
     .hero-text h1 {
@@ -637,5 +813,33 @@ a {
         align-items: flex-start;
         flex-direction: column;
         gap: 12px;
+    }
+
+    .tip-content {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .floating-actions {
+        right: 20px;
+        bottom: 20px;
+        gap: 10px;
+    }
+
+    .floating-btn {
+        width: 62px;
+        height: 62px;
+    }
+
+    .floating-main-text {
+        font-size: 15px;
+    }
+
+    .floating-meta .floating-main-text {
+        font-size: 13px;
+    }
+
+    .floating-sub-text {
+        font-size: 9px;
     }
 }
