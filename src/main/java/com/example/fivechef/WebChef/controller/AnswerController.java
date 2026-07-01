@@ -1,6 +1,7 @@
 package com.example.fivechef.WebChef.controller;
 
 import com.example.fivechef.WebChef.dto.AnswerDTO;
+import com.example.fivechef.WebChef.dto.UserResponse;
 import com.example.fivechef.WebChef.entity.Answer;
 import com.example.fivechef.WebChef.entity.Community;
 import com.example.fivechef.WebChef.entity.User;
@@ -75,6 +76,7 @@ public class AnswerController {
         public String chugaProc(
                 Model model,
                 @Valid AnswerDTO answerDTO,
+                @Valid  UserResponse response,
                 BindingResult bindingResult,
                 Principal principal
         ){
@@ -135,15 +137,14 @@ public class AnswerController {
         }
 
         if(!answer.getAuthor().getUsername().equals(principal.getName())){
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "수정권한이 없습니다.");
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "삭제권한이 없습니다.");
         }
 
-        answerDTO.setCommunityId(answer.getCommunity().getId());
+        Long communityId = answer.getCommunity().getId();
 
-        User user = userService.getUser(principal.getName());
+        answerService.sakjeProc(answer);
 
-        answerService.sujungProc(answerDTO, user);
-        return "redirect:/community/view" + answerDTO.getCommunityId();
+        return "redirect:/community/view/" + communityId;
     }
 
     @PreAuthorize("isAuthenticated()")
@@ -163,5 +164,5 @@ public class AnswerController {
     }
 
 
-}
+
 }

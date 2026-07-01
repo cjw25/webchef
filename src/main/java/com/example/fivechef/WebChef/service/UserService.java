@@ -15,6 +15,7 @@ import org.springframework.stereotype.Service;
 
 import java.security.SecureRandom;
 import java.util.List;
+import java.util.Optional;
 
 @RequiredArgsConstructor
 @Service
@@ -33,6 +34,12 @@ public class UserService implements UserDetailsService {
     public User getUserEntity(Long id) {
         return userRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다."));
+    }
+
+
+
+    public User getUser(String username) {
+        return  userRepository.findByUsername(username).orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수  없습니다."));
     }
 
     public UserResponse getUser(Long id) {
@@ -88,9 +95,9 @@ public class UserService implements UserDetailsService {
         userRepository.delete(user);
     }
 
-    public User getUser(String username){
-        return
-    }
+//    public User getUser(String username){
+//        return
+//    }
 
     public void changeRole(Long id, Role role) {
         User user = getUserEntity(id);

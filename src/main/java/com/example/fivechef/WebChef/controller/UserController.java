@@ -119,6 +119,7 @@ public class UserController {
             @PathVariable("id") Long id
     ) {
         UserResponse user = userService.getUser(id);
+
         model.addAttribute("user", user);
 
         return "view";

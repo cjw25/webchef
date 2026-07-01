@@ -11,7 +11,7 @@ import java.util.Set;
 @Getter
 @Setter
 @Entity
-public class Community {
+public class Notice {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -25,9 +25,6 @@ public class Community {
 
     private LocalDateTime createDate;
     private LocalDateTime modifyDate;
-
-    @OneToMany(mappedBy = "community", cascade = CascadeType.REMOVE)
-    private List<Answer> answerList;
 
     @ManyToOne
     private User author;

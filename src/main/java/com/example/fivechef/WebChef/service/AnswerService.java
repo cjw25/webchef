@@ -51,28 +51,14 @@ public class AnswerService {
         answer.setCreateDate(answerDTO.getCreateDate());
         answer.setModifyDate(LocalDateTime.now());
         answer.setAuthor(user);
-        answer.setCommunity(community);
 
         answerRepository.save(answer);
 
         return answer;
-
     }
 
-    public Answer sakjePorc(AnswerDTO answerDTO, User user){
-        Community community = communityService.view(answerDTO.getCommunityId());
-
-        Answer answer = new Answer();
-        answer.setId(answerDTO.getId());
-        answer.setContent(answerDTO.getContent());
-        answer.setCommunity(community);
-        answer.setCreateDate(answerDTO.getCreateDate());
-        answer.setAuthor(user);
-        answer.setCommunity(community);
-
+    public void sakjeProc(Answer answer){
         answerRepository.delete(answer);
-
-        return answer;
     }
 
     public void vote(Answer answer, User user){
