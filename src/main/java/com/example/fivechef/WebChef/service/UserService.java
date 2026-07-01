@@ -88,6 +88,10 @@ public class UserService implements UserDetailsService {
         userRepository.delete(user);
     }
 
+    public User getUser(String username){
+        return
+    }
+
     public void changeRole(Long id, Role role) {
         User user = getUserEntity(id);
 
@@ -183,5 +187,9 @@ public class UserService implements UserDetailsService {
                 user.getPassword(),
                 List.of(new SimpleGrantedAuthority("ROLE_" + user.getRole().name()))
         );
+    }
+    public User getUserEntity(String username) {
+        return userRepository.findByUsername(username)
+                .orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다."));
     }
 }
