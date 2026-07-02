@@ -31,7 +31,7 @@ a {
 .category {
   display: flex;
   flex-direction: column;
-  padding: 50px 200px;
+  padding: 50px 100px;
   gap: 25px;
 }
 
