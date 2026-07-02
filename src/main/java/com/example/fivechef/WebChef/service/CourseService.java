@@ -1,145 +1,194 @@
 package com.example.fivechef.WebChef.service;
 
 import com.example.fivechef.WebChef.dto.CourseCreateRequest;
-import com.example.fivechef.WebChef.dto.CourseDetailResponse;
-import com.example.fivechef.WebChef.dto.CourseListResponse;
+import com.example.fivechef.WebChef.dto.CourseResponse;
 import com.example.fivechef.WebChef.dto.CourseUpdateRequest;
 import com.example.fivechef.WebChef.entity.Course;
-import com.example.fivechef.WebChef.entity.Course.CourseCategory;
-import com.example.fivechef.WebChef.entity.Course.CourseDifficulty;
-import com.example.fivechef.WebChef.entity.Course.CourseStatus;
+import com.example.fivechef.WebChef.entity.CourseStatus;
+import com.example.fivechef.WebChef.entity.User;
 import com.example.fivechef.WebChef.repository.CourseRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.*;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
-
-@Service
 @RequiredArgsConstructor
-@Transactional
+@Service
 public class CourseService {
 
     private final CourseRepository courseRepository;
+    private final UserService userService;
 
-    @Transactional(readOnly = true)
-    public List<CourseListResponse> getOpenCourseList() {
-        return courseRepository.findByStatusOrderByCreatedAtDesc(CourseStatus.OPEN)
-                .stream()
-                .map(CourseListResponse::from)
-                .toList();
+    // =========================
+    // Entity 조회 - Service 내부용
+    // =========================
+
+    public Course getCourseEntity(Long id) {
+        return courseRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("강의를 찾을 수 없습니다."));
     }
 
-    @Transactional(readOnly = true)
-    public List<CourseListResponse> getCourseListByCategory(CourseCategory category) {
-        return courseRepository.findByCategoryAndStatusOrderByCreatedAtDesc(
-                        category,
-                        CourseStatus.OPEN
+    // =========================
+    // Response 반환 - Controller 전달용
+    // =========================
+
+    public Page<CourseResponse> getCourses(int page, String keyword) {
+        Pageable pageable = PageRequest.of(
+                page,
+                10,
+                Sort.by(Sort.Order.desc("id"))
+        );
+
+        if (keyword == null || keyword.trim().isEmpty()) {
+            return courseRepository.findAll(pageable)
+                    .map(CourseResponse::new);
+        }
+
+        return courseRepository.findByTitleContainingOrDescriptionContaining(
+                        keyword.trim(),
+                        keyword.trim(),
+                        pageable
                 )
-                .stream()
-                .map(CourseListResponse::from)
-                .toList();
+                .map(CourseResponse::new);
     }
 
-    @Transactional(readOnly = true)
-    public List<CourseListResponse> getCourseListByDifficulty(CourseDifficulty difficulty) {
-        return courseRepository.findByDifficultyAndStatusOrderByCreatedAtDesc(
-                        difficulty,
-                        CourseStatus.OPEN
-                )
-                .stream()
-                .map(CourseListResponse::from)
-                .toList();
+    public Page<CourseResponse> getOpenCourses(int page) {
+        Pageable pageable = PageRequest.of(
+                page,
+                10,
+                Sort.by(Sort.Order.desc("id"))
+        );
+
+        return courseRepository.findByStatus(CourseStatus.OPEN, pageable)
+                .map(CourseResponse::new);
     }
 
-    @Transactional(readOnly = true)
-    public List<CourseListResponse> searchCourseList(String keyword) {
-        return courseRepository.searchOpenCourses(keyword, CourseStatus.OPEN)
-                .stream()
-                .map(CourseListResponse::from)
-                .toList();
+    public CourseResponse getCourseResponse(Long id) {
+        Course course = getCourseEntity(id);
+        return new CourseResponse(course);
     }
 
-    @Transactional(readOnly = true)
-    public List<CourseListResponse> getPopularCourseList() {
-        return courseRepository.findTop4ByStatusOrderByStudentCountDesc(CourseStatus.OPEN)
-                .stream()
-                .map(CourseListResponse::from)
-                .toList();
+    // 기존 코드 호환용
+    public CourseResponse getCourse(Long id) {
+        return getCourseResponse(id);
     }
 
-    public CourseDetailResponse getCourseDetail(Long courseId) {
-        Course course = courseRepository.findById(courseId)
-                .orElseThrow(() -> new IllegalArgumentException("강의를 찾을 수 없습니다."));
+    // =========================
+    // 강의 등록
+    // =========================
 
-        course.setViewCount(course.getViewCount() + 1);
+    public void createCourse(CourseCreateRequest request, String username) {
+        validateCreateRequest(request);
 
-        return CourseDetailResponse.from(course);
-    }
+        User instructor = userService.getLoginUserEntity(username);
 
-    @Transactional(readOnly = true)
-    public CourseDetailResponse getCourseForEdit(Long courseId) {
-        Course course = courseRepository.findById(courseId)
-                .orElseThrow(() -> new IllegalArgumentException("강의를 찾을 수 없습니다."));
+        Course course = new Course();
 
-        return CourseDetailResponse.from(course);
-    }
-
-    public Long createCourse(CourseCreateRequest request) {
-        int price = request.isFree() ? 0 : request.getPrice();
-
-        CourseStatus status = request.getStatus() == null
-                ? CourseStatus.DRAFT
-                : request.getStatus();
-
-        Course course = Course.builder()
-                .title(request.getTitle())
-                .summary(request.getSummary())
-                .description(request.getDescription())
-                .thumbnailUrl(request.getThumbnailUrl())
-                .price(price)
-                .free(request.isFree())
-                .category(request.getCategory())
-                .difficulty(request.getDifficulty())
-                .status(status)
-                .instructorId(request.getInstructorId())
-                .instructorName(request.getInstructorName())
-                .viewCount(0)
-                .studentCount(0)
-                .build();
-
-        Course savedCourse = courseRepository.save(course);
-
-        return savedCourse.getId();
-    }
-
-    public void updateCourse(Long courseId, CourseUpdateRequest request) {
-        Course course = courseRepository.findById(courseId)
-                .orElseThrow(() -> new IllegalArgumentException("강의를 찾을 수 없습니다."));
-
-        course.setTitle(request.getTitle());
-        course.setSummary(request.getSummary());
-        course.setDescription(request.getDescription());
-        course.setThumbnailUrl(request.getThumbnailUrl());
+        course.setTitle(request.getTitle().trim());
+        course.setDescription(request.getDescription().trim());
+        course.setThumbnailUrl(trimOrNull(request.getThumbnailUrl()));
+        course.setPrice(request.getPrice() == null ? 0 : request.getPrice());
         course.setCategory(request.getCategory());
         course.setDifficulty(request.getDifficulty());
-        course.setFree(request.isFree());
+        course.setStatus(request.getStatus() == null ? CourseStatus.DRAFT : request.getStatus());
+        course.setInstructor(instructor);
 
-        if (request.isFree()) {
-            course.setPrice(0);
-        } else {
-            course.setPrice(request.getPrice());
+        courseRepository.save(course);
+    }
+
+    // =========================
+    // 강의 수정
+    // =========================
+
+    public void updateCourse(Long id, CourseUpdateRequest request) {
+        Course course = getCourseEntity(id);
+
+        validateUpdateRequest(request);
+
+        course.setTitle(request.getTitle().trim());
+        course.setDescription(request.getDescription().trim());
+        course.setThumbnailUrl(trimOrNull(request.getThumbnailUrl()));
+        course.setPrice(request.getPrice() == null ? 0 : request.getPrice());
+        course.setCategory(request.getCategory());
+        course.setDifficulty(request.getDifficulty());
+        course.setStatus(request.getStatus() == null ? CourseStatus.DRAFT : request.getStatus());
+
+        courseRepository.save(course);
+    }
+
+    // =========================
+    // 강의 삭제
+    // =========================
+
+    public void deleteCourse(Long id) {
+        Course course = getCourseEntity(id);
+        courseRepository.delete(course);
+    }
+
+    // =========================
+    // 검증
+    // =========================
+
+    private void validateCreateRequest(CourseCreateRequest request) {
+        if (request == null) {
+            throw new IllegalArgumentException("강의 등록 정보가 없습니다.");
         }
 
-        if (request.getStatus() != null) {
-            course.setStatus(request.getStatus());
+        if (isBlank(request.getTitle())) {
+            throw new IllegalArgumentException("강의 제목을 입력해주세요.");
+        }
+
+        if (isBlank(request.getDescription())) {
+            throw new IllegalArgumentException("강의 설명을 입력해주세요.");
+        }
+
+        if (request.getCategory() == null) {
+            throw new IllegalArgumentException("강의 카테고리를 선택해주세요.");
+        }
+
+        if (request.getDifficulty() == null) {
+            throw new IllegalArgumentException("강의 난이도를 선택해주세요.");
+        }
+
+        if (request.getPrice() != null && request.getPrice() < 0) {
+            throw new IllegalArgumentException("강의 가격은 0원 이상이어야 합니다.");
         }
     }
 
-    public void deleteCourse(Long courseId) {
-        Course course = courseRepository.findById(courseId)
-                .orElseThrow(() -> new IllegalArgumentException("강의를 찾을 수 없습니다."));
+    private void validateUpdateRequest(CourseUpdateRequest request) {
+        if (request == null) {
+            throw new IllegalArgumentException("강의 수정 정보가 없습니다.");
+        }
 
-        courseRepository.delete(course);
+        if (isBlank(request.getTitle())) {
+            throw new IllegalArgumentException("강의 제목을 입력해주세요.");
+        }
+
+        if (isBlank(request.getDescription())) {
+            throw new IllegalArgumentException("강의 설명을 입력해주세요.");
+        }
+
+        if (request.getCategory() == null) {
+            throw new IllegalArgumentException("강의 카테고리를 선택해주세요.");
+        }
+
+        if (request.getDifficulty() == null) {
+            throw new IllegalArgumentException("강의 난이도를 선택해주세요.");
+        }
+
+        if (request.getPrice() != null && request.getPrice() < 0) {
+            throw new IllegalArgumentException("강의 가격은 0원 이상이어야 합니다.");
+        }
+    }
+
+    private String trimOrNull(String value) {
+        if (isBlank(value)) {
+            return null;
+        }
+
+        return value.trim();
+    }
+
+    private boolean isBlank(String value) {
+        return value == null || value.trim().isEmpty();
     }
 }

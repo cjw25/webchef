@@ -1,168 +1,124 @@
 package com.example.fivechef.WebChef.controller;
 
-import com.example.fivechef.WebChef.dto.AnswerDTO;
-import com.example.fivechef.WebChef.dto.UserResponse;
-import com.example.fivechef.WebChef.entity.Answer;
-import com.example.fivechef.WebChef.entity.Community;
-import com.example.fivechef.WebChef.entity.User;
+import com.example.fivechef.WebChef.dto.AnswerCreateRequest;
+import com.example.fivechef.WebChef.dto.AnswerResponse;
+import com.example.fivechef.WebChef.dto.AnswerUpdateRequest;
 import com.example.fivechef.WebChef.service.AnswerService;
-import com.example.fivechef.WebChef.service.CommunityService;
-import com.example.fivechef.WebChef.service.UserService;
-import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
-import org.springframework.validation.BindingResult;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.server.ResponseStatusException;
+import org.springframework.web.bind.annotation.*;
 
 import java.security.Principal;
+import java.util.HashMap;
+import java.util.Map;
 
 @RequiredArgsConstructor
 @Controller
 public class AnswerController {
+
     private final AnswerService answerService;
-    private final CommunityService communityService;
-    private final UserService userService;
 
-    @GetMapping("/answer/sujung/{id}")
-    public String sujung(
-            Model model,
-            @PathVariable("id") Long id,
-            AnswerDTO answerDTO,
-            Principal principal
-    ) {
-        Answer answer = answerService.view(id);
-
-        if (!answer.getAuthor().getUsername().equals(principal.getName())) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "수정권한이 없습니다.");
-        }
-
-        answerDTO.setId(answer.getId());
-        answerDTO.setContent(answer.getContent());
-
-        return "answer/sujung";
-    }
-
-    @GetMapping("/answer/sakje/{id}")
-    public String sakje(
-        Model model,
-        @PathVariable("id") Long id,
-        AnswerDTO answerDTO,
-        Principal principal
-    ){
-       Answer answer = answerService.view(id);
-
-       if(answer == null){
-           return "redirect:/";
-       }
-
-       if(!answer.getAuthor().getUsername().equals(principal.getName())){
-           throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "삭제권한이 없습니다.");
-       }
-
-       answerDTO.setId(id);
-       answerDTO.setContent(answer.getContent());
-       answerDTO.setCommunityId(answer.getCommunity().getId());
-       return "answer/sakje";
-        }
-
-        @PreAuthorize("isAuthenticated()")
-        @PostMapping("/answer/chugaProc")
-        public String chugaProc(
-                Model model,
-                @Valid AnswerDTO answerDTO,
-                @Valid  UserResponse response,
-                BindingResult bindingResult,
-                Principal principal
-        ){
-            Community community = this.communityService.view(answerDTO.getCommunityId());
-            User user = userService.getUser(principal.getName());
-
-            if (bindingResult.hasErrors()){
-                model.addAttribute("community", community);
-                return "community/view";
-            }
-            Answer answer = answerService.chugaProc(answerDTO, user);
-            return "redirect:/community/view" + answerDTO.getCommunityId() + "#answer_" + answer.getId();
-        }
-
-        @PreAuthorize("isAuthenticated()")
-        @PostMapping("/answer/sujungProc")
-        public String sujungProc(
-                Model model,
-                @Valid AnswerDTO answerDTO,
-                BindingResult bindingResult,
-                Principal principal
-        ){
-            if(bindingResult.hasErrors()){
-                return "answer/sujung";
-            }
-            Answer answer = answerService.view(answerDTO.getId());
-            if (answer == null){
-
-            }
-
-            if(!answer.getAuthor().getUsername().equals(principal.getName())){
-                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "수정권한이 없습니다.");
-            }
-
-            answerDTO.setCreateDate(answer.getCreateDate());
-            answerDTO.setCommunityId(answer.getCommunity().getId());
-
-            User user = userService.getUser(principal.getName());
-
-            answerService.sujungProc(answerDTO, user);
-            return "redirect:/community/view" + answerDTO.getCommunityId()+ "#answer_" + answerDTO.getId();
-        }
+    // =========================
+    // 화면용
+    // =========================
 
     @PreAuthorize("isAuthenticated()")
-    @PostMapping("/answer/sakjeProc")
-    public String sakjeProc(
-            Model model,
-            @Valid AnswerDTO answerDTO,
-            BindingResult bindingResult,
+    @PostMapping("/answer/create")
+    public String createAnswer(
+            @ModelAttribute AnswerCreateRequest request,
             Principal principal
-    ){
-        if(bindingResult.hasErrors()){
-            return "answer/sakje";
-        }
-        Answer answer = answerService.view(answerDTO.getId());
-        if (answer == null){
-            return "redirect:/";
-        }
+    ) {
+        AnswerResponse answer = answerService.createAnswer(request, principal.getName());
 
-        if(!answer.getAuthor().getUsername().equals(principal.getName())){
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "삭제권한이 없습니다.");
-        }
+        return "redirect:/community/view/" + request.getCommunityId() + "#answer_" + answer.getId();
+    }
 
-        Long communityId = answer.getCommunity().getId();
+    @PreAuthorize("isAuthenticated()")
+    @PostMapping("/answer/update/{id}")
+    public String updateAnswer(
+            @PathVariable("id") Long id,
+            @ModelAttribute AnswerUpdateRequest request,
+            Principal principal
+    ) {
+        answerService.updateAnswer(id, request, principal.getName());
 
-        answerService.sakjeProc(answer);
+        return "redirect:/community/view/" + request.getCommunityId() + "#answer_" + id;
+    }
+
+    @PreAuthorize("isAuthenticated()")
+    @PostMapping("/answer/delete/{id}")
+    public String deleteAnswer(
+            @PathVariable("id") Long id,
+            Principal principal
+    ) {
+        Long communityId = answerService.deleteAnswer(id, principal.getName());
 
         return "redirect:/community/view/" + communityId;
     }
 
     @PreAuthorize("isAuthenticated()")
     @PostMapping("/answer/vote/{id}")
-    public String vote(
+    public String voteAnswer(
             @PathVariable("id") Long id,
             Principal principal
-    ){
-        Answer answer = answerService.view(id);
-        if (answer == null) {
-            return "redirect:/";
-        }
+    ) {
+        Long communityId = answerService.voteAnswer(id, principal.getName());
 
-        User user = userService.getUser(principal.getName());
-        answerService.vote(answer, user);
-        return "redirect:/community/view" + answer.getCommunity().getId();
+        return "redirect:/community/view/" + communityId + "#answer_" + id;
     }
 
+    // =========================
+    // API용
+    // =========================
 
+    @ResponseBody
+    @PreAuthorize("isAuthenticated()")
+    @PostMapping("/api/answers")
+    public Map<String, Object> apiCreateAnswer(
+            @RequestBody AnswerCreateRequest request,
+            Principal principal
+    ) {
+        AnswerResponse answer = answerService.createAnswer(request, principal.getName());
 
+        Map<String, Object> result = new HashMap<>();
+        result.put("success", true);
+        result.put("message", "댓글이 등록되었습니다.");
+        result.put("answer", answer);
+
+        return result;
+    }
+
+    @ResponseBody
+    @PreAuthorize("isAuthenticated()")
+    @PutMapping("/api/answers/{id}")
+    public Map<String, Object> apiUpdateAnswer(
+            @PathVariable("id") Long id,
+            @RequestBody AnswerUpdateRequest request,
+            Principal principal
+    ) {
+        answerService.updateAnswer(id, request, principal.getName());
+
+        Map<String, Object> result = new HashMap<>();
+        result.put("success", true);
+        result.put("message", "댓글이 수정되었습니다.");
+
+        return result;
+    }
+
+    @ResponseBody
+    @PreAuthorize("isAuthenticated()")
+    @DeleteMapping("/api/answers/{id}")
+    public Map<String, Object> apiDeleteAnswer(
+            @PathVariable("id") Long id,
+            Principal principal
+    ) {
+        answerService.deleteAnswer(id, principal.getName());
+
+        Map<String, Object> result = new HashMap<>();
+        result.put("success", true);
+        result.put("message", "댓글이 삭제되었습니다.");
+
+        return result;
+    }
 }

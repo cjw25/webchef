@@ -40,7 +40,7 @@ public class UserController {
 
     @PostMapping("/user/create")
     public String createUser(
-            UserCreateRequest request,
+            @ModelAttribute("request") UserCreateRequest request,
             Model model
     ) {
         try {
@@ -48,7 +48,7 @@ public class UserController {
         } catch (Exception e) {
             model.addAttribute("errorMessage", e.getMessage());
             model.addAttribute("request", request);
-            return "user/create";
+            return "create";
         }
 
         return "redirect:/user/login";
@@ -62,17 +62,21 @@ public class UserController {
 
     @PostMapping("/user/find-id")
     public String findId(
-            FindIdRequest request,
+            @ModelAttribute("request") FindIdRequest request,
             Model model
     ) {
         try {
-            String username = userService.findUsername(request.getName(), request.getEmail());
+            String username = userService.findUsername(
+                    request.getName(),
+                    request.getEmail()
+            );
+
             model.addAttribute("foundUsername", username);
         } catch (Exception e) {
             model.addAttribute("errorMessage", e.getMessage());
         }
 
-        return "user/find-id";
+        return "find-id";
     }
 
     @GetMapping("/user/find-password")
@@ -83,7 +87,7 @@ public class UserController {
 
     @PostMapping("/user/find-password")
     public String findPassword(
-            FindPasswordRequest request,
+            @ModelAttribute("request") FindPasswordRequest request,
             Model model
     ) {
         try {
@@ -97,7 +101,7 @@ public class UserController {
             model.addAttribute("errorMessage", e.getMessage());
         }
 
-        return "user/find-password";
+        return "find-password";
     }
 
     @PreAuthorize("hasRole('ADMIN')")
@@ -107,6 +111,7 @@ public class UserController {
             @RequestParam(value = "page", defaultValue = "0") int page
     ) {
         Page<UserResponse> paging = userService.getUsers(page);
+
         model.addAttribute("paging", paging);
 
         return "list";
@@ -118,7 +123,7 @@ public class UserController {
             Model model,
             @PathVariable("id") Long id
     ) {
-        UserResponse user = userService.getUser(id);
+        UserResponse user = userService.getUserResponse(id);
 
         model.addAttribute("user", user);
 
@@ -131,7 +136,7 @@ public class UserController {
             Model model,
             @PathVariable("id") Long id
     ) {
-        UserResponse user = userService.getUser(id);
+        UserResponse user = userService.getUserResponse(id);
 
         UserUpdateRequest request = new UserUpdateRequest();
         request.setName(user.getName());
@@ -147,15 +152,19 @@ public class UserController {
     @PostMapping("/user/update/{id}")
     public String updateUser(
             @PathVariable("id") Long id,
-            UserUpdateRequest request,
+            @ModelAttribute("request") UserUpdateRequest request,
             Model model
     ) {
         try {
             userService.updateUser(id, request);
         } catch (Exception e) {
-            model.addAttribute("errorMessage", e.getMessage());
+            UserResponse user = userService.getUserResponse(id);
+
+            model.addAttribute("user", user);
             model.addAttribute("request", request);
-            return "user/update";
+            model.addAttribute("errorMessage", e.getMessage());
+
+            return "update";
         }
 
         return "redirect:/user/view/" + id;
@@ -165,6 +174,7 @@ public class UserController {
     @PostMapping("/user/delete/{id}")
     public String deleteUser(@PathVariable("id") Long id) {
         userService.deleteUser(id);
+
         return "redirect:/user/list";
     }
 
@@ -175,6 +185,7 @@ public class UserController {
             @RequestParam("role") Role role
     ) {
         userService.changeRole(id, role);
+
         return "redirect:/user/view/" + id;
     }
 
@@ -195,9 +206,12 @@ public class UserController {
     }
 
     @ResponseBody
-    @PostMapping("/api/user/find-id")
+    @PostMapping("/api/users/find-id")
     public Map<String, Object> apiFindId(@RequestBody FindIdRequest request) {
-        String username = userService.findUsername(request.getName(), request.getEmail());
+        String username = userService.findUsername(
+                request.getName(),
+                request.getEmail()
+        );
 
         Map<String, Object> result = new HashMap<>();
         result.put("success", true);
@@ -207,7 +221,7 @@ public class UserController {
     }
 
     @ResponseBody
-    @PostMapping("/api/user/reset-password")
+    @PostMapping("/api/users/reset-password")
     public Map<String, Object> apiResetPassword(@RequestBody FindPasswordRequest request) {
         String temporaryPassword = userService.resetPassword(
                 request.getUsername(),
@@ -234,7 +248,7 @@ public class UserController {
     @PreAuthorize("hasRole('ADMIN')")
     @GetMapping("/api/users/{id}")
     public UserResponse apiUser(@PathVariable("id") Long id) {
-        return userService.getUser(id);
+        return userService.getUserResponse(id);
     }
 
     @ResponseBody

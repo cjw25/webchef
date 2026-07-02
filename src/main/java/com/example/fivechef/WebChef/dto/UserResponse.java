@@ -16,6 +16,7 @@ public class UserResponse {
     private final Role role;
     private final Boolean active;
     private final LocalDateTime createdAt;
+    private final LocalDateTime updatedAt;
 
     public UserResponse(User user) {
         this.id = user.getId();
@@ -25,5 +26,6 @@ public class UserResponse {
         this.role = user.getRole();
         this.active = user.getActive();
         this.createdAt = user.getCreatedAt();
+        this.updatedAt = user.getUpdatedAt();
     }
 }

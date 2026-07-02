@@ -1,8 +1,8 @@
 package com.example.fivechef.WebChef.dto;
 
-import com.example.fivechef.WebChef.entity.Course.CourseCategory;
-import com.example.fivechef.WebChef.entity.Course.CourseDifficulty;
-import com.example.fivechef.WebChef.entity.Course.CourseStatus;
+import com.example.fivechef.WebChef.entity.CourseCategory;
+import com.example.fivechef.WebChef.entity.CourseStatus;
+import com.example.fivechef.WebChef.entity.Difficulty;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -12,19 +12,15 @@ public class CourseUpdateRequest {
 
     private String title;
 
-    private String summary;
-
     private String description;
 
     private String thumbnailUrl;
 
-    private int price;
-
-    private boolean free;
+    private Integer price;
 
     private CourseCategory category;
 
-    private CourseDifficulty difficulty;
+    private Difficulty difficulty;
 
     private CourseStatus status;
 }

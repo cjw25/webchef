@@ -41,8 +41,10 @@ public class User {
         @Column(nullable = false)
         private Boolean active = true;
 
+        // 생성일
         private LocalDateTime createdAt;
 
+        // 수정일
         private LocalDateTime updatedAt;
 
         @PrePersist

@@ -1,114 +1,192 @@
 package com.example.fivechef.WebChef.service;
 
-import com.example.fivechef.WebChef.dto.CommunityDTO;
-import com.example.fivechef.WebChef.entity.Answer;
+import com.example.fivechef.WebChef.dto.CommunityCreateRequest;
+import com.example.fivechef.WebChef.dto.CommunityResponse;
+import com.example.fivechef.WebChef.dto.CommunityUpdateRequest;
 import com.example.fivechef.WebChef.entity.Community;
+import com.example.fivechef.WebChef.entity.Role;
 import com.example.fivechef.WebChef.entity.User;
 import com.example.fivechef.WebChef.repository.CommunityRepository;
-import jakarta.persistence.criteria.*;
-import lombok.Getter;
 import lombok.RequiredArgsConstructor;
-import lombok.Setter;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
-import org.springframework.data.jpa.domain.Specification;
+import org.springframework.data.domain.*;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-
-@Setter
-@Getter
 @RequiredArgsConstructor
 @Service
 public class CommunityService {
 
     private final CommunityRepository communityRepository;
+    private final UserService userService;
 
-    public Page<Community> list(int page, String kw){
-        List<Sort.Order> sorts = new ArrayList<>();
-        sorts.add(Sort.Order.desc("createDate"));
-        Pageable pageable = PageRequest.of(page, 10, Sort.by(sorts));
-        Specification<Community> spec = search(kw);
-        return communityRepository.findAllByKeyword(kw, pageable);
+    // =========================
+    // Entity 조회 - Service 내부용
+    // =========================
+
+    @Transactional(readOnly = true)
+    public Community getCommunityEntity(Long id) {
+        return communityRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("게시글을 찾을 수 없습니다."));
+    }
+
+    // 기존 코드 호환용
+    @Transactional(readOnly = true)
+    public Community view(Long id) {
+        return getCommunityEntity(id);
+    }
+
+    // =========================
+    // Response 반환 - Controller 전달용
+    // =========================
+
+    @Transactional(readOnly = true)
+    public Page<CommunityResponse> getCommunities(int page, String keyword) {
+        Pageable pageable = PageRequest.of(
+                page,
+                10,
+                Sort.by(Sort.Order.desc("id"))
+        );
+
+        if (keyword == null || keyword.trim().isEmpty()) {
+            return communityRepository.findAll(pageable)
+                    .map(CommunityResponse::new);
         }
 
-        public Community view(Long id) {
-            Optional<Community> oq = communityRepository.findById(id);
-            Community community = null;
-            if (oq.isPresent()) {
-                community = oq.get();
-            }
+        String kw = keyword.trim();
 
-            return community;
-        }
+        return communityRepository.findBySubjectContainingOrContentContaining(
+                        kw,
+                        kw,
+                        pageable
+                )
+                .map(CommunityResponse::new);
+    }
 
-            public void chugaProc(CommunityDTO communityDTO, User user) {
-            Community community = new Community();
-            community.setId(communityDTO.getId());
-            community.setSubject(communityDTO.getSubject());
-            community.setContent(communityDTO.getContent());
-            community.setCreateDate(LocalDateTime.now());
-            community.setModifyDate(LocalDateTime.now());
-            community.setAuthor(user);
+    // 기존 코드 호환용
+    @Transactional(readOnly = true)
+    public Page<CommunityResponse> list(int page, String keyword) {
+        return getCommunities(page, keyword);
+    }
 
-            communityRepository.save(community);
-            }
+    @Transactional(readOnly = true)
+    public CommunityResponse getCommunityResponse(Long id) {
+        Community community = getCommunityEntity(id);
+        return new CommunityResponse(community, true);
+    }
 
-    public void sujungProc(CommunityDTO communityDTO, User user) {
+    // =========================
+    // 게시글 등록
+    // =========================
+
+    @Transactional
+    public void createCommunity(CommunityCreateRequest request, String username) {
+        validateCreateRequest(request);
+
+        User author = userService.getLoginUserEntity(username);
+
         Community community = new Community();
-        community.setId(communityDTO.getId());
-        community.setSubject(communityDTO.getSubject());
-        community.setContent(communityDTO.getContent());
-        community.setCreateDate(communityDTO.getCreateDate());
-        community.setModifyDate(LocalDateTime.now());
-        community.setAuthor(user);
+        community.setSubject(request.getSubject().trim());
+        community.setContent(request.getContent().trim());
+        community.setAuthor(author);
 
         communityRepository.save(community);
     }
 
-            public Community createEntity(CommunityDTO communityDTO, User user) {
-                Community community = new Community();
-                community.setId(communityDTO.getId());
-                community.setSubject(communityDTO.getSubject());
-                community.setContent(communityDTO.getContent());
+    // =========================
+    // 게시글 수정
+    // =========================
 
-                community.setCreateDate(LocalDateTime.now());
-                if (communityDTO.getId() != null) {
-                    community.setCreateDate(communityDTO.getCreateDate());
-                }
-                community.setModifyDate(LocalDateTime.now());
+    @Transactional
+    public void updateCommunity(Long id, CommunityUpdateRequest request, String username) {
+        validateUpdateRequest(request);
 
-                community.setAuthor(user);
-                return community;
-            }
+        Community community = getCommunityEntity(id);
+        User loginUser = userService.getLoginUserEntity(username);
 
-            public void vote(Community community, User user){
-                community.getVoter().add(user);
-                communityRepository.save(community);
-                }
+        checkOwnerOrAdmin(community, loginUser, "수정권한이 없습니다.");
 
-                private Specification<Community> search(String kw){
-                    return new Specification<>() {
-                        private static final long seriaVersionUID = 1L;
-                        @Override
-                        public Predicate toPredicate(Root<Community> q, CriteriaQuery<?> query, CriteriaBuilder cb){
-                            query.distinct(true);
-                            Join<Community, User> u1 = q.join("author", JoinType.LEFT);
-                            Join<Community, Answer> a = q.join("answerList", JoinType.LEFT);
-                            Join<Community, User> u2 = a.join("author", JoinType.LEFT);
-                            return cb.or(cb.like(q.get("subject"), "%" + kw + "%"),
-                                    cb.like(q.get("content"), "%" + kw + "%"),
-                                    cb.like(u1.get("username"), "%" + kw + "%"),
-                                    cb.like(a.get("content"), "%" + kw + "%"),
-                                    cb.like(u2.get("username"), "%" + kw + "%"));
+        community.setSubject(request.getSubject().trim());
+        community.setContent(request.getContent().trim());
 
-                        }
-                    };
-                }
+        communityRepository.save(community);
+    }
 
+    // =========================
+    // 게시글 삭제
+    // =========================
+
+    @Transactional
+    public void deleteCommunity(Long id, String username) {
+        Community community = getCommunityEntity(id);
+        User loginUser = userService.getLoginUserEntity(username);
+
+        checkOwnerOrAdmin(community, loginUser, "삭제권한이 없습니다.");
+
+        communityRepository.delete(community);
+    }
+
+    // =========================
+    // 게시글 추천 토글
+    // =========================
+
+    @Transactional
+    public void voteCommunity(Long id, String username) {
+        Community community = getCommunityEntity(id);
+        User loginUser = userService.getLoginUserEntity(username);
+
+        boolean alreadyVoted = community.getVoter()
+                .removeIf(user -> user.getId().equals(loginUser.getId()));
+
+        if (!alreadyVoted) {
+            community.getVoter().add(loginUser);
+        }
+
+        communityRepository.save(community);
+    }
+
+    // =========================
+    // 검증
+    // =========================
+
+    private void validateCreateRequest(CommunityCreateRequest request) {
+        if (request == null) {
+            throw new IllegalArgumentException("게시글 등록 정보가 없습니다.");
+        }
+
+        if (isBlank(request.getSubject())) {
+            throw new IllegalArgumentException("제목을 입력해주세요.");
+        }
+
+        if (isBlank(request.getContent())) {
+            throw new IllegalArgumentException("내용을 입력해주세요.");
+        }
+    }
+
+    private void validateUpdateRequest(CommunityUpdateRequest request) {
+        if (request == null) {
+            throw new IllegalArgumentException("게시글 수정 정보가 없습니다.");
+        }
+
+        if (isBlank(request.getSubject())) {
+            throw new IllegalArgumentException("제목을 입력해주세요.");
+        }
+
+        if (isBlank(request.getContent())) {
+            throw new IllegalArgumentException("내용을 입력해주세요.");
+        }
+    }
+
+    private void checkOwnerOrAdmin(Community community, User loginUser, String message) {
+        boolean isAdmin = loginUser.getRole() == Role.ADMIN;
+        boolean isOwner = community.getAuthor() != null
+                && community.getAuthor().getId().equals(loginUser.getId());
+
+        if (!isAdmin && !isOwner) {
+            throw new IllegalArgumentException(message);
+        }
+    }
+
+    private boolean isBlank(String value) {
+        return value == null || value.trim().isEmpty();
+    }
 }
