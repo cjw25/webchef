@@ -8,6 +8,7 @@
         <div class="logo-area">
             <a href="/" class="logo-link">
                 <img src="/img/webchef-logo.png" alt="WebChef 로고" class="logo-img">
+                <span class="logo-text">WebChef</span>
             </a>
         </div>
 
@@ -19,9 +20,17 @@
             <a href="/notice/list" class="gnb-link">고객센터</a>
         </nav>
 
-        <div class="header-auth">
+        <div class="header-auth" th:if="${loginUsername == null}">
             <a href="/user/login" class="login-link">로그인</a>
             <a href="/user/create" class="join-link">회원가입</a>
+        </div>
+
+        <div class="header-auth" th:if="${loginUsername != null}">
+            <a href="/mypage" class="login-link">마이페이지</a>
+
+            <form th:action="@{/user/logout}" method="post" class="logout-form">
+                <button type="submit" class="logout-btn">로그아웃</button>
+            </form>
         </div>
 
     </div>

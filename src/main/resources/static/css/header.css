@@ -36,25 +36,39 @@ body {
 ========================= */
 
 .logo-area {
-    flex-shrink: 0;
+    height: 82px;
     display: flex;
     align-items: center;
+    flex-shrink: 0;
 }
 
 .logo-link {
+    height: 82px;
     display: flex;
     align-items: center;
+    gap: 10px;
+    color: #111111;
     text-decoration: none;
 }
 
 .logo-img {
-    width: 150px;
-    height: auto;
+    width: 34px;
+    height: 34px;
+    object-fit: contain;
     display: block;
+    flex-shrink: 0;
+}
+
+.logo-text {
+    font-size: 25px;
+    font-weight: 900;
+    letter-spacing: -0.7px;
+    color: #111111;
+    line-height: 1;
 }
 
 /* =========================
-   GNB
+   NAV
 ========================= */
 
 .gnb {
@@ -67,17 +81,10 @@ body {
     padding: 0;
 }
 
-.gnb-item {
-    height: 82px;
-    display: flex;
-    align-items: center;
-    position: relative;
-}
-
 .gnb-link {
+    height: 82px;
     display: flex;
     align-items: center;
-    height: 82px;
 
     color: #111111;
     font-size: 17px;
@@ -91,160 +98,11 @@ body {
 }
 
 /* =========================
-   MEGA MENU
-========================= */
-
-.mega-menu {
-    position: absolute;
-    top: 82px;
-    left: 50%;
-    transform: translateX(-50%) translateY(12px);
-
-    width: 880px;
-    background: #ffffff;
-    border: 1px solid #eeeeee;
-    border-radius: 18px;
-    box-shadow: 0 24px 70px rgba(0, 0, 0, 0.12);
-
-    opacity: 0;
-    visibility: hidden;
-    pointer-events: none;
-
-    transition: all 0.18s ease;
-    z-index: 9999;
-}
-
-.mega-menu.single {
-    width: 650px;
-}
-
-.gnb-item:hover > .mega-menu {
-    opacity: 1;
-    visibility: visible;
-    pointer-events: auto;
-    transform: translateX(-50%) translateY(0);
-}
-
-.mega-inner {
-    width: 100%;
-    padding: 34px 38px;
-
-    display: grid;
-    grid-template-columns: 1.15fr 0.8fr 0.8fr 0.8fr;
-    gap: 34px;
-    align-items: flex-start;
-}
-
-.mega-menu.single .mega-inner {
-    grid-template-columns: 1.1fr 1.2fr;
-}
-
-.mega-title-box h3 {
-    margin: 0 0 12px;
-    color: #d71920;
-    font-size: 25px;
-    line-height: 1.2;
-    font-weight: 900;
-    letter-spacing: -0.8px;
-}
-
-.mega-title-box p {
-    margin: 0;
-    color: #444444;
-    font-size: 15px;
-    line-height: 1.65;
-    font-weight: 500;
-}
-
-.mega-column {
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-}
-
-.mega-column h4 {
-    margin: 0 0 6px;
-    color: #111111;
-    font-size: 16px;
-    font-weight: 900;
-}
-
-.mega-column a {
-    color: #222222;
-    font-size: 15px;
-    font-weight: 700;
-    line-height: 1.35;
-    text-decoration: none;
-    white-space: nowrap;
-}
-
-.mega-column a:hover {
-    color: #d71920;
-}
-
-/* =========================
-   FRIDGE SEARCH
-========================= */
-
-.mega-search-box form {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    margin-bottom: 14px;
-}
-
-.mega-search-box input {
-    flex: 1;
-    height: 40px;
-    padding: 0 14px;
-
-    border: 1px solid #dddddd;
-    border-radius: 8px;
-    outline: none;
-
-    font-size: 14px;
-}
-
-.mega-search-box input:focus {
-    border-color: #d71920;
-}
-
-.mega-search-box button {
-    height: 40px;
-    padding: 0 16px;
-
-    border: none;
-    border-radius: 8px;
-    background: #d71920;
-    color: #ffffff;
-
-    font-size: 14px;
-    font-weight: 800;
-    cursor: pointer;
-}
-
-.keyword-tags {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 8px;
-}
-
-.keyword-tags a {
-    padding: 7px 12px;
-    border-radius: 999px;
-    background: #fff0f1;
-    color: #d71920;
-
-    font-size: 13px;
-    font-weight: 800;
-    text-decoration: none;
-}
-
-/* =========================
    AUTH
 ========================= */
 
 .header-auth {
+    height: 82px;
     display: flex;
     align-items: center;
     gap: 16px;
@@ -267,7 +125,7 @@ body {
 }
 
 .join-link {
-    color: #ffffff;
+    color: #ffffff !important;
     background: #d71920;
     padding: 15px 22px;
     border-radius: 9px;
@@ -278,29 +136,32 @@ body {
     background: #b9151b;
 }
 
+.logout-form {
+    margin: 0;
+    padding: 0;
+}
+
+.logout-btn {
+    border: none;
+    background: #d71920;
+    color: #ffffff;
+    padding: 15px 22px;
+    border-radius: 9px;
+    font-size: 16px;
+    font-weight: 800;
+    cursor: pointer;
+    box-shadow: 0 8px 18px rgba(215, 25, 32, 0.18);
+}
+
+.logout-btn:hover {
+    background: #b9151b;
+}
+
 /* =========================
    RESPONSIVE
 ========================= */
 
-@media (max-width: 1200px) {
-    .header-inner {
-        padding: 0 24px;
-    }
-
-    .gnb {
-        gap: 26px;
-    }
-
-    .gnb-link {
-        font-size: 15px;
-    }
-
-    .logo-img {
-        width: 135px;
-    }
-}
-
-@media (max-width: 900px) {
+@media (max-width: 1100px) {
     .site-header {
         height: auto;
     }
@@ -308,9 +169,15 @@ body {
     .header-inner {
         height: auto;
         min-height: 82px;
-        padding: 18px 22px;
+        padding: 18px 24px;
         flex-wrap: wrap;
         gap: 16px;
+    }
+
+    .logo-area,
+    .logo-link,
+    .header-auth {
+        height: auto;
     }
 
     .gnb {
@@ -320,14 +187,24 @@ body {
         justify-content: flex-start;
         overflow-x: auto;
         gap: 24px;
+        padding-bottom: 6px;
     }
 
-    .gnb-item,
     .gnb-link {
         height: 44px;
+        font-size: 15px;
     }
 
-    .mega-menu {
-        display: none;
+    .logo-img {
+        width: 32px !important;
+        height: 32px !important;
+        min-width: 32px;
+        min-height: 32px;
+        max-width: 32px;
+        max-height: 32px;
+    }
+
+    .logo-text {
+        font-size: 23px;
     }
 }
