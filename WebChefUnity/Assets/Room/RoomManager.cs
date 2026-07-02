@@ -21,7 +21,7 @@ public class RoomManager : MonoBehaviour
             return;
         }
         Instance = this;
-        DontDestroyOnLoad(gameObject);
+        //DontDestroyOnLoad(gameObject);  //최상위 부모만 적용이 가능함
     }
 
     private void Start()
@@ -77,13 +77,13 @@ public class RoomManager : MonoBehaviour
     private void Update()
     {
         // 게임 중에 키보드 'H' 키를 누르면 강제로 호스트(서버)를 시작합니다.
-        if (Input.GetKeyDown(KeyCode.H))
-        {
-            if (NetworkManager.Singleton != null)
-            {
-                NetworkManager.Singleton.StartHost();
-                Debug.Log("🚀 [강제 실행] 키보드로 호스트를 시작했습니다!");
-            }
-        }
+        //if (Input.GetKeyDown(KeyCode.H))
+        //{
+        //    if (NetworkManager.Singleton != null)
+        //    {
+        //        NetworkManager.Singleton.StartHost();
+        //        Debug.Log("🚀 [강제 실행] 키보드로 호스트를 시작했습니다!");
+        //    }
+        //}
     }
 }

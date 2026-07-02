@@ -36,7 +36,7 @@ public class RelayManager : MonoBehaviour
         Allocation allocation = await RelayService.Instance.CreateAllocationAsync(maxPlayers);
         var relayServerData = new Unity.Networking.Transport.Relay.RelayServerData(allocation, "dtls");
         transport.SetRelayServerData(relayServerData);
-        //NetworkManager.Singleton.StartHost();
+        NetworkManager.Singleton.StartHost();
         return await RelayService.Instance.GetJoinCodeAsync(allocation.AllocationId);
     }
 
