@@ -31,7 +31,7 @@ a {
 .category {
   display: flex;
   flex-direction: column;
-  padding: 50px 300px;
+  padding: 50px 250px;
   gap: 25px;
 }
 
@@ -146,7 +146,7 @@ a {
 .box-line {
   width: 280px;
   height: 20px;
-  background: yellow;
+  background: #C70000;
   margin-top: -3px;
 }
 
