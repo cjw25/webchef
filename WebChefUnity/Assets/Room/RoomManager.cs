@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using Unity.Netcode; // ★ 유니티 넷코드 라이브러리 추가
+using Unity.Services.Core;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
@@ -48,6 +49,10 @@ public class RoomManager : NetworkBehaviour
 
     public override void OnNetworkSpawn()
     {
+        if(UnityServices.State != ServicesInitializationState.Initialized)
+        {
+            return;
+        }
         // 서버인 경우에만 넷코드의 씬 동기화 이벤트에 내 함수를 결합합니다.
         if (IsServer)
         {
@@ -141,13 +146,13 @@ public class RoomManager : NetworkBehaviour
     void Update()
     {
         // 게임 중에 키보드 'H' 키를 누르면 강제로 호스트(서버)를 시작합니다.
-        if (Input.GetKeyDown(KeyCode.H))
-        {
-            if (NetworkManager.Singleton != null)
-            {
-                NetworkManager.Singleton.StartHost();
-                Debug.Log("🚀 [강제 실행] 키보드로 호스트를 시작했습니다!");
-            }
-        }
+        //if (Input.GetKeyDown(KeyCode.H))
+        //{
+        //    if (NetworkManager.Singleton != null)
+        //    {
+        //        NetworkManager.Singleton.StartHost();
+        //        Debug.Log("🚀 [강제 실행] 키보드로 호스트를 시작했습니다!");
+        //    }
+        //}
     }
 }
