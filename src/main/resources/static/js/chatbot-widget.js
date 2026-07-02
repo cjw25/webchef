@@ -60,7 +60,7 @@ document.addEventListener("DOMContentLoaded", function () {
         panel.setAttribute("aria-hidden", "true");
     }
 
-    function sendMessage() {
+    async function sendMessage() {
         const text = input.value.trim();
 
         if (text.length === 0) {
@@ -70,9 +70,48 @@ document.addEventListener("DOMContentLoaded", function () {
         addMessage(text, "user");
         input.value = "";
 
-        setTimeout(function () {
-            addMessage(createBotReply(text), "bot");
-        }, 500);
+        const loadingMessage = addMessage("답변을 생성하고 있어요...", "bot loading");
+
+        try {
+            const response = await fetch("/api/chat/message", {
+                method: "POST",
+                headers: createHeaders(),
+                body: JSON.stringify({
+                    message: text
+                })
+            });
+
+            if (!response.ok) {
+                loadingMessage.textContent = "챗봇 서버 연결에 실패했습니다.";
+                return;
+            }
+
+            const data = await response.json();
+
+            if (data && data.reply) {
+                loadingMessage.textContent = data.reply;
+            } else {
+                loadingMessage.textContent = "답변을 받지 못했습니다.";
+            }
+
+        } catch (error) {
+            loadingMessage.textContent = "AI 챗봇 연결 중 오류가 발생했습니다.";
+        }
+    }
+
+    function createHeaders() {
+        const headers = {
+            "Content-Type": "application/json"
+        };
+
+        const csrfToken = document.querySelector('meta[name="_csrf"]')?.getAttribute("content");
+        const csrfHeader = document.querySelector('meta[name="_csrf_header"]')?.getAttribute("content");
+
+        if (csrfToken && csrfHeader) {
+            headers[csrfHeader] = csrfToken;
+        }
+
+        return headers;
     }
 
     function addMessage(text, type) {
@@ -82,26 +121,8 @@ document.addEventListener("DOMContentLoaded", function () {
 
         messages.appendChild(message);
         messages.scrollTop = messages.scrollHeight;
-    }
 
-    function createBotReply(text) {
-        if (text.includes("계란") || text.includes("김치") || text.includes("요리") || text.includes("레시피")) {
-            return "계란과 김치가 있다면 김치볶음밥, 김치계란덮밥, 계란찜을 추천해요. 초보라면 김치볶음밥이 가장 쉬워요.";
-        }
-
-        if (text.includes("청소") || text.includes("자취방")) {
-            return "자취방 청소는 욕실, 주방, 바닥 순서로 나누면 좋아요. 하루에 한 구역씩 10분만 해도 훨씬 깔끔해져요.";
-        }
-
-        if (text.includes("식비") || text.includes("절약") || text.includes("돈")) {
-            return "식비를 줄이려면 냉동밥, 계란, 두부, 김치, 참치캔처럼 오래 보관 가능한 재료 중심으로 한 주 식단을 짜는 게 좋아요.";
-        }
-
-        if (text.includes("강의")) {
-            return "요리 강의에서는 초급부터 시작하는 걸 추천해요. 먼저 10분 완성 한 끼 요리 강의를 들어보세요.";
-        }
-
-        return "좋아요. WebChef 기준으로 요리, 청소, 생활비, 자취 팁 중에서 필요한 내용을 더 자세히 알려드릴게요.";
+        return message;
     }
 
     function resetMessages() {
