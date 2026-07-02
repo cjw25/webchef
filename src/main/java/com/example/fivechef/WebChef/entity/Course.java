@@ -24,25 +24,25 @@ public class Course {
     @Column(columnDefinition = "TEXT", nullable = false)
     private String description;
 
-    // 썸네일 이미지 경로
+    // 썸네일 이미지 주소
     @Column(length = 500)
     private String thumbnailUrl;
 
-    // 강의 가격
+    // 가격
     @Column(nullable = false)
     private Integer price = 0;
 
-    // 강의 카테고리
+    // 카테고리
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 30)
     private CourseCategory category;
 
-    // 강의 난이도
+    // 난이도
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 30)
     private Difficulty difficulty;
 
-    // 강의 상태
+    // 상태
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 30)
     private CourseStatus status = CourseStatus.DRAFT;
@@ -52,10 +52,8 @@ public class Course {
     @JoinColumn(name = "instructor_id")
     private User instructor;
 
-    // 생성일
     private LocalDateTime createdAt;
 
-    // 수정일
     private LocalDateTime updatedAt;
 
     @PrePersist

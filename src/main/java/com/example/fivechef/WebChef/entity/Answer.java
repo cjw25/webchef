@@ -11,6 +11,7 @@ import java.util.Set;
 @Getter
 @Setter
 @Entity
+@Table(name = "answers")
 public class Answer {
 
     @Id
@@ -21,24 +22,22 @@ public class Answer {
     @Column(columnDefinition = "TEXT", nullable = false)
     private String content;
 
-    // 어느 게시글의 댓글인지
+    // 커뮤니티 게시글
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "community_id")
     private Community community;
 
-    // 댓글 작성자
+    // 작성자
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "author_id")
     private User author;
 
-    // 추천한 사용자 목록
+    // 추천한 사용자
     @ManyToMany
     private Set<User> voter = new HashSet<>();
 
-    // 생성일
     private LocalDateTime createDate;
 
-    // 수정일
     private LocalDateTime modifyDate;
 
     @PrePersist

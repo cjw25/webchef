@@ -5,9 +5,11 @@ import lombok.Setter;
 
 @Getter
 @Setter
-public class AnswerUpdateRequest {
+public class InquiryUpdateRequest {
 
-    private Long communityId;
+    private String subject;
 
     private String content;
+
+    private String answerContent;
 }

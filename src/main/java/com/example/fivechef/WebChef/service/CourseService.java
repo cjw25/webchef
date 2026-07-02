@@ -10,6 +10,7 @@ import com.example.fivechef.WebChef.repository.CourseRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.*;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @RequiredArgsConstructor
 @Service
@@ -18,19 +19,13 @@ public class CourseService {
     private final CourseRepository courseRepository;
     private final UserService userService;
 
-    // =========================
-    // Entity 조회 - Service 내부용
-    // =========================
-
+    @Transactional(readOnly = true)
     public Course getCourseEntity(Long id) {
         return courseRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("강의를 찾을 수 없습니다."));
     }
 
-    // =========================
-    // Response 반환 - Controller 전달용
-    // =========================
-
+    @Transactional(readOnly = true)
     public Page<CourseResponse> getCourses(int page, String keyword) {
         Pageable pageable = PageRequest.of(
                 page,
@@ -38,23 +33,26 @@ public class CourseService {
                 Sort.by(Sort.Order.desc("id"))
         );
 
-        if (keyword == null || keyword.trim().isEmpty()) {
+        if (isBlank(keyword)) {
             return courseRepository.findAll(pageable)
                     .map(CourseResponse::new);
         }
 
+        String kw = keyword.trim();
+
         return courseRepository.findByTitleContainingOrDescriptionContaining(
-                        keyword.trim(),
-                        keyword.trim(),
+                        kw,
+                        kw,
                         pageable
                 )
                 .map(CourseResponse::new);
     }
 
-    public Page<CourseResponse> getOpenCourses(int page) {
+    @Transactional(readOnly = true)
+    public Page<CourseResponse> getOpenCourses(int page, int size) {
         Pageable pageable = PageRequest.of(
                 page,
-                10,
+                size,
                 Sort.by(Sort.Order.desc("id"))
         );
 
@@ -62,27 +60,18 @@ public class CourseService {
                 .map(CourseResponse::new);
     }
 
+    @Transactional(readOnly = true)
     public CourseResponse getCourseResponse(Long id) {
-        Course course = getCourseEntity(id);
-        return new CourseResponse(course);
+        return new CourseResponse(getCourseEntity(id));
     }
 
-    // 기존 코드 호환용
-    public CourseResponse getCourse(Long id) {
-        return getCourseResponse(id);
-    }
-
-    // =========================
-    // 강의 등록
-    // =========================
-
+    @Transactional
     public void createCourse(CourseCreateRequest request, String username) {
         validateCreateRequest(request);
 
         User instructor = userService.getLoginUserEntity(username);
 
         Course course = new Course();
-
         course.setTitle(request.getTitle().trim());
         course.setDescription(request.getDescription().trim());
         course.setThumbnailUrl(trimOrNull(request.getThumbnailUrl()));
@@ -95,15 +84,11 @@ public class CourseService {
         courseRepository.save(course);
     }
 
-    // =========================
-    // 강의 수정
-    // =========================
-
+    @Transactional
     public void updateCourse(Long id, CourseUpdateRequest request) {
-        Course course = getCourseEntity(id);
-
         validateUpdateRequest(request);
 
+        Course course = getCourseEntity(id);
         course.setTitle(request.getTitle().trim());
         course.setDescription(request.getDescription().trim());
         course.setThumbnailUrl(trimOrNull(request.getThumbnailUrl()));
@@ -115,18 +100,11 @@ public class CourseService {
         courseRepository.save(course);
     }
 
-    // =========================
-    // 강의 삭제
-    // =========================
-
+    @Transactional
     public void deleteCourse(Long id) {
         Course course = getCourseEntity(id);
         courseRepository.delete(course);
     }
-
-    // =========================
-    // 검증
-    // =========================
 
     private void validateCreateRequest(CourseCreateRequest request) {
         if (request == null) {

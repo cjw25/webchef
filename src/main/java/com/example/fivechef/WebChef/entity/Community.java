@@ -13,6 +13,7 @@ import java.util.Set;
 @Getter
 @Setter
 @Entity
+@Table(name = "communities")
 public class Community {
 
     @Id
@@ -36,14 +37,12 @@ public class Community {
     @OneToMany(mappedBy = "community", cascade = CascadeType.REMOVE, orphanRemoval = true)
     private List<Answer> answerList = new ArrayList<>();
 
-    // 추천한 사용자 목록
+    // 추천한 사용자
     @ManyToMany
     private Set<User> voter = new HashSet<>();
 
-    // 생성일
     private LocalDateTime createDate;
 
-    // 수정일
     private LocalDateTime modifyDate;
 
     @PrePersist

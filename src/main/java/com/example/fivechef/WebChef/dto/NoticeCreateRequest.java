@@ -5,7 +5,9 @@ import lombok.Setter;
 
 @Getter
 @Setter
-public class ChatRequest {
+public class NoticeCreateRequest {
 
-    private String message;
+    private String subject;
+
+    private String content;
 }

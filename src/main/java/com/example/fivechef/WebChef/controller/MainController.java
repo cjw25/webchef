@@ -8,8 +8,6 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 
-import java.util.List;
-
 @RequiredArgsConstructor
 @Controller
 public class MainController {
@@ -18,11 +16,9 @@ public class MainController {
 
     @GetMapping({"/", "/index"})
     public String index(Model model) {
+        Page<CourseResponse> popularCourses = courseService.getOpenCourses(0, 6);
 
-        Page<CourseResponse> coursePage = courseService.getOpenCourses(0);
-        List<CourseResponse> popularCourses = coursePage.getContent();
-
-        model.addAttribute("popularCourses", popularCourses);
+        model.addAttribute("popularCourses", popularCourses.getContent());
 
         return "index";
     }

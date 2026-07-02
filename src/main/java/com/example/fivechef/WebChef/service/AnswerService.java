@@ -20,35 +20,16 @@ public class AnswerService {
     private final CommunityService communityService;
     private final UserService userService;
 
-    // =========================
-    // Entity 조회 - Service 내부용
-    // =========================
-
     @Transactional(readOnly = true)
     public Answer getAnswerEntity(Long id) {
         return answerRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("댓글을 찾을 수 없습니다."));
     }
 
-    // 기존 코드 호환용
-    @Transactional(readOnly = true)
-    public Answer view(Long id) {
-        return getAnswerEntity(id);
-    }
-
-    // =========================
-    // Response 반환
-    // =========================
-
     @Transactional(readOnly = true)
     public AnswerResponse getAnswerResponse(Long id) {
-        Answer answer = getAnswerEntity(id);
-        return new AnswerResponse(answer);
+        return new AnswerResponse(getAnswerEntity(id));
     }
-
-    // =========================
-    // 댓글 등록
-    // =========================
 
     @Transactional
     public AnswerResponse createAnswer(AnswerCreateRequest request, String username) {
@@ -67,10 +48,6 @@ public class AnswerService {
         return new AnswerResponse(savedAnswer);
     }
 
-    // =========================
-    // 댓글 수정
-    // =========================
-
     @Transactional
     public void updateAnswer(Long id, AnswerUpdateRequest request, String username) {
         validateUpdateRequest(request);
@@ -78,23 +55,19 @@ public class AnswerService {
         Answer answer = getAnswerEntity(id);
         User loginUser = userService.getLoginUserEntity(username);
 
-        checkOwnerOrAdmin(answer, loginUser, "수정권한이 없습니다.");
+        checkOwnerOrAdmin(answer, loginUser, "수정 권한이 없습니다.");
 
         answer.setContent(request.getContent().trim());
 
         answerRepository.save(answer);
     }
 
-    // =========================
-    // 댓글 삭제
-    // =========================
-
     @Transactional
     public Long deleteAnswer(Long id, String username) {
         Answer answer = getAnswerEntity(id);
         User loginUser = userService.getLoginUserEntity(username);
 
-        checkOwnerOrAdmin(answer, loginUser, "삭제권한이 없습니다.");
+        checkOwnerOrAdmin(answer, loginUser, "삭제 권한이 없습니다.");
 
         Long communityId = answer.getCommunity().getId();
 
@@ -102,10 +75,6 @@ public class AnswerService {
 
         return communityId;
     }
-
-    // =========================
-    // 댓글 추천 토글
-    // =========================
 
     @Transactional
     public Long voteAnswer(Long id, String username) {
@@ -123,10 +92,6 @@ public class AnswerService {
 
         return answer.getCommunity().getId();
     }
-
-    // =========================
-    // 검증
-    // =========================
 
     private void validateCreateRequest(AnswerCreateRequest request) {
         if (request == null) {

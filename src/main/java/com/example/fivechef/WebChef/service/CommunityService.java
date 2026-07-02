@@ -19,25 +19,11 @@ public class CommunityService {
     private final CommunityRepository communityRepository;
     private final UserService userService;
 
-    // =========================
-    // Entity 조회 - Service 내부용
-    // =========================
-
     @Transactional(readOnly = true)
     public Community getCommunityEntity(Long id) {
         return communityRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("게시글을 찾을 수 없습니다."));
     }
-
-    // 기존 코드 호환용
-    @Transactional(readOnly = true)
-    public Community view(Long id) {
-        return getCommunityEntity(id);
-    }
-
-    // =========================
-    // Response 반환 - Controller 전달용
-    // =========================
 
     @Transactional(readOnly = true)
     public Page<CommunityResponse> getCommunities(int page, String keyword) {
@@ -47,7 +33,7 @@ public class CommunityService {
                 Sort.by(Sort.Order.desc("id"))
         );
 
-        if (keyword == null || keyword.trim().isEmpty()) {
+        if (isBlank(keyword)) {
             return communityRepository.findAll(pageable)
                     .map(CommunityResponse::new);
         }
@@ -62,21 +48,11 @@ public class CommunityService {
                 .map(CommunityResponse::new);
     }
 
-    // 기존 코드 호환용
-    @Transactional(readOnly = true)
-    public Page<CommunityResponse> list(int page, String keyword) {
-        return getCommunities(page, keyword);
-    }
-
     @Transactional(readOnly = true)
     public CommunityResponse getCommunityResponse(Long id) {
         Community community = getCommunityEntity(id);
         return new CommunityResponse(community, true);
     }
-
-    // =========================
-    // 게시글 등록
-    // =========================
 
     @Transactional
     public void createCommunity(CommunityCreateRequest request, String username) {
@@ -92,10 +68,6 @@ public class CommunityService {
         communityRepository.save(community);
     }
 
-    // =========================
-    // 게시글 수정
-    // =========================
-
     @Transactional
     public void updateCommunity(Long id, CommunityUpdateRequest request, String username) {
         validateUpdateRequest(request);
@@ -103,7 +75,7 @@ public class CommunityService {
         Community community = getCommunityEntity(id);
         User loginUser = userService.getLoginUserEntity(username);
 
-        checkOwnerOrAdmin(community, loginUser, "수정권한이 없습니다.");
+        checkOwnerOrAdmin(community, loginUser, "수정 권한이 없습니다.");
 
         community.setSubject(request.getSubject().trim());
         community.setContent(request.getContent().trim());
@@ -111,23 +83,15 @@ public class CommunityService {
         communityRepository.save(community);
     }
 
-    // =========================
-    // 게시글 삭제
-    // =========================
-
     @Transactional
     public void deleteCommunity(Long id, String username) {
         Community community = getCommunityEntity(id);
         User loginUser = userService.getLoginUserEntity(username);
 
-        checkOwnerOrAdmin(community, loginUser, "삭제권한이 없습니다.");
+        checkOwnerOrAdmin(community, loginUser, "삭제 권한이 없습니다.");
 
         communityRepository.delete(community);
     }
-
-    // =========================
-    // 게시글 추천 토글
-    // =========================
 
     @Transactional
     public void voteCommunity(Long id, String username) {
@@ -143,10 +107,6 @@ public class CommunityService {
 
         communityRepository.save(community);
     }
-
-    // =========================
-    // 검증
-    // =========================
 
     private void validateCreateRequest(CommunityCreateRequest request) {
         if (request == null) {

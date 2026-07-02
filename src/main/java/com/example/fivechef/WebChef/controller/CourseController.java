@@ -15,18 +15,12 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
 import java.security.Principal;
-import java.util.HashMap;
-import java.util.Map;
 
 @RequiredArgsConstructor
 @Controller
 public class CourseController {
 
     private final CourseService courseService;
-
-    // =========================
-    // 화면용
-    // =========================
 
     @GetMapping("/course/list")
     public String list(
@@ -39,19 +33,18 @@ public class CourseController {
         model.addAttribute("paging", paging);
         model.addAttribute("keyword", keyword);
 
-        return "course-list";
+        return "course";
     }
 
     @GetMapping("/course/detail/{id}")
     public String detail(
-            Model model,
-            @PathVariable("id") Long id
+            @PathVariable("id") Long id,
+            Model model
     ) {
         CourseResponse course = courseService.getCourseResponse(id);
-
         model.addAttribute("course", course);
 
-        return "course-detail";
+        return "course/detail";
     }
 
     @PreAuthorize("hasAnyRole('INSTRUCTOR', 'ADMIN')")
@@ -62,7 +55,7 @@ public class CourseController {
         model.addAttribute("difficulties", Difficulty.values());
         model.addAttribute("statuses", CourseStatus.values());
 
-        return "course-create";
+        return "course/create";
     }
 
     @PreAuthorize("hasAnyRole('INSTRUCTOR', 'ADMIN')")
@@ -76,12 +69,11 @@ public class CourseController {
             courseService.createCourse(request, principal.getName());
         } catch (Exception e) {
             model.addAttribute("errorMessage", e.getMessage());
-            model.addAttribute("request", request);
             model.addAttribute("categories", CourseCategory.values());
             model.addAttribute("difficulties", Difficulty.values());
             model.addAttribute("statuses", CourseStatus.values());
 
-            return "course-create";
+            return "course/create";
         }
 
         return "redirect:/course/list";
@@ -90,8 +82,8 @@ public class CourseController {
     @PreAuthorize("hasAnyRole('INSTRUCTOR', 'ADMIN')")
     @GetMapping("/course/update/{id}")
     public String updatePage(
-            Model model,
-            @PathVariable("id") Long id
+            @PathVariable("id") Long id,
+            Model model
     ) {
         CourseResponse course = courseService.getCourseResponse(id);
 
@@ -110,7 +102,7 @@ public class CourseController {
         model.addAttribute("difficulties", Difficulty.values());
         model.addAttribute("statuses", CourseStatus.values());
 
-        return "course-update";
+        return "course/update";
     }
 
     @PreAuthorize("hasAnyRole('INSTRUCTOR', 'ADMIN')")
@@ -126,13 +118,12 @@ public class CourseController {
             CourseResponse course = courseService.getCourseResponse(id);
 
             model.addAttribute("course", course);
-            model.addAttribute("request", request);
+            model.addAttribute("errorMessage", e.getMessage());
             model.addAttribute("categories", CourseCategory.values());
             model.addAttribute("difficulties", Difficulty.values());
             model.addAttribute("statuses", CourseStatus.values());
-            model.addAttribute("errorMessage", e.getMessage());
 
-            return "course-update";
+            return "course/update";
         }
 
         return "redirect:/course/detail/" + id;
@@ -142,71 +133,6 @@ public class CourseController {
     @PostMapping("/course/delete/{id}")
     public String deleteCourse(@PathVariable("id") Long id) {
         courseService.deleteCourse(id);
-
         return "redirect:/course/list";
-    }
-
-    // =========================
-    // API용
-    // =========================
-
-    @ResponseBody
-    @GetMapping("/api/courses")
-    public Page<CourseResponse> apiCourses(
-            @RequestParam(value = "page", defaultValue = "0") int page,
-            @RequestParam(value = "keyword", required = false) String keyword
-    ) {
-        return courseService.getCourses(page, keyword);
-    }
-
-    @ResponseBody
-    @GetMapping("/api/courses/{id}")
-    public CourseResponse apiCourse(@PathVariable("id") Long id) {
-        return courseService.getCourseResponse(id);
-    }
-
-    @ResponseBody
-    @PreAuthorize("hasAnyRole('INSTRUCTOR', 'ADMIN')")
-    @PostMapping("/api/courses")
-    public Map<String, Object> apiCreateCourse(
-            @RequestBody CourseCreateRequest request,
-            Principal principal
-    ) {
-        courseService.createCourse(request, principal.getName());
-
-        Map<String, Object> result = new HashMap<>();
-        result.put("success", true);
-        result.put("message", "강의가 등록되었습니다.");
-
-        return result;
-    }
-
-    @ResponseBody
-    @PreAuthorize("hasAnyRole('INSTRUCTOR', 'ADMIN')")
-    @PutMapping("/api/courses/{id}")
-    public Map<String, Object> apiUpdateCourse(
-            @PathVariable("id") Long id,
-            @RequestBody CourseUpdateRequest request
-    ) {
-        courseService.updateCourse(id, request);
-
-        Map<String, Object> result = new HashMap<>();
-        result.put("success", true);
-        result.put("message", "강의가 수정되었습니다.");
-
-        return result;
-    }
-
-    @ResponseBody
-    @PreAuthorize("hasAnyRole('INSTRUCTOR', 'ADMIN')")
-    @DeleteMapping("/api/courses/{id}")
-    public Map<String, Object> apiDeleteCourse(@PathVariable("id") Long id) {
-        courseService.deleteCourse(id);
-
-        Map<String, Object> result = new HashMap<>();
-        result.put("success", true);
-        result.put("message", "강의가 삭제되었습니다.");
-
-        return result;
     }
 }

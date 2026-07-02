@@ -12,6 +12,7 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.*;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.security.SecureRandom;
 import java.util.List;
@@ -23,34 +24,24 @@ public class UserService implements UserDetailsService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
 
-    // =========================
-    // Entity 조회 - Service 내부용
-    // =========================
-
+    @Transactional(readOnly = true)
     public User getUserEntity(Long id) {
         return userRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다."));
     }
 
+    @Transactional(readOnly = true)
     public User getUserEntity(String username) {
         return userRepository.findByUsername(username)
                 .orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다."));
     }
 
-    // 게시글/댓글/문의 작성자 연결용
+    @Transactional(readOnly = true)
     public User getLoginUserEntity(String username) {
         return getUserEntity(username);
     }
 
-    // 기존 Controller/Service 호환용
-    public User getUser(String username) {
-        return getUserEntity(username);
-    }
-
-    // =========================
-    // Response 반환 - Controller 전달용
-    // =========================
-
+    @Transactional(readOnly = true)
     public Page<UserResponse> getUsers(int page) {
         Pageable pageable = PageRequest.of(
                 page,
@@ -62,25 +53,16 @@ public class UserService implements UserDetailsService {
                 .map(UserResponse::new);
     }
 
+    @Transactional(readOnly = true)
     public UserResponse getUserResponse(Long id) {
-        User user = getUserEntity(id);
-        return new UserResponse(user);
+        return new UserResponse(getUserEntity(id));
     }
 
-    // 기존 코드 호환용
-    public UserResponse getUser(Long id) {
-        return getUserResponse(id);
-    }
-
-    // =========================
-    // 회원가입
-    // =========================
-
+    @Transactional
     public void createUser(UserCreateRequest request) {
         validateCreateRequest(request);
 
         User user = new User();
-
         user.setUsername(request.getUsername().trim());
         user.setPassword(passwordEncoder.encode(request.getPassword()));
         user.setName(request.getName().trim());
@@ -91,10 +73,7 @@ public class UserService implements UserDetailsService {
         userRepository.save(user);
     }
 
-    // =========================
-    // 회원수정
-    // =========================
-
+    @Transactional
     public void updateUser(Long id, UserUpdateRequest request) {
         User user = getUserEntity(id);
 
@@ -110,19 +89,13 @@ public class UserService implements UserDetailsService {
         userRepository.save(user);
     }
 
-    // =========================
-    // 회원삭제
-    // =========================
-
+    @Transactional
     public void deleteUser(Long id) {
         User user = getUserEntity(id);
         userRepository.delete(user);
     }
 
-    // =========================
-    // 권한변경
-    // =========================
-
+    @Transactional
     public void changeRole(Long id, Role role) {
         User user = getUserEntity(id);
 
@@ -134,10 +107,7 @@ public class UserService implements UserDetailsService {
         userRepository.save(user);
     }
 
-    // =========================
-    // 아이디 찾기
-    // =========================
-
+    @Transactional(readOnly = true)
     public String findUsername(String name, String email) {
         if (isBlank(name)) {
             throw new IllegalArgumentException("이름을 입력해주세요.");
@@ -153,10 +123,7 @@ public class UserService implements UserDetailsService {
         return user.getUsername();
     }
 
-    // =========================
-    // 임시 비밀번호 발급
-    // =========================
-
+    @Transactional
     public String resetPassword(String username, String email) {
         if (isBlank(username)) {
             throw new IllegalArgumentException("아이디를 입력해주세요.");
@@ -176,10 +143,6 @@ public class UserService implements UserDetailsService {
 
         return temporaryPassword;
     }
-
-    // =========================
-    // 회원가입 검증
-    // =========================
 
     private void validateCreateRequest(UserCreateRequest request) {
         if (request == null) {
@@ -219,10 +182,6 @@ public class UserService implements UserDetailsService {
         }
     }
 
-    // =========================
-    // 회원수정 검증
-    // =========================
-
     private void validateUpdateRequest(User user, UserUpdateRequest request) {
         if (request == null) {
             throw new IllegalArgumentException("수정 정보가 없습니다.");
@@ -254,10 +213,6 @@ public class UserService implements UserDetailsService {
         }
     }
 
-    // =========================
-    // 임시 비밀번호 생성
-    // =========================
-
     private String createTemporaryPassword() {
         String chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
         SecureRandom random = new SecureRandom();
@@ -275,11 +230,8 @@ public class UserService implements UserDetailsService {
         return value == null || value.trim().isEmpty();
     }
 
-    // =========================
-    // Spring Security 로그인 처리
-    // =========================
-
     @Override
+    @Transactional(readOnly = true)
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         User user = userRepository.findByUsername(username)
                 .orElseThrow(() -> new UsernameNotFoundException("사용자를 찾을 수 없습니다."));

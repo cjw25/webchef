@@ -1,12 +1,16 @@
 package com.example.fivechef.WebChef.service;
 
-import com.example.fivechef.WebChef.dto.InquiryDTO;
+import com.example.fivechef.WebChef.dto.InquiryCreateRequest;
+import com.example.fivechef.WebChef.dto.InquiryResponse;
+import com.example.fivechef.WebChef.dto.InquiryUpdateRequest;
 import com.example.fivechef.WebChef.entity.Inquiry;
+import com.example.fivechef.WebChef.entity.Role;
 import com.example.fivechef.WebChef.entity.User;
 import com.example.fivechef.WebChef.repository.InquiryRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.*;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 
@@ -15,95 +19,135 @@ import java.time.LocalDateTime;
 public class InquiryService {
 
     private final InquiryRepository inquiryRepository;
+    private final UserService userService;
 
-    // 문의사항 목록 + 검색
-    public Page<Inquiry> list(int page, String kw) {
+    @Transactional(readOnly = true)
+    public Inquiry getInquiryEntity(Long id) {
+        return inquiryRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("문의사항을 찾을 수 없습니다."));
+    }
+
+    @Transactional(readOnly = true)
+    public Page<InquiryResponse> getInquiries(int page, String keyword) {
         Pageable pageable = PageRequest.of(
                 page,
                 10,
-                Sort.by(Sort.Order.desc("createDate"))
+                Sort.by(Sort.Order.desc("id"))
         );
 
-        if (kw == null || kw.trim().isEmpty()) {
-            return inquiryRepository.findAll(pageable);
+        if (isBlank(keyword)) {
+            return inquiryRepository.findAll(pageable)
+                    .map(InquiryResponse::new);
         }
+
+        String kw = keyword.trim();
 
         return inquiryRepository.findBySubjectContainingOrContentContaining(
-                kw,
-                kw,
-                pageable
-        );
+                        kw,
+                        kw,
+                        pageable
+                )
+                .map(InquiryResponse::new);
     }
 
-    // getList로 부르는 코드가 있어도 안 터지게 유지
-    public Page<Inquiry> getList(int page, String kw) {
-        return list(page, kw);
+    @Transactional(readOnly = true)
+    public InquiryResponse getInquiryResponse(Long id) {
+        return new InquiryResponse(getInquiryEntity(id));
     }
 
-    // 문의사항 상세 조회
-    public Inquiry view(Long id) {
-        return inquiryRepository.findById(id)
-                .orElse(null);
-    }
+    @Transactional
+    public void createInquiry(InquiryCreateRequest request, String username) {
+        validateCreateRequest(request);
 
-    // getInquiry로 부르는 코드가 있어도 안 터지게 유지
-    public Inquiry getInquiry(Long id) {
-        return view(id);
-    }
+        User author = userService.getLoginUserEntity(username);
 
-    // 문의사항 등록
-    public void chugaProc(InquiryDTO inquiryDTO, User user) {
         Inquiry inquiry = new Inquiry();
-
-        inquiry.setSubject(inquiryDTO.getSubject());
-        inquiry.setContent(inquiryDTO.getContent());
-        inquiry.setCreateDate(LocalDateTime.now());
-        inquiry.setAuthor(user);
+        inquiry.setSubject(request.getSubject().trim());
+        inquiry.setContent(request.getContent().trim());
+        inquiry.setAuthor(author);
+        inquiry.setAnswered(false);
 
         inquiryRepository.save(inquiry);
     }
 
-    // create로 부르는 코드가 있어도 안 터지게 유지
-    public void create(InquiryDTO inquiryDTO, User user) {
-        chugaProc(inquiryDTO, user);
+    @Transactional
+    public void updateInquiry(Long id, InquiryUpdateRequest request, String username) {
+        validateUpdateRequest(request);
+
+        Inquiry inquiry = getInquiryEntity(id);
+        User loginUser = userService.getLoginUserEntity(username);
+
+        checkOwnerOrAdmin(inquiry, loginUser, "수정 권한이 없습니다.");
+
+        inquiry.setSubject(request.getSubject().trim());
+        inquiry.setContent(request.getContent().trim());
+
+        inquiryRepository.save(inquiry);
     }
 
-    // 문의사항 수정
-    public void sujungProc(InquiryDTO inquiryDTO, User user) {
-        Inquiry inquiry = view(inquiryDTO.getId());
-
-        if (inquiry == null) {
-            return;
+    @Transactional
+    public void answerInquiry(Long id, String answerContent) {
+        if (isBlank(answerContent)) {
+            throw new IllegalArgumentException("답변 내용을 입력해주세요.");
         }
 
-        inquiry.setSubject(inquiryDTO.getSubject());
-        inquiry.setContent(inquiryDTO.getContent());
-        inquiry.setModifyDate(LocalDateTime.now());
-
-        // 작성자는 수정할 때 바꾸지 않는 게 안전함
-        // inquiry.setAuthor(user);
+        Inquiry inquiry = getInquiryEntity(id);
+        inquiry.setAnswerContent(answerContent.trim());
+        inquiry.setAnswered(true);
+        inquiry.setAnswerDate(LocalDateTime.now());
 
         inquiryRepository.save(inquiry);
     }
 
-    // modify로 부르는 코드가 있어도 안 터지게 유지
-    public void modify(InquiryDTO inquiryDTO, User user) {
-        sujungProc(inquiryDTO, user);
-    }
+    @Transactional
+    public void deleteInquiry(Long id, String username) {
+        Inquiry inquiry = getInquiryEntity(id);
+        User loginUser = userService.getLoginUserEntity(username);
 
-    // 문의사항 삭제
-    public void sakjeProc(Inquiry inquiry) {
+        checkOwnerOrAdmin(inquiry, loginUser, "삭제 권한이 없습니다.");
+
         inquiryRepository.delete(inquiry);
     }
 
-    // delete로 부르는 코드가 있어도 안 터지게 유지
-    public void delete(Inquiry inquiry) {
-        sakjeProc(inquiry);
+    private void validateCreateRequest(InquiryCreateRequest request) {
+        if (request == null) {
+            throw new IllegalArgumentException("문의 등록 정보가 없습니다.");
+        }
+
+        if (isBlank(request.getSubject())) {
+            throw new IllegalArgumentException("제목을 입력해주세요.");
+        }
+
+        if (isBlank(request.getContent())) {
+            throw new IllegalArgumentException("내용을 입력해주세요.");
+        }
     }
 
-    // 혹시 InquiryController에서 vote를 부르고 있으면 컴파일 에러 방지용
-    // 문의사항에 추천 기능을 안 쓸 거면 Controller의 vote도 나중에 제거하면 됨
-    public void vote(Inquiry inquiry, User user) {
-        inquiryRepository.save(inquiry);
+    private void validateUpdateRequest(InquiryUpdateRequest request) {
+        if (request == null) {
+            throw new IllegalArgumentException("문의 수정 정보가 없습니다.");
+        }
+
+        if (isBlank(request.getSubject())) {
+            throw new IllegalArgumentException("제목을 입력해주세요.");
+        }
+
+        if (isBlank(request.getContent())) {
+            throw new IllegalArgumentException("내용을 입력해주세요.");
+        }
+    }
+
+    private void checkOwnerOrAdmin(Inquiry inquiry, User loginUser, String message) {
+        boolean isAdmin = loginUser.getRole() == Role.ADMIN;
+        boolean isOwner = inquiry.getAuthor() != null
+                && inquiry.getAuthor().getId().equals(loginUser.getId());
+
+        if (!isAdmin && !isOwner) {
+            throw new IllegalArgumentException(message);
+        }
+    }
+
+    private boolean isBlank(String value) {
+        return value == null || value.trim().isEmpty();
     }
 }

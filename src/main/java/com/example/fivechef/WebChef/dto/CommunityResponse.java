@@ -27,12 +27,10 @@ public class CommunityResponse {
 
     private final List<AnswerResponse> answers;
 
-    // 목록용
     public CommunityResponse(Community community) {
         this(community, false);
     }
 
-    // 상세용
     public CommunityResponse(Community community, boolean includeAnswers) {
         this.id = community.getId();
         this.subject = community.getSubject();
