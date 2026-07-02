@@ -31,15 +31,14 @@ a {
 .title {
   display: flex;
   color: #ff8787;
-  padding: 50px 100px;
+  padding: 50px 200px;
   font-size: 30px;
   font-weight: bold;
   margin-bottom: 20px;
 }
 
 .FAQ {
-    padding: 10px 100px;
-    gap: 25px;
+  padding: 10px 200px;
 }
 
 .FAQ-banner {
@@ -60,10 +59,10 @@ a {
 .FAQ-container {
   margin-top: 30px;
   background-color: white;
-  border-radius: 16px;
+  /* border-radius: 16px; */
   box-shadow: 0 4px 12px rgba(0,0,0,0.1);
   overflow: hidden;
-  padding-bottom: 10px;
+  padding-bottom: 40px;
 }
 
 .FAQ-header {
@@ -91,8 +90,15 @@ a {
   border-radius: 10px;
 }
 
-.FAQ-body {
+/* .FAQ-body {} */
+
+.FAQ-list {
   display: flex;
-  flex-direction: column;
-  padding: 20px 0px;
+  padding: 20px;
+  background: #c0d7d8;
+}
+
+.number {
+  background: #ffffff;
+
 }
