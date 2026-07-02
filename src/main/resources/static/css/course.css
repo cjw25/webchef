@@ -31,7 +31,7 @@ a {
 .category {
   display: flex;
   flex-direction: column;
-  padding: 50px 100px;
+  padding: 50px 200px;
   gap: 25px;
 }
 
@@ -82,7 +82,7 @@ a {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 40px 100px;
+  padding: 40px 200px;
 }
 
 
@@ -117,7 +117,7 @@ a {
 
 .cook-box {
   display: flex;
-  padding: 50px 100px;
+  padding: 50px 200px;
   justify-content: space-between;
 }
 
@@ -139,12 +139,12 @@ a {
 }
 
 .food-img {
-  width: 300px;
-  height: 300px;
+  width: 280px;
+  height: 280px;
 }
 
 .box-line {
-  width: 300px;
+  width: 280px;
   height: 20px;
   background: #C70000;
   margin-top: -3px;
@@ -161,13 +161,14 @@ a {
 
 .tag-level {
   background: #DADADA;
-  padding: 8px 15px;
+  padding: 8px 13px;
   border-radius: 30px;
+  margin-right: 10px;
 }
 
 .tag-time {
   background: #C2C2C2;
-  padding: 8px 15px;
+  padding: 8px 13px;
   border-radius: 30px;
 }
 
