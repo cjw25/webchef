@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>notice</title>
+    <link rel="stylesheet" href="/css/header.css">
+    <link rel="stylesheet" href="/css/footer.css">
+    <link rel="stylesheet" href="/css/notice.css"/>
+</head>
+<body>
+
+<main>
+    <div class="page">
+        <div class="title">무엇을 도와드릴까요?</div>
+        <div class="FAQ">
+            <div class="FAQ-banner">자주 묻는 질문</div>
+            <div class="FAQ-container">
+                <div class="FAQ-header">
+                    <div class="total">총 게시물 <strong>0</strong>건</div>
+                    <!-- 서치 -->
+                    <div class="header-search">
+
+                        <!-- 열리는 검색창 -->
+                        <form th:action="@{/search}"
+                              method="get"
+                              class="search-form">
+
+                            <input type="text" style="border: none;"
+                                   name="kw"
+                                   placeholder="검색어를 입력하세요"
+                                   th:value="${kw}"
+                                   autocomplete="off"
+                                   required>
+
+                            <button class="search-btn" type="submit">검색</button>
+                        </form>
+                    </div>
+                </div>
+                <div class="FAQ-body">
+                    <p class="FAQ-text"><strong>Q</strong>질문 1</p>
+                    <p class="FAQ-text"><strong>Q</strong>질문 2</p>
+                    <p class="FAQ-text"><strong>Q</strong>질문 3</p>
+                    <p class="FAQ-text"><strong>Q</strong>질문 4</p>
+                    <p class="FAQ-text"><strong>Q</strong>질문 5</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</main>
+
+</body>
+</html>

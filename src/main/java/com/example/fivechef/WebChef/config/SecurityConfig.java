@@ -4,112 +4,66 @@ import com.example.fivechef.WebChef.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
-import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 
 @RequiredArgsConstructor
-@EnableMethodSecurity(prePostEnabled = true)
 @Configuration
-@EnableWebSecurity
+@EnableMethodSecurity
 public class SecurityConfig {
 
-    private final UserService userService;
+
+    @Bean
+    public PasswordEncoder passwordEncoder() {
+        return new BCryptPasswordEncoder();
+    }
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
+                // 개발 중 403 방지용. 나중에 배포 전에 CSRF 다시 켜도 됨.
                 .csrf(AbstractHttpConfigurer::disable)
-                .httpBasic(AbstractHttpConfigurer::disable)
-                .userDetailsService(userService)
+
 
                 .authorizeHttpRequests(auth -> auth
-
-                        // 정적 파일
-                        .requestMatchers(
-                                "/css/**",
-                                "/js/**",
-                                "/img/**",
-                                "/images/**",
-                                "/favicon.ico"
-                        ).permitAll()
-
-                        // 전체 접근 가능
                         .requestMatchers(
                                 "/",
                                 "/index",
                                 "/user/login",
-                                "/user/loginProc",
                                 "/user/create",
                                 "/user/find-id",
                                 "/user/find-password",
-                                "/api/users/register",
-                                "/api/user/find-id",
-                                "/api/user/reset-password"
+                                "/course/list",
+                                "/course/detail/**",
+                                "/community/list",
+                                "/community/view/**",
+                                "/notice/list",
+                                "/notice/view/**",
+                                "/css/**",
+                                "/js/**",
+                                "/images/**",
+                                "/assets/**",
+                                "/api/users/register"
                         ).permitAll()
-
-                        // 관리자 권한
-                        .requestMatchers(
-                                "/admin/**",
-                                "/user/list",
-                                "/user/view/**",
-                                "/user/update/**",
-                                "/user/delete/**",
-                                "/user/role/**",
-                                "/api/users/**"
-                        ).hasRole("ADMIN")
-
-                        // 강사 또는 관리자 권한
-                        .requestMatchers(
-                                "/instructor/**",
-                                "/course/create",
-                                "/course/update/**",
-                                "/lesson/create",
-                                "/lesson/update/**"
-                        ).hasAnyRole("INSTRUCTOR", "ADMIN")
-
-                        // 로그인 사용자
-                        .requestMatchers(
-                                "/mypage/**",
-                                "/payment/**",
-                                "/enrollment/**",
-                                "/progress/**",
-                                "/chatbot",
-                                "/api/chatbot/**",
-                                "/community/write",
-                                "/community/comment/**"
-                        ).authenticated()
-
-                        .anyRequest().permitAll()
+                        .anyRequest().authenticated()
                 )
 
-                .formLogin(form -> form
+                .formLogin(login -> login
                         .loginPage("/user/login")
-                        .loginProcessingUrl("/user/loginProc")
-                        .usernameParameter("username")
-                        .passwordParameter("password")
                         .defaultSuccessUrl("/", true)
-                        .failureUrl("/user/login?error=true")
                         .permitAll()
                 )
 
                 .logout(logout -> logout
                         .logoutUrl("/user/logout")
-                        .logoutSuccessUrl("/user/login?logout=true")
-                        .invalidateHttpSession(true)
-                        .deleteCookies("JSESSIONID")
+                        .logoutSuccessUrl("/")
+                        .permitAll()
                 );
 
         return http.build();
-    }
-
-    @Bean
-    AuthenticationManager authenticationManager(AuthenticationConfiguration authenticationConfiguration)
-            throws Exception {
-        return authenticationConfiguration.getAuthenticationManager();
     }
 }

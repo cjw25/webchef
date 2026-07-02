@@ -23,10 +23,6 @@ public class UserController {
 
     private final UserService userService;
 
-    // =========================
-    // 화면용
-    // =========================
-
     @GetMapping("/user/login")
     public String loginPage() {
         return "login";
@@ -40,14 +36,13 @@ public class UserController {
 
     @PostMapping("/user/create")
     public String createUser(
-            UserCreateRequest request,
+            @ModelAttribute("request") UserCreateRequest request,
             Model model
     ) {
         try {
             userService.createUser(request);
         } catch (Exception e) {
             model.addAttribute("errorMessage", e.getMessage());
-            model.addAttribute("request", request);
             return "user/create";
         }
 
@@ -57,12 +52,12 @@ public class UserController {
     @GetMapping("/user/find-id")
     public String findIdPage(Model model) {
         model.addAttribute("request", new FindIdRequest());
-        return "find-id";
+        return "user/find-id";
     }
 
     @PostMapping("/user/find-id")
     public String findId(
-            FindIdRequest request,
+            @ModelAttribute("request") FindIdRequest request,
             Model model
     ) {
         try {
@@ -78,12 +73,12 @@ public class UserController {
     @GetMapping("/user/find-password")
     public String findPasswordPage(Model model) {
         model.addAttribute("request", new FindPasswordRequest());
-        return "find-password";
+        return "user/find-password";
     }
 
     @PostMapping("/user/find-password")
     public String findPassword(
-            FindPasswordRequest request,
+            @ModelAttribute("request") FindPasswordRequest request,
             Model model
     ) {
         try {
@@ -109,28 +104,28 @@ public class UserController {
         Page<UserResponse> paging = userService.getUsers(page);
         model.addAttribute("paging", paging);
 
-        return "list";
+        return "user/list";
     }
 
     @PreAuthorize("hasRole('ADMIN')")
     @GetMapping("/user/view/{id}")
     public String view(
-            Model model,
-            @PathVariable("id") Long id
+            @PathVariable("id") Long id,
+            Model model
     ) {
-        UserResponse user = userService.getUser(id);
+        UserResponse user = userService.getUserResponse(id);
         model.addAttribute("user", user);
 
-        return "view";
+        return "user/view";
     }
 
     @PreAuthorize("hasRole('ADMIN')")
     @GetMapping("/user/update/{id}")
     public String updatePage(
-            Model model,
-            @PathVariable("id") Long id
+            @PathVariable("id") Long id,
+            Model model
     ) {
-        UserResponse user = userService.getUser(id);
+        UserResponse user = userService.getUserResponse(id);
 
         UserUpdateRequest request = new UserUpdateRequest();
         request.setName(user.getName());
@@ -139,21 +134,24 @@ public class UserController {
         model.addAttribute("user", user);
         model.addAttribute("request", request);
 
-        return "update";
+        return "user/update";
     }
 
     @PreAuthorize("hasRole('ADMIN')")
     @PostMapping("/user/update/{id}")
     public String updateUser(
             @PathVariable("id") Long id,
-            UserUpdateRequest request,
+            @ModelAttribute("request") UserUpdateRequest request,
             Model model
     ) {
         try {
             userService.updateUser(id, request);
         } catch (Exception e) {
+            UserResponse user = userService.getUserResponse(id);
+
+            model.addAttribute("user", user);
             model.addAttribute("errorMessage", e.getMessage());
-            model.addAttribute("request", request);
+
             return "user/update";
         }
 
@@ -177,10 +175,6 @@ public class UserController {
         return "redirect:/user/view/" + id;
     }
 
-    // =========================
-    // API용
-    // =========================
-
     @ResponseBody
     @PostMapping("/api/users/register")
     public Map<String, Object> apiRegister(@RequestBody UserCreateRequest request) {
@@ -189,33 +183,6 @@ public class UserController {
         Map<String, Object> result = new HashMap<>();
         result.put("success", true);
         result.put("message", "회원가입이 완료되었습니다.");
-
-        return result;
-    }
-
-    @ResponseBody
-    @PostMapping("/api/user/find-id")
-    public Map<String, Object> apiFindId(@RequestBody FindIdRequest request) {
-        String username = userService.findUsername(request.getName(), request.getEmail());
-
-        Map<String, Object> result = new HashMap<>();
-        result.put("success", true);
-        result.put("username", username);
-
-        return result;
-    }
-
-    @ResponseBody
-    @PostMapping("/api/user/reset-password")
-    public Map<String, Object> apiResetPassword(@RequestBody FindPasswordRequest request) {
-        String temporaryPassword = userService.resetPassword(
-                request.getUsername(),
-                request.getEmail()
-        );
-
-        Map<String, Object> result = new HashMap<>();
-        result.put("success", true);
-        result.put("temporaryPassword", temporaryPassword);
 
         return result;
     }
@@ -233,51 +200,6 @@ public class UserController {
     @PreAuthorize("hasRole('ADMIN')")
     @GetMapping("/api/users/{id}")
     public UserResponse apiUser(@PathVariable("id") Long id) {
-        return userService.getUser(id);
-    }
-
-    @ResponseBody
-    @PreAuthorize("hasRole('ADMIN')")
-    @PutMapping("/api/users/{id}")
-    public Map<String, Object> apiUpdate(
-            @PathVariable("id") Long id,
-            @RequestBody UserUpdateRequest request
-    ) {
-        userService.updateUser(id, request);
-
-        Map<String, Object> result = new HashMap<>();
-        result.put("success", true);
-        result.put("message", "회원 정보가 수정되었습니다.");
-
-        return result;
-    }
-
-    @ResponseBody
-    @PreAuthorize("hasRole('ADMIN')")
-    @DeleteMapping("/api/users/{id}")
-    public Map<String, Object> apiDelete(@PathVariable("id") Long id) {
-        userService.deleteUser(id);
-
-        Map<String, Object> result = new HashMap<>();
-        result.put("success", true);
-        result.put("message", "회원이 삭제되었습니다.");
-
-        return result;
-    }
-
-    @ResponseBody
-    @PreAuthorize("hasRole('ADMIN')")
-    @PatchMapping("/api/users/{id}/role")
-    public Map<String, Object> apiChangeRole(
-            @PathVariable("id") Long id,
-            @RequestParam("role") Role role
-    ) {
-        userService.changeRole(id, role);
-
-        Map<String, Object> result = new HashMap<>();
-        result.put("success", true);
-        result.put("message", "권한이 변경되었습니다.");
-
-        return result;
+        return userService.getUserResponse(id);
     }
 }
