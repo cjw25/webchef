@@ -139,14 +139,14 @@ a {
 }
 
 .food-img {
-  width: 350px;
-  height: 350px;
+  width: 150px;
+  height: 150px;
 }
 
 .box-line {
-  width: 350px;
+  width: 150px;
   height: 20px;
-  background: #C70000;
+  background: #add421;
   margin-top: -3px;
 }
 
