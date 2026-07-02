@@ -6,6 +6,7 @@
 
     <link rel="stylesheet" href="/css/header.css">
     <link rel="stylesheet" href="/css/main.css">
+    <link rel="stylesheet" href="/css/chatbot-widget.css">
 </head>
 <body>
 
@@ -47,7 +48,7 @@
                 </div>
             </div>
 
-            <!-- 로그인 전: 소개 카드 -->
+            <!-- 로그인 전 -->
             <div class="home-right" th:if="${loginUsername == null}">
                 <div class="guest-card">
 
@@ -86,7 +87,7 @@
                 </div>
             </div>
 
-            <!-- 로그인 후: 대시보드 -->
+            <!-- 로그인 후 -->
             <div class="home-right" th:if="${loginUsername != null}">
                 <div class="dashboard-card">
 
@@ -215,6 +216,7 @@
         </div>
     </section>
 
+    <!-- 하단 섹션 -->
     <section class="popular-section">
 
         <div class="section-header">
@@ -224,7 +226,6 @@
 
         <div class="home-content-grid">
 
-            <!-- 인기 강의 -->
             <div class="popular-course-area">
 
                 <div class="popular-course-grid">
@@ -305,7 +306,6 @@
 
             </div>
 
-            <!-- 오늘의 팁 -->
             <aside class="tip-card">
                 <div class="card-title-row">
                     <h3>오늘의 자취 팁</h3>
@@ -321,7 +321,6 @@
                 </div>
             </aside>
 
-            <!-- 학습 현황 -->
             <aside class="status-card">
                 <div class="card-title-row">
                     <h3>나의 학습 현황</h3>
@@ -362,6 +361,76 @@
     </section>
 
 </main>
+
+<!-- 오른쪽 하단 AI 챗봇 / 메타버스 -->
+<div class="wc-floating-tools">
+
+    <button type="button" id="chatbotOpenBtn" class="wc-chat-floating-btn">
+        <span class="wc-chat-btn-icon">AI</span>
+        <span class="wc-chat-btn-text">챗봇</span>
+    </button>
+
+    <a href="/metaverse" class="wc-metaverse-floating-btn">
+        <span>🌐</span>
+        <strong>메타버스</strong>
+    </a>
+
+</div>
+
+<!-- WebChef AI 챗봇 패널 -->
+<section id="chatbotPanel" class="wc-chatbot-panel" aria-hidden="true">
+
+    <div class="wc-chatbot-header">
+        <div class="wc-chatbot-brand">
+            <img src="/img/webchef-logo.png" alt="WebChef">
+            <div>
+                <strong>WebChef 챗봇</strong>
+                <span>요리 · 자취 생활 AI 도우미</span>
+            </div>
+        </div>
+
+        <div class="wc-chatbot-header-actions">
+            <button type="button" id="chatbotResetBtn" class="wc-chatbot-small-btn" title="대화 초기화">↻</button>
+            <button type="button" id="chatbotCloseBtn" class="wc-chatbot-close-btn" title="닫기">×</button>
+        </div>
+    </div>
+
+    <div class="wc-chatbot-body" id="chatbotMessages">
+
+        <div class="wc-chatbot-welcome">
+            <div class="wc-chatbot-logo-circle">
+                <img src="/img/webchef-logo.png" alt="WebChef">
+            </div>
+
+            <p>안녕하세요.</p>
+            <strong>WebChef AI 챗봇이에요.</strong>
+            <h2>무엇을 도와드릴까요?</h2>
+        </div>
+
+        <div class="wc-chatbot-suggest-grid">
+            <button type="button" class="wc-suggest-btn" data-question="계란이랑 김치로 만들 수 있는 요리 알려줘">
+                냉장고 재료로 요리 추천
+            </button>
+
+            <button type="button" class="wc-suggest-btn" data-question="자취방 청소 루틴 알려줘">
+                자취방 청소 루틴
+            </button>
+
+            <button type="button" class="wc-suggest-btn" data-question="이번 주 식비 줄이는 방법 알려줘">
+                식비 절약 팁
+            </button>
+        </div>
+
+    </div>
+
+    <div class="wc-chatbot-input-area">
+        <input type="text" id="chatbotInput" placeholder="무엇이든 물어보세요.">
+        <button type="button" id="chatbotSendBtn">↑</button>
+    </div>
+
+</section>
+
+<script src="/js/chatbot-widget.js"></script>
 
 </body>
 </html>
