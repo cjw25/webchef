@@ -366,7 +366,7 @@
 </main>
 
 <!-- 오른쪽 하단 AI 챗봇 / 메타버스 -->
-<div class="wc-floating-tools">
+<div class="wc-floating-tools" id="floatingTools">
 
     <button type="button" id="chatbotOpenBtn" class="wc-chat-floating-btn">
         <span class="wc-chat-btn-icon">AI</span>
@@ -385,7 +385,9 @@
 
     <div class="wc-chatbot-header">
         <div class="wc-chatbot-brand">
-            <img th:src="@{/img/webchef-logo.png}" src="/img/webchef-logo.png" alt="WebChef">
+            <img th:src="@{/img/webchef-logo.png(v=10)}"
+                 src="/img/webchef-logo.png?v=10"
+                 alt="WebChef">
             <div>
                 <strong>WebChef 챗봇</strong>
                 <span>요리 · 자취 생활 AI 도우미</span>
@@ -402,7 +404,9 @@
 
         <div class="wc-chatbot-welcome">
             <div class="wc-chatbot-logo-circle">
-                <img th:src="@{/img/webchef-logo.png}" src="/img/webchef-logo.png" alt="WebChef">
+                <img th:src="@{/img/webchef-logo.png(v=10)}"
+                     src="/img/webchef-logo.png?v=10"
+                     alt="WebChef">
             </div>
 
             <p>안녕하세요.</p>
@@ -433,7 +437,7 @@
 
 </section>
 
-<script src="/js/chatbot-widget.js"></script>
+<script src="/js/chatbot-widget.js?v=10"></script>
 
 </body>
 </html>

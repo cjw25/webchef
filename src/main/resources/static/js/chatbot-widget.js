@@ -1,4 +1,5 @@
 document.addEventListener("DOMContentLoaded", function () {
+    const floatingTools = document.getElementById("floatingTools");
     const openBtn = document.getElementById("chatbotOpenBtn");
     const closeBtn = document.getElementById("chatbotCloseBtn");
     const resetBtn = document.getElementById("chatbotResetBtn");
@@ -13,12 +14,7 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
     openBtn.addEventListener("click", function () {
-        panel.classList.add("is-open");
-        panel.setAttribute("aria-hidden", "false");
-
-        setTimeout(function () {
-            input.focus();
-        }, 150);
+        openChatbot();
     });
 
     closeBtn.addEventListener("click", function () {
@@ -55,9 +51,38 @@ document.addEventListener("DOMContentLoaded", function () {
         });
     });
 
+    function openChatbot() {
+        panel.classList.add("is-open");
+        panel.setAttribute("aria-hidden", "false");
+
+        document.body.classList.add("wc-chatbot-open");
+
+        if (floatingTools) {
+            floatingTools.classList.add("is-chat-open");
+        }
+
+        openBtn.style.display = "none";
+        openBtn.style.visibility = "hidden";
+        openBtn.style.pointerEvents = "none";
+
+        setTimeout(function () {
+            input.focus();
+        }, 150);
+    }
+
     function closeChatbot() {
         panel.classList.remove("is-open");
         panel.setAttribute("aria-hidden", "true");
+
+        document.body.classList.remove("wc-chatbot-open");
+
+        if (floatingTools) {
+            floatingTools.classList.remove("is-chat-open");
+        }
+
+        openBtn.style.display = "";
+        openBtn.style.visibility = "";
+        openBtn.style.pointerEvents = "";
     }
 
     async function sendMessage() {
@@ -81,21 +106,32 @@ document.addEventListener("DOMContentLoaded", function () {
                 })
             });
 
+            const rawText = await response.text();
+
+            let data = null;
+
+            try {
+                data = JSON.parse(rawText);
+            } catch (e) {
+                data = null;
+            }
+
             if (!response.ok) {
-                loadingMessage.textContent = "챗봇 서버 연결에 실패했습니다.";
+                loadingMessage.textContent =
+                    "챗봇 서버 오류 (" + response.status + "): " + rawText.substring(0, 120);
                 return;
             }
 
-            const data = await response.json();
-
             if (data && data.reply) {
                 loadingMessage.textContent = data.reply;
-            } else {
-                loadingMessage.textContent = "답변을 받지 못했습니다.";
+                return;
             }
+
+            loadingMessage.textContent = "답변 형식이 올바르지 않습니다.";
 
         } catch (error) {
             loadingMessage.textContent = "AI 챗봇 연결 중 오류가 발생했습니다.";
+            console.error(error);
         }
     }
 
