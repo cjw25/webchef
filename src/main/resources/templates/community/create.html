@@ -1,21 +1,159 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+
 <head>
     <meta charset="UTF-8">
-    <title>Title</title>
+    <title>글쓰기 | WebChef</title>
+
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <link rel="stylesheet" th:href="@{/css/header.css}">
+    <link rel="stylesheet" th:href="@{/css/community.css}">
+    <link rel="stylesheet" th:href="@{/css/write.css}">
 </head>
+
 <body>
 
-<div class="mb-3">
-    <label class="form-label">태그</label>
+<!-- 공통 헤더 -->
+<div th:replace="~{fragments/header :: header}"></div>
 
-    <select class="form-select" th:field="*{category}">
-        <option value="">선택하세요</option>
-        <option value="레시피 꿀팁">레시피 꿀팁</option>
-        <option value="장보기 팁">장보기 팁</option>
-        <option value="간편조리도구팁">간편조리도구팁</option>
-    </select>
-</div>
+<main class="write-wrap">
+
+    <div class="write-crumb">
+        <a th:href="@{/community/list}" style="color:inherit;text-decoration:none;">우리들의 대화</a>
+        &nbsp;›&nbsp; <span>글쓰기</span>
+    </div>
+
+    <div class="write-tag">✍️ COMMUNITY</div>
+    <h1>이야기를 <span class="highlight">나눠주세요</span></h1>
+    <p class="write-subtitle">자취 생활의 노하우, 궁금한 점, 오늘의 요리까지 — 편하게 남겨주세요.</p>
+
+    <div class="write-card">
+
+        <div class="write-error-box" th:if="${errorMessage}" th:text="${errorMessage}"></div>
+
+        <form th:action="@{/community/create}" th:object="${request}" method="post" enctype="multipart/form-data">
+
+            <input type="hidden" th:if="${_csrf}" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+
+            <div class="write-field">
+                <label>카테고리<span class="req">*</span></label>
+                <select th:field="*{category}">
+                    <option value="">카테고리 선택</option>
+                    <option value="레시피 꿀팁">레시피 꿀팁</option>
+                    <option value="장보기 팁">장보기 팁</option>
+                    <option value="간편조리도구팁">간편조리도구팁</option>
+                </select>
+                <p class="write-field-error" th:if="${#fields.hasErrors('category')}" th:errors="*{category}"></p>
+            </div>
+
+            <div class="write-field">
+                <label>제목<span class="req">*</span></label>
+                <input type="text" th:field="*{subject}" placeholder="제목을 입력하세요">
+                <p class="write-field-error" th:if="${#fields.hasErrors('subject')}" th:errors="*{subject}"></p>
+            </div>
+
+            <div class="write-field">
+                <label>내용<span class="req">*</span></label>
+                <textarea th:field="*{content}" id="write-content" placeholder="내용을 입력하세요"></textarea>
+                <div class="write-char-count"><span id="write-char-current">0</span> / 2000</div>
+                <p class="write-field-error" th:if="${#fields.hasErrors('content')}" th:errors="*{content}"></p>
+            </div>
+
+            <div class="write-field">
+                <label>사진 첨부</label>
+                <label class="write-file-drop" for="write-file-input" id="write-file-drop">
+                    <div class="write-file-drop-icon">📎</div>
+                    <div class="write-file-drop-text">클릭하거나 파일을 끌어다 놓으세요</div>
+                    <div class="write-file-drop-sub">JPG, PNG (최대 10MB, 최대 5개)</div>
+                    <input type="file" name="images" id="write-file-input" multiple accept="image/*">
+                </label>
+                <div class="write-file-list" id="write-file-list"></div>
+            </div>
+
+            <div class="write-tip-box">
+                <span>💡</span>
+                <span><b>글쓰기 팁</b> — 사진과 함께 남기면 다른 자취러들에게 더 도움이 돼요!</span>
+            </div>
+
+            <div class="write-actions">
+                <a th:href="@{/community/list}" class="write-btn write-btn-prev">처음으로</a>
+                <button type="submit" class="write-btn write-btn-submit">확인</button>
+            </div>
+
+        </form>
+
+    </div>
+
+</main>
+
+<script>
+    const writeFileInput = document.getElementById('write-file-input');
+    const writeFileDrop = document.getElementById('write-file-drop');
+    const writeFileList = document.getElementById('write-file-list');
+    let writeSelectedFiles = [];
+
+    function renderWriteFiles(){
+        writeFileList.innerHTML = '';
+        writeSelectedFiles.forEach((file, idx) => {
+            const item = document.createElement('div');
+            item.className = 'write-file-item';
+            const sizeKb = (file.size / 1024).toFixed(0);
+            item.innerHTML =
+                '<span class="write-file-name">🖼️ ' + file.name + ' (' + sizeKb + 'KB)</span>' +
+                '<button type="button" class="write-file-remove" data-idx="' + idx + '">✕</button>';
+            writeFileList.appendChild(item);
+        });
+        writeFileList.querySelectorAll('.write-file-remove').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                const idx = parseInt(e.currentTarget.getAttribute('data-idx'), 10);
+                writeSelectedFiles.splice(idx, 1);
+                syncWriteInputFiles();
+                renderWriteFiles();
+            });
+        });
+    }
+
+    function syncWriteInputFiles(){
+        const dt = new DataTransfer();
+        writeSelectedFiles.forEach(f => dt.items.add(f));
+        writeFileInput.files = dt.files;
+    }
+
+    writeFileInput.addEventListener('change', (e) => {
+        writeSelectedFiles = writeSelectedFiles.concat(Array.from(e.target.files));
+        syncWriteInputFiles();
+        renderWriteFiles();
+    });
+
+    ['dragover', 'dragenter'].forEach(evt => {
+        writeFileDrop.addEventListener(evt, (e) => {
+            e.preventDefault();
+            writeFileDrop.classList.add('dragover');
+        });
+    });
+    ['dragleave', 'drop'].forEach(evt => {
+        writeFileDrop.addEventListener(evt, (e) => {
+            e.preventDefault();
+            writeFileDrop.classList.remove('dragover');
+        });
+    });
+    writeFileDrop.addEventListener('drop', (e) => {
+        if (e.dataTransfer.files && e.dataTransfer.files.length){
+            writeSelectedFiles = writeSelectedFiles.concat(Array.from(e.dataTransfer.files));
+            syncWriteInputFiles();
+            renderWriteFiles();
+        }
+    });
+
+    const writeContentArea = document.getElementById('write-content');
+    const writeCharCurrent = document.getElementById('write-char-current');
+    function updateWriteCharCount(){
+        writeCharCurrent.textContent = writeContentArea.value.length;
+    }
+    writeContentArea.addEventListener('input', updateWriteCharCount);
+    updateWriteCharCount();
+</script>
 
 </body>
 </html>
