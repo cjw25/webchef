@@ -47,6 +47,7 @@ public class SecurityConfig {
                                 "/js/**",
                                 "/images/**",
                                 "/assets/**",
+                                "/api/chat/**",
                                 "/api/users/register"
                         ).permitAll()
                         .anyRequest().authenticated()
