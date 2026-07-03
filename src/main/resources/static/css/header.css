@@ -5,12 +5,15 @@
 .site-header {
     width: 100%;
     height: 76px;
+
     background: #ffffff;
     border-bottom: 1px solid #eeeeee;
 
     position: sticky;
     top: 0;
     z-index: 3000;
+
+    overflow: visible;
 }
 
 .header-inner {
@@ -23,6 +26,8 @@
     display: flex;
     align-items: center;
     justify-content: flex-start;
+
+    overflow: visible;
 }
 
 /* =========================
@@ -79,10 +84,12 @@
     align-items: center;
     justify-content: flex-start;
 
-    gap: 18px;
+    gap: 22px;
 
     flex: 1;
     min-width: 0;
+
+    overflow: visible;
 }
 
 .gnb-item {
@@ -92,6 +99,8 @@
 
     display: flex;
     align-items: center;
+
+    overflow: visible;
 }
 
 .gnb-link {
@@ -119,7 +128,7 @@
 
 /* =========================
    Mega Menu
-   각 메뉴 글씨 중앙 기준 정렬
+   메뉴 글씨 중앙 기준으로 열림
 ========================= */
 
 .mega-menu {
@@ -127,7 +136,7 @@
     top: 100%;
     left: 50%;
 
-    width: 680px;
+    width: 820px;
     padding-top: 14px;
 
     opacity: 0;
@@ -137,11 +146,11 @@
     transform: translateX(-50%) translateY(12px);
     transition: 0.18s ease;
 
-    z-index: 7000;
+    z-index: 9000;
 }
 
 .mega-menu.single {
-    width: 620px;
+    width: 780px;
 }
 
 .gnb-item:hover .mega-menu {
@@ -165,38 +174,41 @@
 
 .mega-inner {
     width: 100%;
-    min-height: 190px;
+    min-height: 235px;
 
-    padding: 28px 32px;
+    padding: 34px 40px;
 
     background: #ffffff;
     border: 1px solid #eeeeee;
-    border-radius: 22px;
+    border-radius: 24px;
 
-    box-shadow: 0 22px 60px rgba(0, 0, 0, 0.13);
+    box-shadow: 0 24px 70px rgba(0, 0, 0, 0.15);
 
     display: flex;
     align-items: stretch;
-    gap: 34px;
+    gap: 42px;
 }
 
+/* 왼쪽 설명 영역 */
 .mega-title-box {
-    width: 230px;
-    min-width: 230px;
+    width: 310px;
+    min-width: 310px;
 
-    padding-right: 26px;
+    padding-right: 34px;
 
     border-right: 1px solid #eeeeee;
 }
 
 .mega-title-box h3 {
-    margin: 0 0 12px;
+    margin: 0 0 16px;
 
     color: #d71920;
 
-    font-size: 22px;
+    font-size: 25px;
     font-weight: 900;
-    letter-spacing: -0.6px;
+    letter-spacing: -0.7px;
+
+    white-space: nowrap;
 }
 
 .mega-title-box p {
@@ -204,34 +216,43 @@
 
     color: #666666;
 
-    font-size: 14px;
-    font-weight: 600;
-    line-height: 1.7;
+    font-size: 15px;
+    font-weight: 700;
+    line-height: 1.85;
+
+    word-break: keep-all;
+    overflow-wrap: normal;
 }
 
+/* 오른쪽 컬럼 */
 .mega-column {
-    min-width: 120px;
+    min-width: 140px;
 
     display: flex;
     flex-direction: column;
-    gap: 8px;
+    gap: 10px;
 }
 
 .mega-column h4 {
-    margin: 0 0 6px;
+    margin: 0 0 8px;
 
     color: #111111;
 
-    font-size: 15px;
+    font-size: 16px;
     font-weight: 900;
+
+    white-space: nowrap;
 }
 
 .mega-column a {
     color: #444444;
 
-    font-size: 14px;
+    font-size: 15px;
     font-weight: 700;
+    line-height: 1.4;
     text-decoration: none;
+
+    white-space: nowrap;
 
     transition: 0.15s ease;
 }
@@ -255,22 +276,22 @@
 .mega-search-box form {
     display: flex;
     align-items: center;
-    gap: 8px;
+    gap: 10px;
 }
 
 .mega-search-box input {
     flex: 1;
-    height: 44px;
+    height: 50px;
 
-    padding: 0 14px;
+    padding: 0 18px;
 
     border: 1px solid #dddddd;
     border-radius: 999px;
 
     outline: none;
 
-    font-size: 14px;
-    font-weight: 600;
+    font-size: 15px;
+    font-weight: 700;
 }
 
 .mega-search-box input:focus {
@@ -278,8 +299,8 @@
 }
 
 .mega-search-box button {
-    width: 52px;
-    height: 52px;
+    width: 56px;
+    height: 56px;
 
     border: none;
     border-radius: 50%;
@@ -295,23 +316,23 @@
 }
 
 .keyword-tags {
-    margin-top: 16px;
+    margin-top: 18px;
 
     display: flex;
     flex-wrap: wrap;
-    gap: 8px;
+    gap: 10px;
 }
 
 .keyword-tags a {
-    padding: 8px 13px;
+    padding: 10px 15px;
 
     border-radius: 999px;
 
     background: #fff2f3;
     color: #d71920;
 
-    font-size: 13px;
-    font-weight: 800;
+    font-size: 14px;
+    font-weight: 900;
     text-decoration: none;
 }
 
@@ -452,7 +473,7 @@
 
     .gnb {
         margin-left: 60px;
-        gap: 12px;
+        gap: 14px;
     }
 
     .gnb-link {
@@ -464,16 +485,31 @@
     }
 
     .mega-menu {
-        width: 620px;
+        width: 720px;
     }
 
     .mega-menu.single {
-        width: 560px;
+        width: 700px;
     }
 
     .mega-inner {
-        padding: 24px 26px;
-        gap: 24px;
+        min-height: 220px;
+        padding: 28px 30px;
+        gap: 30px;
+    }
+
+    .mega-title-box {
+        width: 270px;
+        min-width: 270px;
+        padding-right: 26px;
+    }
+
+    .mega-title-box h3 {
+        font-size: 23px;
+    }
+
+    .mega-title-box p {
+        font-size: 14px;
     }
 
     .login-link,
@@ -513,6 +549,7 @@
         justify-content: flex-start;
 
         overflow-x: auto;
+        overflow-y: visible;
     }
 
     .gnb-item {
@@ -542,7 +579,10 @@
     }
 
     .mega-inner {
+        min-height: auto;
+        padding: 26px;
         flex-direction: column;
+        gap: 22px;
     }
 
     .mega-title-box {
@@ -554,5 +594,9 @@
 
         border-right: none;
         border-bottom: 1px solid #eeeeee;
+    }
+
+    .mega-title-box h3 {
+        white-space: normal;
     }
 }
