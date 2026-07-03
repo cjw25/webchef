@@ -26,7 +26,7 @@ public class CommunityService {
     }
 
     @Transactional(readOnly = true)
-    public Page<CommunityResponse> getCommunities(int page, String keyword) {
+    public Page<CommunityResponse> getCommunities(int page, String keyword, String category) {
         Pageable pageable = PageRequest.of(
                 page,
                 10,
@@ -61,6 +61,7 @@ public class CommunityService {
         User author = userService.getLoginUserEntity(username);
 
         Community community = new Community();
+        community.setCategory(request.getCategory());
         community.setSubject(request.getSubject().trim());
         community.setContent(request.getContent().trim());
         community.setAuthor(author);
@@ -77,6 +78,7 @@ public class CommunityService {
 
         checkOwnerOrAdmin(community, loginUser, "수정 권한이 없습니다.");
 
+        community.setCategory(request.getCategory());
         community.setSubject(request.getSubject().trim());
         community.setContent(request.getContent().trim());
 
@@ -149,4 +151,6 @@ public class CommunityService {
     private boolean isBlank(String value) {
         return value == null || value.trim().isEmpty();
     }
+
+
 }

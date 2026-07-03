@@ -1,0 +1,618 @@
+:root{
+    --main:#bd1d1d;
+    --main-dark:#9f1616;
+    --sub:#666;
+    --border:#ececec;
+    --bg:#f7f8fb;
+    --card:#ffffff;
+    --shadow:0 12px 30px rgba(0,0,0,.06);
+    --radius:20px;
+}
+
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+}
+
+body{
+    background:var(--bg);
+    color:#333;
+    font-family:'Pretendard',sans-serif;
+}
+
+a{
+    text-decoration:none;
+    color:inherit;
+}
+
+.community-wrap{
+
+    max-width:1280px;
+    margin:60px auto;
+    padding:0 20px;
+
+}
+
+/* ===========================
+   HERO
+   =========================== */
+
+.community-hero{
+
+    background:#fff;
+    border-radius:25px;
+    padding:60px;
+    box-shadow:var(--shadow);
+    text-align:center;
+    margin-bottom:40px;
+
+}
+
+.community-hero h1{
+
+    font-size:40px;
+    color:var(--main);
+    margin-bottom:15px;
+
+}
+
+.community-hero p{
+
+    color:#777;
+    font-size:17px;
+    line-height:1.8;
+
+}
+
+/* ===========================
+   SEARCH
+   =========================== */
+
+.search-box{
+
+    width:100%;
+    display:flex;
+    justify-content:center;
+    margin-top:35px;
+
+}
+
+.search-form{
+
+    width:700px;
+    display:flex;
+    background:#fff;
+    border-radius:50px;
+    overflow:hidden;
+    box-shadow:0 10px 25px rgba(0,0,0,.08);
+
+}
+
+.search-form input{
+
+    flex:1;
+    border:none;
+    padding:18px 25px;
+    font-size:16px;
+    outline:none;
+
+}
+
+.search-form button{
+
+    width:120px;
+    border:none;
+    background:var(--main);
+    color:#fff;
+    cursor:pointer;
+    transition:.3s;
+
+}
+
+.search-form button:hover{
+
+    background:var(--main-dark);
+
+}
+
+/* ===========================
+   CATEGORY
+   =========================== */
+
+.category-menu{
+
+    display:flex;
+    justify-content:center;
+    gap:15px;
+    margin:45px 0;
+
+}
+
+.category-menu a{
+
+    padding:12px 24px;
+    border-radius:40px;
+    background:#fff;
+    box-shadow:0 5px 15px rgba(0,0,0,.05);
+    transition:.3s;
+    font-weight:600;
+
+}
+
+.category-menu a:hover{
+
+    background:var(--main);
+    color:#fff;
+
+}
+
+.category-menu .active{
+
+    background:var(--main);
+    color:#fff;
+
+}
+
+/* ===========================
+   WRITE BUTTON
+   =========================== */
+
+.write-box{
+
+    display:flex;
+    justify-content:flex-end;
+    margin-bottom:25px;
+
+}
+
+.write-btn{
+
+    background:var(--main);
+    color:#fff;
+    padding:13px 28px;
+    border-radius:40px;
+    transition:.3s;
+    font-weight:600;
+
+}
+
+.write-btn:hover{
+
+    background:var(--main-dark);
+    transform:translateY(-3px);
+
+}
+
+/* ===========================
+   LIST
+   =========================== */
+
+.community-list{
+
+    display:flex;
+    flex-direction:column;
+    gap:20px;
+
+}
+
+.community-card{
+
+    background:#fff;
+    border-radius:20px;
+    padding:30px;
+    box-shadow:var(--shadow);
+    transition:.3s;
+
+}
+
+.community-card:hover{
+
+    transform:translateY(-5px);
+
+}
+
+.community-top{
+
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+
+}
+
+.community-title{
+
+    font-size:23px;
+    font-weight:700;
+    margin-top:15px;
+    margin-bottom:15px;
+
+}
+
+.community-content{
+
+    color:#777;
+    line-height:1.8;
+    font-size:15px;
+
+}
+
+/* ===========================
+   TAG
+   =========================== */
+
+.tag{
+
+    display:inline-block;
+    padding:8px 18px;
+    border-radius:30px;
+    color:#fff;
+    font-size:13px;
+    font-weight:700;
+
+}
+
+.community-info{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    margin-top:25px;
+    border-top:1px solid #eee;
+    padding-top:18px;
+}
+
+.community-author{
+    display:flex;
+    align-items:center;
+    gap:12px;
+}
+
+.author-profile{
+    width:42px;
+    height:42px;
+    border-radius:50%;
+    background:#bd1d1d;
+    color:#fff;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    font-weight:700;
+    font-size:18px;
+}
+
+.author-text{
+    display:flex;
+    flex-direction:column;
+}
+
+.author-name{
+    font-weight:600;
+}
+
+.author-date{
+    font-size:13px;
+    color:#999;
+}
+
+.community-state{
+    display:flex;
+    gap:18px;
+    color:#777;
+    font-size:15px;
+}
+
+.community-state span{
+    display:flex;
+    align-items:center;
+    gap:5px;
+}
+
+/* ===========================
+   DETAIL
+=========================== */
+
+.community-detail{
+
+    background:#fff;
+    border-radius:20px;
+    box-shadow:var(--shadow);
+    padding:45px;
+
+}
+
+.detail-title{
+
+    font-size:34px;
+    margin:20px 0;
+
+}
+
+.detail-content{
+
+    margin-top:35px;
+    line-height:2;
+    font-size:17px;
+    color:#555;
+    min-height:250px;
+
+}
+
+.detail-bottom{
+
+    margin-top:40px;
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+
+}
+
+.detail-btns{
+
+    display:flex;
+    gap:12px;
+
+}
+
+/* ===========================
+   BUTTON
+=========================== */
+
+.btn-red{
+
+    background:#bd1d1d;
+    color:#fff;
+    border:none;
+    border-radius:50px;
+    padding:12px 26px;
+    cursor:pointer;
+    transition:.3s;
+
+}
+
+.btn-red:hover{
+
+    background:#a31515;
+    transform:translateY(-2px);
+
+}
+
+.btn-white{
+
+    background:#fff;
+    border:1px solid #ddd;
+    border-radius:50px;
+    padding:12px 26px;
+    cursor:pointer;
+    transition:.3s;
+
+}
+
+.btn-white:hover{
+
+    background:#f6f6f6;
+
+}
+
+/* ===========================
+   FORM
+=========================== */
+
+.community-form{
+
+    background:#fff;
+    border-radius:20px;
+    padding:40px;
+    box-shadow:var(--shadow);
+
+}
+
+.community-form .form-group{
+
+    margin-bottom:28px;
+
+}
+
+.community-form label{
+
+    display:block;
+    margin-bottom:10px;
+    font-weight:600;
+
+}
+
+.community-form input{
+
+    width:100%;
+    border:1px solid #ddd;
+    border-radius:12px;
+    padding:15px;
+    font-size:16px;
+
+}
+
+.community-form textarea{
+
+    width:100%;
+    height:350px;
+    resize:none;
+    border:1px solid #ddd;
+    border-radius:12px;
+    padding:20px;
+    font-size:16px;
+
+}
+
+.community-form select{
+
+    width:250px;
+    border:1px solid #ddd;
+    border-radius:12px;
+    padding:13px;
+
+}
+
+.form-btn{
+
+    display:flex;
+    justify-content:flex-end;
+    gap:12px;
+    margin-top:30px;
+
+}
+
+/* ===========================
+   PAGINATION
+=========================== */
+
+.pagination{
+
+    display:flex;
+    justify-content:center;
+    gap:10px;
+    margin:50px 0;
+
+}
+
+.pagination a{
+
+    width:42px;
+    height:42px;
+    border-radius:50%;
+    background:#fff;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    box-shadow:0 5px 15px rgba(0,0,0,.06);
+    transition:.3s;
+
+}
+
+.pagination a:hover{
+
+    background:#bd1d1d;
+    color:#fff;
+
+}
+
+.pagination .active{
+
+    background:#bd1d1d;
+    color:#fff;
+
+}
+
+/* ===========================
+   DELETE
+=========================== */
+
+.delete-box{
+
+    background:#fff;
+    padding:70px;
+    border-radius:20px;
+    text-align:center;
+    box-shadow:var(--shadow);
+
+}
+
+.delete-box h2{
+
+    margin-bottom:15px;
+
+}
+
+.delete-box p{
+
+    color:#666;
+    margin-bottom:35px;
+
+}
+
+/* ===========================
+   TAG COLOR
+=========================== */
+
+.tag.recipe{
+
+    background:#e74c3c;
+
+}
+
+.tag.shopping{
+
+    background:#27ae60;
+
+}
+
+.tag.tool{
+
+    background:#3498db;
+
+}
+
+/* ===========================
+   MOBILE
+=========================== */
+
+@media(max-width:768px){
+
+    .community-wrap{
+
+        padding:15px;
+
+    }
+
+    .community-hero{
+
+        padding:35px 20px;
+
+    }
+
+    .community-hero h1{
+
+        font-size:30px;
+
+    }
+
+    .search-form{
+
+        width:100%;
+
+    }
+
+    .category-menu{
+
+        flex-wrap:wrap;
+
+    }
+
+    .community-info{
+
+        flex-direction:column;
+        align-items:flex-start;
+        gap:15px;
+
+    }
+
+    .detail-bottom{
+
+        flex-direction:column;
+        gap:20px;
+
+    }
+
+    .form-btn{
+
+        flex-direction:column;
+
+    }
+
+    .btn-red,
+    .btn-white{
+
+        width:100%;
+
+    }
+
+}
+

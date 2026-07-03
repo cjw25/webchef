@@ -54,4 +54,7 @@ public class Community {
     public void preUpdate() {
         this.modifyDate = LocalDateTime.now();
     }
+
+    @Column(length = 30)
+    private String category;
 }

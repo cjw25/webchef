@@ -13,7 +13,7 @@ import java.util.List;
 import java.util.Map;
 
 @RequiredArgsConstructor
-@Service
+//@Service
 public class OpenAiChatService {
 
     private final RestTemplate restTemplate;

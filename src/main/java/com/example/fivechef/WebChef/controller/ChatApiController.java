@@ -7,7 +7,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
 @RequiredArgsConstructor
-@RestController
+//@RestController
 @RequestMapping("/api/chat")
 public class ChatApiController {
 

@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="ko"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
+      layout:decorate="~{layout/layout}">
+
+<head>
+    <meta charset="UTF-8">
+    <title>우리들의 대화 | WebChef</title>
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1">
+
+    <link rel="stylesheet"
+          th:href="@{/css/community.css}">
+</head>
+
+<body>
+
+<div layout:fragment="content">
+
+    <div class="community-wrap">
+
+        <!-- Hero -->
+        <section class="community-hero">
+
+            <h1>우리들의 대화</h1>
+
+            <p>
+                자취생들의 레시피와 생활 노하우를<br>
+                함께 공유해보세요.
+            </p>
+
+            <!-- 검색 -->
+            <div class="search-box">
+
+                <form class="search-form"
+                      th:action="@{/community/list}"
+                      method="get">
+
+                    <input type="text"
+                           name="keyword"
+                           th:value="${keyword}"
+                           placeholder="검색어를 입력하세요">
+
+                    <button type="submit">
+                        검색
+                    </button>
+
+                </form>
+
+            </div>
+
+        </section>
+
+    </div>
+
+    <!-- 카테고리 -->
+    <div class="category-menu">
+
+        <a th:href="@{/community/list}"
+           class="active">
+            전체
+        </a>
+
+        <a th:href="@{/community/list(category='레시피 꿀팁')}">
+            레시피 꿀팁
+        </a>
+
+        <a th:href="@{/community/list(category='장보기 팁')}">
+            장보기 팁
+        </a>
+
+        <a th:href="@{/community/list(category='간편조리도구팁')}">
+            간편조리도구팁
+        </a>
+
+    </div>
+
+    <!-- 글쓰기 -->
+    <div class="write-box">
+
+        <a class="write-btn"
+           th:href="@{/community/create}">
+            글쓰기
+        </a>
+
+    </div>
+
+    <!-- 게시글 목록 -->
+    <div class="community-list">
+
+        <div class="community-card"
+             th:each="community : ${paging.content}">
+
+            <div class="community-top">
+
+                <span class="tag"
+                      th:classappend="
+                        ${community.category == '레시피 꿀팁'} ? ' recipe' :
+                        (${community.category == '장보기 팁'} ? ' shopping' : ' tool')"
+                      th:text="${community.category}">
+                </span>
+
+            </div>
+
+            <a th:href="@{|/community/view/${community.id}|}">
+                <h2 class="community-title"
+                    th:text="${community.subject}">
+                    제목
+                </h2>
+            </a>
+
+            <p class="community-content"
+               th:text="${#strings.abbreviate(community.content,120)}">
+            </p>
+
+            <div class="community-info">
+
+                <div class="community-author">
+
+                    <div class="author-profile"
+                         th:text="${#strings.substring(community.authorName,0,1)}">
+                    </div>
+
+                    <div class="author-text">
+
+                        <span class="author-name"
+                              th:text="${community.authorName}">
+                        </span>
+
+                        <span class="author-date"
+                              th:text="${#temporals.format(community.createDate,'yyyy.MM.dd')}">
+                        </span>
+
+                    </div>
+
+                </div>
+
+                <div class="community-state">
+
+                    <span>
+                        ❤️ <span th:text="${community.voterCount}"></span>
+                    </span>
+
+                    <span>
+                        💬 <span th:text="${community.answerCount}"></span>
+                    </span>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+    <!-- 페이징 -->
+    <div class="pagination">
+
+        <a th:if="${paging.hasPrevious()}"
+           th:href="@{/community/list(page=${paging.number-1},
+                keyword=${keyword},
+                category=${category})}">
+            &lt;
+        </a>
+
+        <a th:each="pageNumber : ${#numbers.sequence(0,paging.totalPages-1)}"
+           th:href="@{/community/list(page=${pageNumber},
+                keyword=${keyword},
+                category=${category})}"
+           th:text="${pageNumber+1}"
+           th:classappend="${pageNumber==paging.number} ? ' active'">
+        </a>
+
+        <a th:if="${paging.hasNext()}"
+           th:href="@{/community/list(page=${paging.number+1},
+                keyword=${keyword},
+                category=${category})}">
+            &gt;
+        </a>
+
+    </div>
+
+</div>
+
+</body>
+</html>
