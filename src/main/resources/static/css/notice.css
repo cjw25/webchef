@@ -39,14 +39,15 @@ a {
 
 .FAQ {
   padding: 10px 200px;
+  padding-bottom: 200px;
 }
 
 .FAQ-banner {
-    display:inline-block;
-    padding: 20px 40px;
-    font-size: 20px;
-    background: #FFD4D4;
-    border: 4px solid rgb(211, 211, 211);
+  display:inline-block;
+  padding: 20px 40px;
+  font-size: 20px;
+  background: #FFD4D4;
+  border: 4px solid rgb(211, 211, 211);
 }
 
 .total {
@@ -62,7 +63,7 @@ a {
   /* border-radius: 16px; */
   box-shadow: 0 4px 12px rgba(0,0,0,0.1);
   overflow: hidden;
-  padding-bottom: 40px;
+  padding-bottom: 20px;
 }
 
 .FAQ-header {
@@ -94,11 +95,79 @@ a {
 
 .FAQ-list {
   display: flex;
+  justify-content: space-between;
+  text-align: center;
   padding: 20px;
-  background: #c0d7d8;
+  background: #ffeaea;
+  margin-bottom: 10px;
 }
 
 .number {
+  width: 165px;
   background: #ffffff;
+  border: 2px solid rgb(255, 133, 133);
+  padding: 5px 0;
+}
 
+.name {
+  width: 700px;
+  background: #ffffff;
+  border: 2px solid rgb(255, 133, 133);
+  padding: 5px 0;
+}
+
+.add {
+  width: 165px;
+  background: #ffffff;
+  border: 2px solid rgb(255, 133, 133);
+  padding: 5px 0;
+}
+
+.hits {
+  width: 165px;
+  background: #ffffff;
+  border: 2px solid rgb(255, 133, 133);
+  padding: 5px 0;
+}
+
+.date {
+  width: 250px;
+  background: #ffffff;
+  border: 2px solid rgb(255, 133, 133);
+  padding: 5px 0;
+}
+
+.FAQ-text {
+  display: flex;
+  justify-content: space-between;
+  text-align: center;
+  padding: 10px 20px;
+}
+
+.text-number {
+  width: 165px;
+  padding-bottom: 5px;
+  border-bottom: 3px solid rgb(219, 219, 219);
+}
+.text-name {
+  width: 700px;
+  padding-bottom: 5px;
+  text-align: left;
+  padding-left: 20px;
+  border-bottom: 3px solid rgb(219, 219, 219);
+}
+.text-add {
+  width: 165px;
+  padding-bottom: 5px;
+  border-bottom: 3px solid rgb(219, 219, 219);
+}
+.text-hits {
+  width: 165px;
+  padding-bottom: 5px;
+  border-bottom: 3px solid rgb(219, 219, 219);
+}
+.text-date {
+  width: 250px;
+  padding-bottom: 5px;
+  border-bottom: 3px solid rgb(219, 219, 219);
 }
