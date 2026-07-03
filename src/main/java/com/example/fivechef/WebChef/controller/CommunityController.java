@@ -31,7 +31,7 @@ public class CommunityController {
         model.addAttribute("paging", paging);
         model.addAttribute("kw", kw);
 
-        return "community/list";
+        return "community";
     }
 
     @GetMapping("/community/view/{id}")
