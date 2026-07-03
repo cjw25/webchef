@@ -37,12 +37,12 @@ a {
   margin-bottom: 20px;
 }
 
-.FAQ {
+.notice {
   padding: 10px 200px;
   padding-bottom: 200px;
 }
 
-.FAQ-banner {
+.notice-banner {
   display:inline-block;
   padding: 20px 40px;
   font-size: 20px;
@@ -57,7 +57,7 @@ a {
   color: #C70000;
 }
 
-.FAQ-container {
+.notice-container {
   margin-top: 30px;
   background-color: white;
   /* border-radius: 16px; */
@@ -66,7 +66,7 @@ a {
   padding-bottom: 20px;
 }
 
-.FAQ-header {
+.notice-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -91,9 +91,9 @@ a {
   border-radius: 10px;
 }
 
-/* .FAQ-body {} */
+/* .notice-body {} */
 
-.FAQ-list {
+.notice-list {
   display: flex;
   justify-content: space-between;
   text-align: center;
@@ -137,7 +137,7 @@ a {
   padding: 5px 0;
 }
 
-.FAQ-text {
+.notice-text {
   display: flex;
   justify-content: space-between;
   text-align: center;
