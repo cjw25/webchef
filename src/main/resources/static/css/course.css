@@ -31,7 +31,7 @@ a {
 .category {
   display: flex;
   flex-direction: column;
-  padding: 50px 270px;
+  padding: 50px 265px;
   gap: 25px;
 }
 
@@ -82,7 +82,7 @@ a {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 40px 270px;
+  padding: 40px 265px;
 }
 
 
@@ -139,12 +139,12 @@ a {
 }
 
 .food-img {
-  width: 255px;
-  height: 255px;
+  width: 260px;
+  height: 260px;
 }
 
 .box-line {
-  width: 255px;
+  width: 260px;
   height: 20px;
   background: #C70000;
   margin-top: -3px;
