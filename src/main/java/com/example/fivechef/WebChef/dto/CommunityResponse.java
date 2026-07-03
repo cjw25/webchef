@@ -14,6 +14,7 @@ public class CommunityResponse {
     private final Long id;
     private final String subject;
     private final String content;
+    private final String category;
 
     private final Long authorId;
     private final String authorName;
@@ -35,6 +36,7 @@ public class CommunityResponse {
         this.id = community.getId();
         this.subject = community.getSubject();
         this.content = community.getContent();
+        this.category = community.getCategory();
 
         if (community.getAuthor() != null) {
             this.authorId = community.getAuthor().getId();

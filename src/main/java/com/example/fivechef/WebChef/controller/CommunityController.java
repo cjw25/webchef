@@ -21,17 +21,19 @@ public class CommunityController {
     private final CommunityService communityService;
 
     @GetMapping("/community/list")
-    public String list(
-            Model model,
-            @RequestParam(value = "page", defaultValue = "0") int page,
-            @RequestParam(value = "kw", required = false) String kw
-    ) {
-        Page<CommunityResponse> paging = communityService.getCommunities(page, kw);
+    public String list(Model model,
+                       @RequestParam(defaultValue = "0") int page,
+                       @RequestParam(defaultValue = "") String keyword,
+                       @RequestParam(required = false) String category) {
+
+        Page<CommunityResponse> paging =
+                communityService.getCommunities(page, keyword, category);
 
         model.addAttribute("paging", paging);
-        model.addAttribute("kw", kw);
+        model.addAttribute("keyword", keyword);
+        model.addAttribute("category", category);
 
-        return "community";
+        return "community/list";
     }
 
     @GetMapping("/community/view/{id}")
@@ -85,6 +87,7 @@ public class CommunityController {
         CommunityUpdateRequest request = new CommunityUpdateRequest();
         request.setSubject(community.getSubject());
         request.setContent(community.getContent());
+        request.setCategory(community.getCategory());
 
         model.addAttribute("community", community);
         model.addAttribute("request", request);
