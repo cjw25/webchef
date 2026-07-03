@@ -31,7 +31,7 @@ a {
 .category {
   display: flex;
   flex-direction: column;
-  padding: 50px 250px;
+  padding: 50px 225px;
   gap: 25px;
 }
 
@@ -82,7 +82,7 @@ a {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 40px 200px;
+  padding: 40px 225px;
 }
 
 
@@ -117,7 +117,7 @@ a {
 
 .cook-box {
   display: flex;
-  padding: 50px 200px;
+  padding: 50px 225px;
   justify-content: space-between;
 }
 
@@ -139,36 +139,42 @@ a {
 }
 
 .food-img {
-  width: 280px;
-  height: 280px;
+  width: 260px;
+  height: 260px;
 }
 
 .box-line {
-  width: 280px;
+  width: 260px;
   height: 20px;
   background: #C70000;
   margin-top: -3px;
 }
 
 .skills-box {
-  display: flex;
+  /* display: flex; */
   justify-content: space-between;
   align-items: center;
   font-size: 15px;
   font-weight: bold;
-  padding: 20px 0px;
+  padding: 15px 0px;
+}
+
+.tag-name {
+  display: flex;
+  flex-direction: column;
+  padding-bottom: 20px;
 }
 
 .tag-level {
   background: #DADADA;
-  padding: 8px 13px;
+  padding: 10px 15px;
   border-radius: 30px;
-  margin-right: 10px;
+  margin: 10px;
 }
 
 .tag-time {
   background: #C2C2C2;
-  padding: 8px 13px;
+  padding: 10px 25px;
   border-radius: 30px;
 }
 
