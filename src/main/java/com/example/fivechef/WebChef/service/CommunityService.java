@@ -11,13 +11,22 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.*;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
+
+import java.util.List;
 
 @RequiredArgsConstructor
 @Service
 public class CommunityService {
 
+    private static final List<String> ALLOWED_EXTENSIONS = List.of("jpg", "jpeg", "png", "gif", "webp");
+    private static final long MAX_FILE_SIZE = 10 * 2024 * 2024;
+    private static final int MAX_FILE_COUNT = 5;
+
     private final CommunityRepository communityRepository;
     private final UserService userService;
+
+    private String uploadDir;
 
     @Transactional(readOnly = true)
     public Community getCommunityEntity(Long id) {
@@ -54,8 +63,10 @@ public class CommunityService {
         return new CommunityResponse(community, true);
     }
 
+
     @Transactional
-    public void createCommunity(CommunityCreateRequest request, String username) {
+    public void createCommunity(CommunityCreateRequest request, String username,
+                                MultipartFile[] image) {
         validateCreateRequest(request);
 
         User author = userService.getLoginUserEntity(username);
@@ -67,6 +78,54 @@ public class CommunityService {
         community.setAuthor(author);
 
         communityRepository.save(community);
+
+        if(image != null){
+            if (image.length > MAX_FILE_COUNT) {
+                throw new IllegalArgumentException("사진은 최대 " + MAX_FILE_COUNT +
+                        "개까지 첨부할 수 있어요.");
+            }
+
+            java.io.File uploadFolder = new java.io.File(uploadDir);
+            if (!uploadFolder.exists()){
+                    uploadFolder.mkdirs();
+            }
+
+            for (MultipartFile file : image) {
+                if (file.isEmpty()) continue;
+
+                if (file.getSize() > MAX_FILE_SIZE) {
+                    throw new IllegalArgumentException("사진 용량은 10MB 초과할 수 없어요.");
+                }
+
+                String originalName = file.getOriginalFilename();
+                if (originalName == null || originalName.isBlank()) {
+                    throw new IllegalArgumentException("잘못된 파일입니다.");
+                }
+
+                String ext = getExtension(originalName).toLowerCase();
+                if (!ALLOWED_EXTENSIONS.contains(ext)) {
+                    throw new IllegalArgumentException("이미지 파일(jpg, png, gif, webp)만 업로드 할 수 있어요.");
+                }
+
+                String saveName = java.util.UUID.randomUUID() + "." + ext;
+                String path = uploadDir + saveName;
+
+                try {
+                    file.transferTo(new java.io.File(path));
+                } catch (Exception e) {
+                    throw new RuntimeException("파일 저장에 실패했습니다.", e);
+                }
+
+            }
+        }
+    }
+
+    private String getExtension(String filename) {
+        int dotIdx = filename.lastIndexOf(".");
+        if (dotIdx == -1 || dotIdx == filename.length() - 1) {
+            throw new IllegalArgumentException("확장자가 없는 파일은 업로드할 수 없어요.");
+        }
+        return filename.substring(dotIdx + 1);
     }
 
     @Transactional
