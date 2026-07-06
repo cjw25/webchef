@@ -50,6 +50,7 @@ public class SecurityConfig {
                                 "/css/**",
                                 "/js/**",
                                 "/img/**",
+                                "/uploads/**",
                                 "/assets/**",
                                 "/api/chat/**",
                                 "/api/users/register"
