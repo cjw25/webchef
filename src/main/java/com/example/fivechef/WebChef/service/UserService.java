@@ -7,9 +7,10 @@ import com.example.fivechef.WebChef.entity.Role;
 import com.example.fivechef.WebChef.entity.User;
 import com.example.fivechef.WebChef.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.*;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.security.core.userdetails.*;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -24,6 +25,11 @@ public class UserService implements UserDetailsService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
 
+    /*
+     * 다른 Service에서 사용하는 Entity 조회 메서드
+     * Controller가 Entity를 직접 받는 게 아니라,
+     * Service끼리 Entity를 사용하는 건 괜찮다.
+     */
     @Transactional(readOnly = true)
     public User getUserEntity(Long id) {
         return userRepository.findById(id)
@@ -41,23 +47,9 @@ public class UserService implements UserDetailsService {
         return getUserEntity(username);
     }
 
-    @Transactional(readOnly = true)
-    public Page<UserResponse> getUsers(int page) {
-        Pageable pageable = PageRequest.of(
-                page,
-                10,
-                Sort.by(Sort.Order.desc("id"))
-        );
-
-        return userRepository.findAll(pageable)
-                .map(UserResponse::new);
-    }
-
-    @Transactional(readOnly = true)
-    public UserResponse getUserResponse(Long id) {
-        return new UserResponse(getUserEntity(id));
-    }
-
+    /*
+     * 회원가입
+     */
     @Transactional
     public void createUser(UserCreateRequest request) {
         validateCreateRequest(request);
@@ -67,15 +59,30 @@ public class UserService implements UserDetailsService {
         user.setPassword(passwordEncoder.encode(request.getPassword()));
         user.setName(request.getName().trim());
         user.setEmail(request.getEmail().trim());
+
+        // 회원가입 기본 권한은 무조건 USER
         user.setRole(Role.USER);
         user.setActive(true);
 
         userRepository.save(user);
     }
 
+    /*
+     * 마이페이지 조회용
+     * Controller에는 Entity가 아니라 Response DTO만 넘긴다.
+     */
+    @Transactional(readOnly = true)
+    public UserResponse getLoginUserResponse(String username) {
+        User user = getUserEntity(username);
+        return new UserResponse(user);
+    }
+
+    /*
+     * 일반 회원 본인 정보 수정
+     */
     @Transactional
-    public void updateUser(Long id, UserUpdateRequest request) {
-        User user = getUserEntity(id);
+    public void updateMyInfo(String username, UserUpdateRequest request) {
+        User user = getUserEntity(username);
 
         validateUpdateRequest(user, request);
 
@@ -89,24 +96,9 @@ public class UserService implements UserDetailsService {
         userRepository.save(user);
     }
 
-    @Transactional
-    public void deleteUser(Long id) {
-        User user = getUserEntity(id);
-        userRepository.delete(user);
-    }
-
-    @Transactional
-    public void changeRole(Long id, Role role) {
-        User user = getUserEntity(id);
-
-        if (role == null) {
-            throw new IllegalArgumentException("권한을 선택해주세요.");
-        }
-
-        user.setRole(role);
-        userRepository.save(user);
-    }
-
+    /*
+     * 아이디 찾기
+     */
     @Transactional(readOnly = true)
     public String findUsername(String name, String email) {
         if (isBlank(name)) {
@@ -123,6 +115,9 @@ public class UserService implements UserDetailsService {
         return user.getUsername();
     }
 
+    /*
+     * 비밀번호 재설정
+     */
     @Transactional
     public String resetPassword(String username, String email) {
         if (isBlank(username)) {
@@ -144,6 +139,9 @@ public class UserService implements UserDetailsService {
         return temporaryPassword;
     }
 
+    /*
+     * 회원가입 검증
+     */
     private void validateCreateRequest(UserCreateRequest request) {
         if (request == null) {
             throw new IllegalArgumentException("회원가입 정보가 없습니다.");
@@ -173,15 +171,21 @@ public class UserService implements UserDetailsService {
             throw new IllegalArgumentException("비밀번호가 일치하지 않습니다.");
         }
 
-        if (userRepository.existsByUsername(request.getUsername().trim())) {
+        String username = request.getUsername().trim();
+        String email = request.getEmail().trim();
+
+        if (userRepository.existsByUsername(username)) {
             throw new IllegalArgumentException("이미 사용 중인 아이디입니다.");
         }
 
-        if (userRepository.existsByEmail(request.getEmail().trim())) {
+        if (userRepository.existsByEmail(email)) {
             throw new IllegalArgumentException("이미 사용 중인 이메일입니다.");
         }
     }
 
+    /*
+     * 일반 회원 본인 정보 수정 검증
+     */
     private void validateUpdateRequest(User user, UserUpdateRequest request) {
         if (request == null) {
             throw new IllegalArgumentException("수정 정보가 없습니다.");
@@ -213,6 +217,9 @@ public class UserService implements UserDetailsService {
         }
     }
 
+    /*
+     * 임시 비밀번호 생성
+     */
     private String createTemporaryPassword() {
         String chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
         SecureRandom random = new SecureRandom();
@@ -230,6 +237,9 @@ public class UserService implements UserDetailsService {
         return value == null || value.trim().isEmpty();
     }
 
+    /*
+     * Spring Security 로그인 처리
+     */
     @Override
     @Transactional(readOnly = true)
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
@@ -240,10 +250,16 @@ public class UserService implements UserDetailsService {
             throw new UsernameNotFoundException("비활성화된 계정입니다.");
         }
 
+        Role role = user.getRole();
+
+        if (role == null) {
+            role = Role.USER;
+        }
+
         return new org.springframework.security.core.userdetails.User(
                 user.getUsername(),
                 user.getPassword(),
-                List.of(new SimpleGrantedAuthority("ROLE_" + user.getRole().name()))
+                List.of(new SimpleGrantedAuthority("ROLE_" + role.name()))
         );
     }
 }

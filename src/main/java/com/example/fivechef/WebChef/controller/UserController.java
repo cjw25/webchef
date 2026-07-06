@@ -5,15 +5,14 @@ import com.example.fivechef.WebChef.dto.FindPasswordRequest;
 import com.example.fivechef.WebChef.dto.UserCreateRequest;
 import com.example.fivechef.WebChef.dto.UserResponse;
 import com.example.fivechef.WebChef.dto.UserUpdateRequest;
-import com.example.fivechef.WebChef.entity.Role;
 import com.example.fivechef.WebChef.service.UserService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Page;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
+import java.security.Principal;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -95,37 +94,20 @@ public class UserController {
         return "user/find-password";
     }
 
-    @PreAuthorize("hasRole('ADMIN')")
-    @GetMapping("/user/list")
-    public String list(
-            Model model,
-            @RequestParam(value = "page", defaultValue = "0") int page
-    ) {
-        Page<UserResponse> paging = userService.getUsers(page);
-        model.addAttribute("paging", paging);
+    @PreAuthorize("isAuthenticated()")
+    @GetMapping("/user/mypage")
+    public String myPage(Model model, Principal principal) {
+        UserResponse user = userService.getLoginUserResponse(principal.getName());
 
-        return "user/list";
-    }
-
-    @PreAuthorize("hasRole('ADMIN')")
-    @GetMapping("/user/view/{id}")
-    public String view(
-            @PathVariable("id") Long id,
-            Model model
-    ) {
-        UserResponse user = userService.getUserResponse(id);
         model.addAttribute("user", user);
 
-        return "user/view";
+        return "user/mypage";
     }
 
-    @PreAuthorize("hasRole('ADMIN')")
-    @GetMapping("/user/update/{id}")
-    public String updatePage(
-            @PathVariable("id") Long id,
-            Model model
-    ) {
-        UserResponse user = userService.getUserResponse(id);
+    @PreAuthorize("isAuthenticated()")
+    @GetMapping("/user/mypage/update")
+    public String updateMyPage(Model model, Principal principal) {
+        UserResponse user = userService.getLoginUserResponse(principal.getName());
 
         UserUpdateRequest request = new UserUpdateRequest();
         request.setName(user.getName());
@@ -134,45 +116,28 @@ public class UserController {
         model.addAttribute("user", user);
         model.addAttribute("request", request);
 
-        return "user/update";
+        return "user/mypage-update";
     }
 
-    @PreAuthorize("hasRole('ADMIN')")
-    @PostMapping("/user/update/{id}")
-    public String updateUser(
-            @PathVariable("id") Long id,
+    @PreAuthorize("isAuthenticated()")
+    @PostMapping("/user/mypage/update")
+    public String updateMyInfo(
             @ModelAttribute("request") UserUpdateRequest request,
-            Model model
+            Model model,
+            Principal principal
     ) {
         try {
-            userService.updateUser(id, request);
+            userService.updateMyInfo(principal.getName(), request);
         } catch (Exception e) {
-            UserResponse user = userService.getUserResponse(id);
+            UserResponse user = userService.getLoginUserResponse(principal.getName());
 
             model.addAttribute("user", user);
             model.addAttribute("errorMessage", e.getMessage());
 
-            return "user/update";
+            return "user/mypage-update";
         }
 
-        return "redirect:/user/view/" + id;
-    }
-
-    @PreAuthorize("hasRole('ADMIN')")
-    @PostMapping("/user/delete/{id}")
-    public String deleteUser(@PathVariable("id") Long id) {
-        userService.deleteUser(id);
-        return "redirect:/user/list";
-    }
-
-    @PreAuthorize("hasRole('ADMIN')")
-    @PostMapping("/user/role/{id}")
-    public String changeRole(
-            @PathVariable("id") Long id,
-            @RequestParam("role") Role role
-    ) {
-        userService.changeRole(id, role);
-        return "redirect:/user/view/" + id;
+        return "redirect:/user/mypage";
     }
 
     @ResponseBody
@@ -185,21 +150,5 @@ public class UserController {
         result.put("message", "회원가입이 완료되었습니다.");
 
         return result;
-    }
-
-    @ResponseBody
-    @PreAuthorize("hasRole('ADMIN')")
-    @GetMapping("/api/users")
-    public Page<UserResponse> apiUsers(
-            @RequestParam(value = "page", defaultValue = "0") int page
-    ) {
-        return userService.getUsers(page);
-    }
-
-    @ResponseBody
-    @PreAuthorize("hasRole('ADMIN')")
-    @GetMapping("/api/users/{id}")
-    public UserResponse apiUser(@PathVariable("id") Long id) {
-        return userService.getUserResponse(id);
     }
 }
