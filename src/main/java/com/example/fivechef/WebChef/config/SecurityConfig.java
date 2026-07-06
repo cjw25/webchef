@@ -43,6 +43,7 @@ public class SecurityConfig {
                                 "/community/view/**",
                                 "/notice/list",
                                 "/notice/view/**",
+                                "/inquiry/**",
                                 "/css/**",
                                 "/js/**",
                                 "/img/**",
