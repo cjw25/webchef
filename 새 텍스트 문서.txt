@@ -10,3 +10,21 @@ winget install --id Oracle.MySQL -e
 
 설치확인
 mysql --version
+
+각자 application.properties설정
+server.port=8085
+
+spring.datasource.url=${DB_URL}
+spring.datasource.username=${DB_USERNAME}
+spring.datasource.password=${DB_PASSWORD}
+spring.datasource.driver-class-name=com.mysql.cj.jdbc.Driver
+
+Run → Edit Configurations -> WebChefApplication선택 -> Environment variables ->
+DB_URL=jdbc:mysql://192.168.0.43:3306/webchef?serverTimezone=Asia/Seoul&characterEncoding=UTF-8
+DB_USERNAME=webchef
+DB_PASSWORD=1234
+
+application.properties 설정
+spring.datasource.url=${DB_URL}
+spring.datasource.username=${DB_USERNAME}
+spring.datasource.password=${DB_PASSWORD}
