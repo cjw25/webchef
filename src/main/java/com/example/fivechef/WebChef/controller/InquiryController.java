@@ -18,7 +18,7 @@ import java.security.Principal;
 public class InquiryController {
 
     private final InquiryService inquiryService;
-    
+
     @GetMapping("/inquiry/list")
     public String list(
             Model model,
