@@ -1,68 +1,149 @@
 <!DOCTYPE html>
-<html lang="ko">
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
 <head>
   <meta charset="UTF-8">
-  <title>WebChef 회원가입</title>
-  <link rel="stylesheet" href="/css/main.css">
+  <title>회원가입 | WebChef</title>
+
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <link rel="stylesheet" th:href="@{/css/auth.css}">
 </head>
 <body>
 
-<header class="header">
-  <div class="logo">
-    <a href="/">
-      <img src="/img/webchef-logo.png" alt="WebChef 로고" class="logo-full-img">
+<main class="auth-page">
+
+  <section class="auth-left">
+
+    <a href="/" class="auth-logo">
+      <img th:src="@{/img/webchef-logo.png}"
+           src="/img/webchef-logo.png"
+           alt="WebChef 로고">
+      <strong>WebChef</strong>
     </a>
-  </div>
 
-  <nav class="nav">
-    <a href="/course/list">강의</a>
-    <a href="/mypage">학습 플랜</a>
-    <a href="/community/list">커뮤니티</a>
-  </nav>
-</header>
+    <div class="auth-copy">
+      <span>WEB CHEF</span>
 
-<main class="login-page">
-  <section class="login-box">
-    <h1>회원가입</h1>
-    <p>WebChef 계정을 생성하세요.</p>
+      <h1>
+        자취 생활을 위한<br>
+        요리 학습 플랫폼
+      </h1>
 
-    <div th:if="${errorMessage}" style="color: red; margin-bottom: 15px;">
-      <p th:text="${errorMessage}"></p>
+      <p>
+        요리 강의, 자취 팁, 커뮤니티를 통해<br>
+        더 쉽고 똑똑한 자취 생활을 시작하세요.
+      </p>
     </div>
 
-    <form action="/user/create" method="post">
-      <div class="form-group">
-        <label for="username">아이디</label>
-        <input type="text" id="username" name="username" placeholder="아이디를 입력하세요">
+    <div class="auth-feature-list">
+      <div>
+        <strong>01</strong>
+        <span>냉장고 재료 기반 요리 추천</span>
       </div>
 
-      <div class="form-group">
-        <label for="password">비밀번호</label>
-        <input type="password" id="password" name="password" placeholder="비밀번호를 입력하세요">
+      <div>
+        <strong>02</strong>
+        <span>냉장고 재료 기반 요리 추천</span>
       </div>
 
-      <div class="form-group">
-        <label for="passwordCheck">비밀번호 확인</label>
-        <input type="password" id="passwordCheck" name="passwordCheck" placeholder="비밀번호를 다시 입력하세요">
+      <div>
+        <strong>02</strong>
+        자취생 맞춤 요리 강의</span>
       </div>
 
-      <div class="form-group">
-        <label for="name">이름</label>
-        <input type="text" id="name" name="name" placeholder="이름을 입력하세요">
+      <div>
+        <strong>03</strong>
+        <span>커뮤니티와 자취 생활 팁</span>
       </div>
-
-      <div class="form-group">
-        <label for="email">이메일</label>
-        <input type="email" id="email" name="email" placeholder="이메일을 입력하세요">
-      </div>
-
-      <button type="submit" class="login-btn">회원가입</button>
-    </form>
-
-    <div class="login-links">
-      <a href="/user/login">이미 계정이 있으신가요? 로그인</a>
     </div>
+
   </section>
+
+  <section class="auth-right">
+
+    <div class="auth-card">
+
+      <div class="auth-card-header">
+        <span>JOIN WEB CHEF</span>
+        <h2>회원가입</h2>
+        <p>WebChef 계정을 생성하세요.</p>
+      </div>
+
+      <form th:action="@{/user/create}"
+            method="post"
+            class="auth-form">
+
+        <input type="hidden"
+               th:if="${_csrf != null}"
+               th:name="${_csrf.parameterName}"
+               th:value="${_csrf.token}">
+
+        <div class="form-group">
+          <label for="username">아이디</label>
+          <input type="text"
+                 id="username"
+                 name="username"
+                 placeholder="아이디를 입력하세요"
+                 required>
+        </div>
+
+        <div class="form-group">
+          <label for="password">비밀번호</label>
+          <input type="password"
+                 id="password"
+                 name="password"
+                 placeholder="비밀번호를 입력하세요"
+                 required>
+        </div>
+
+        <div class="form-group">
+          <label for="passwordConfirm">비밀번호 확인</label>
+          <input type="password"
+                 id="passwordConfirm"
+                 name="passwordConfirm"
+                 placeholder="비밀번호를 다시 입력하세요"
+                 required>
+        </div>
+
+        <div class="form-group">
+          <label for="name">이름</label>
+          <input type="text"
+                 id="name"
+                 name="name"
+                 placeholder="이름을 입력하세요"
+                 required>
+        </div>
+
+        <div class="form-group">
+          <label for="email">이메일</label>
+          <input type="email"
+                 id="email"
+                 name="email"
+                 placeholder="이메일을 입력하세요"
+                 required>
+        </div>
+
+        <p class="auth-error"
+           th:if="${errorMessage != null}"
+           th:text="${errorMessage}">
+          에러 메시지
+        </p>
+
+        <button type="submit" class="auth-submit-btn">
+          회원가입
+        </button>
+
+      </form>
+
+      <div class="auth-bottom">
+        <span>이미 계정이 있으신가요?</span>
+        <a href="/user/login">로그인</a>
+      </div>
+
+    </div>
+
+  </section>
+
 </main>
 
 </body>
