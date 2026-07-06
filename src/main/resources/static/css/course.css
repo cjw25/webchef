@@ -31,7 +31,7 @@ a {
 .category {
   display: flex;
   flex-direction: column;
-  padding: 50px 265px;
+  padding: 50px 255px;
   gap: 25px;
 }
 
@@ -82,7 +82,7 @@ a {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 40px 265px;
+  padding: 40px 255px;
 }
 
 
@@ -117,7 +117,7 @@ a {
 
 .cook-box {
   display: flex;
-  padding: 50px 265px;
+  padding: 50px 255px;
   justify-content: space-between;
 }
 
