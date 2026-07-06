@@ -25,13 +25,13 @@ public class UserController {
 
     @GetMapping("/user/login")
     public String loginPage() {
-        return "login";
+        return "user/login";
     }
 
     @GetMapping("/user/create")
     public String createPage(Model model) {
         model.addAttribute("request", new UserCreateRequest());
-        return "create";
+        return "user/create";
     }
 
     @PostMapping("/user/create")

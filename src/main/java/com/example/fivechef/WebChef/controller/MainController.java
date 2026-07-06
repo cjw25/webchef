@@ -1,24 +1,29 @@
 package com.example.fivechef.WebChef.controller;
 
-import com.example.fivechef.WebChef.dto.CourseResponse;
-import com.example.fivechef.WebChef.service.CourseService;
-import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Page;
+import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 
-@RequiredArgsConstructor
 @Controller
 public class MainController {
 
-    private final CourseService courseService;
+    @GetMapping("/")
+    public String index(Model model, Authentication authentication) {
 
-    @GetMapping({"/", "/index"})
-    public String index(Model model) {
-        Page<CourseResponse> popularCourses = courseService.getOpenCourses(0, 6);
+        if (authentication == null || !authentication.isAuthenticated()) {
+            model.addAttribute("loginUsername", null);
+            return "index";
+        }
 
-        model.addAttribute("popularCourses", popularCourses.getContent());
+        String username = authentication.getName();
+
+        if ("anonymousUser".equals(username)) {
+            model.addAttribute("loginUsername", null);
+            return "index";
+        }
+
+        model.addAttribute("loginUsername", username);
 
         return "index";
     }
