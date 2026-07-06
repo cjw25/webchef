@@ -1,10 +1,106 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+
 <head>
     <meta charset="UTF-8">
-    <title>Title</title>
+    <title>글수정 | WebChef</title>
+
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <link rel="stylesheet" th:href="@{/css/header.css}">
+    <link rel="stylesheet" th:href="@{/css/community.css}">
+    <link rel="stylesheet" th:href="@{/css/community-create.css}">
 </head>
+
 <body>
+
+<!-- 공통 헤더 -->
+<div th:replace="~{fragments/header :: header}"></div>
+
+<main class="write-wrap">
+
+    <div class="write-crumb">
+        <a th:href="@{/community/list}" style="color:inherit;text-decoration:none;">우리들의 대화</a>
+        &nbsp;›&nbsp; <span>글수정</span>
+    </div>
+
+    <div class="write-tag">✍️ COMMUNITY</div>
+    <h1>이야기를 <span class="highlight">수정해주세요</span></h1>
+    <p class="write-subtitle">내용을 다시 다듬어서 더 알찬 글로 완성해보세요.</p>
+
+    <div class="write-card">
+
+        <div class="write-error-box" th:if="${errorMessage}" th:text="${errorMessage}"></div>
+
+        <form th:action="@{/community/update/{id}(id=${request.id})}" th:object="${request}" method="post" enctype="multipart/form-data">
+
+            <input type="hidden" th:if="${_csrf}" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+            <input type="hidden" th:field="*{id}"/>
+
+            <div class="write-field">
+                <label>카테고리<span class="req">*</span></label>
+                <select th:field="*{category}">
+                    <option value="">카테고리 선택</option>
+                    <option value="레시피 꿀팁">레시피 꿀팁</option>
+                    <option value="장보기 팁">장보기 팁</option>
+                    <option value="간편조리도구팁">간편조리도구팁</option>
+                </select>
+                <p class="write-field-error" th:if="${#fields.hasErrors('category')}" th:errors="*{category}"></p>
+            </div>
+
+            <div class="write-field">
+                <label>제목<span class="req">*</span></label>
+                <input type="text" th:field="*{subject}" placeholder="제목을 입력하세요">
+                <p class="write-field-error" th:if="${#fields.hasErrors('subject')}" th:errors="*{subject}"></p>
+            </div>
+
+            <div class="write-field">
+                <label>내용<span class="req">*</span></label>
+                <textarea th:field="*{content}" id="write-content" placeholder="내용을 입력하세요"></textarea>
+                <div class="write-char-count"><span id="write-char-current">0</span> / 2000</div>
+                <p class="write-field-error" th:if="${#fields.hasErrors('content')}" th:errors="*{content}"></p>
+            </div>
+
+            <div class="write-field">
+                <label>사진 첨부</label>
+
+                <!-- 기존 첨부 이미지 -->
+                <div class="write-file-list" id="write-existing-file-list" th:if="${existingImages != null and !existingImages.isEmpty()}">
+                    <div class="write-file-item" th:each="img : ${existingImages}">
+                        <img th:src="@{${img.url}}" alt="첨부 이미지" class="write-existing-thumb">
+                        <label>
+                            <input type="checkbox" name="deleteImageIds" th:value="${img.id}">
+                            삭제
+                        </label>
+                    </div>
+                </div>
+
+                <label class="write-file-drop" for="write-file-input" id="write-file-drop">
+                    <div class="write-file-drop-icon">📎</div>
+                    <div class="write-file-drop-text">클릭하거나 파일을 끌어다 놓으세요</div>
+                    <div class="write-file-drop-sub">JPG, PNG (최대 10MB, 최대 5개)</div>
+                    <input type="file" name="img" id="write-file-input" multiple accept="image/*">
+                </label>
+                <div class="write-file-list" id="write-file-list"></div>
+            </div>
+
+            <div class="write-tip-box">
+                <span>💡</span>
+                <span><b>글수정 팁</b> — 사진을 추가하거나 삭제해서 더 풍부한 글로 만들어보세요!</span>
+            </div>
+
+            <div class="write-actions">
+                <a th:href="@{/community/detail/{id}(id=${request.id})}" class="write-btn write-btn-prev">취소</a>
+                <button type="submit" class="write-btn write-btn-submit">수정완료</button>
+            </div>
+
+        </form>
+
+    </div>
+
+</main>
+
+<script src="/js/community-update.js"></script>
 
 </body>
 </html>
