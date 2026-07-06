@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>냉장고를 부탁해 | WebChef</title>
+
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <link rel="stylesheet" th:href="@{/css/header.css}">
+    <link rel="stylesheet" th:href="@{/css/fridge.css}">
+</head>
+<body>
+
+<div th:replace="~{fragments/header :: header}"></div>
+
+<main class="fridge-page">
+
+    <section class="fridge-hero">
+        <div class="fridge-hero-inner">
+
+            <div class="fridge-hero-text">
+                <span class="fridge-badge">WEB CHEF REFRIGERATOR</span>
+
+                <h1>
+                    냉장고 속 재료로<br>
+                    오늘 만들 요리를 찾아보세요
+                </h1>
+
+                <p>
+                    계란, 김치, 참치, 양파처럼 지금 가지고 있는 재료를 입력하면<br>
+                    만들 수 있는 레시피와 관련 요리 강의를 함께 찾아드립니다.
+                </p>
+            </div>
+
+            <div class="fridge-search-card">
+                <h2>재료 검색</h2>
+                <p>여러 재료는 띄어쓰기 또는 쉼표로 입력할 수 있습니다.</p>
+
+                <form th:action="@{/fridge/search}" method="get" class="fridge-search-form">
+                    <input type="text"
+                           name="keyword"
+                           th:value="${keyword}"
+                           placeholder="예: 계란 김치 참치 양파"
+                           autocomplete="off">
+
+                    <button type="submit">검색하기</button>
+                </form>
+
+                <div class="fridge-keywords">
+                    <a th:href="@{/fridge/search(keyword='계란')}">계란</a>
+                    <a th:href="@{/fridge/search(keyword='김치')}">김치</a>
+                    <a th:href="@{/fridge/search(keyword='참치')}">참치</a>
+                    <a th:href="@{/fridge/search(keyword='양파')}">양파</a>
+                    <a th:href="@{/fridge/search(keyword='두부')}">두부</a>
+                    <a th:href="@{/fridge/search(keyword='닭가슴살')}">닭가슴살</a>
+                </div>
+            </div>
+
+        </div>
+    </section>
+
+    <section class="fridge-guide" th:if="${keyword == null or keyword == ''}">
+        <div class="guide-card">
+            <strong>01</strong>
+            <h3>재료 입력</h3>
+            <p>냉장고에 있는 재료를 입력하세요.</p>
+        </div>
+
+        <div class="guide-card">
+            <strong>02</strong>
+            <h3>레시피 추천</h3>
+            <p>입력한 재료와 관련 있는 레시피를 찾아줍니다.</p>
+        </div>
+
+        <div class="guide-card">
+            <strong>03</strong>
+            <h3>강의 연결</h3>
+            <p>관련 요리 강의까지 함께 확인할 수 있습니다.</p>
+        </div>
+    </section>
+
+    <section class="fridge-result-section" th:if="${keyword != null and keyword != ''}">
+
+        <div class="result-header">
+            <div>
+                <span>SEARCH RESULT</span>
+                <h2>
+                    <strong th:text="${keyword}">계란</strong>
+                    검색 결과
+                </h2>
+            </div>
+
+            <a href="/fridge" class="reset-link">다시 검색</a>
+        </div>
+
+        <div class="empty-result"
+             th:if="${searchResult == null or !searchResult.hasResult()}">
+            <h3>검색 결과가 없습니다.</h3>
+            <p>다른 재료명으로 다시 검색해보세요.</p>
+        </div>
+
+        <div class="result-block"
+             th:if="${searchResult != null and searchResult.hasRecipeResult()}">
+
+            <div class="section-title">
+                <h3>추천 레시피</h3>
+                <p>입력한 재료와 관련 있는 레시피입니다.</p>
+            </div>
+
+            <div class="recipe-grid">
+                <article class="recipe-card"
+                         th:each="recipe : ${searchResult.recipes}">
+
+                    <div class="recipe-thumb">
+                        <img th:if="${recipe.thumbnailUrl != null and recipe.thumbnailUrl != ''}"
+                             th:src="${recipe.thumbnailUrl}"
+                             alt="레시피 이미지">
+
+                        <img th:if="${recipe.thumbnailUrl == null or recipe.thumbnailUrl == ''}"
+                             th:src="@{/img/default-recipe.png}"
+                             alt="기본 레시피 이미지">
+                    </div>
+
+                    <div class="recipe-info">
+                        <div class="recipe-meta">
+                            <span th:text="${recipe.category}">한식</span>
+                            <span th:text="${recipe.difficulty}">쉬움</span>
+                        </div>
+
+                        <h4 th:text="${recipe.title}">김치 계란 볶음밥</h4>
+
+                        <p class="recipe-desc"
+                           th:text="${recipe.description}">
+                            간단하게 만들 수 있는 자취 요리입니다.
+                        </p>
+
+                        <div class="recipe-bottom">
+                            <span>
+                                조리시간
+                                <strong th:text="${recipe.cookingTime != null ? recipe.cookingTime + '분' : '미정'}">15분</strong>
+                            </span>
+
+                            <span th:text="${recipe.mainIngredient}">계란</span>
+                        </div>
+                    </div>
+
+                </article>
+            </div>
+        </div>
+
+        <div class="result-block"
+             th:if="${searchResult != null and searchResult.hasCourseResult()}">
+
+            <div class="section-title">
+                <h3>관련 요리 강의</h3>
+                <p>재료와 관련 있는 요리 강의를 확인해보세요.</p>
+            </div>
+
+            <div class="course-grid">
+                <article class="course-card"
+                         th:each="course : ${searchResult.courses}">
+
+                    <div class="course-top">
+                        <span th:text="${course.category}">한식</span>
+                        <span th:text="${course.difficulty}">쉬움</span>
+                    </div>
+
+                    <h4 th:text="${course.title}">자취생을 위한 계란 요리</h4>
+
+                    <p th:text="${course.description}">
+                        기본 재료로 쉽게 따라할 수 있는 강의입니다.
+                    </p>
+
+                    <a th:href="@{|/course/view/${course.id}|}" class="course-link">
+                        강의 보러가기
+                    </a>
+
+                </article>
+            </div>
+        </div>
+
+    </section>
+
+</main>
+
+</body>
+</html>
