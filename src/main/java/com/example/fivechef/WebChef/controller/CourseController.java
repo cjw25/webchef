@@ -33,7 +33,7 @@ public class CourseController {
         model.addAttribute("paging", paging);
         model.addAttribute("keyword", keyword);
 
-        return "course";
+        return "course/list";
     }
 
     @GetMapping("/course/detail/{id}")
