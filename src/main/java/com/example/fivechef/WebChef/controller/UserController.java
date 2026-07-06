@@ -94,8 +94,12 @@ public class UserController {
         return "user/find-password";
     }
 
+    /*
+     * 마이페이지
+     * /mypage, /user/mypage 둘 다 접속 가능
+     */
     @PreAuthorize("isAuthenticated()")
-    @GetMapping("/user/mypage")
+    @GetMapping({"/mypage", "/user/mypage"})
     public String myPage(Model model, Principal principal) {
         UserResponse user = userService.getLoginUserResponse(principal.getName());
 
@@ -104,8 +108,12 @@ public class UserController {
         return "user/mypage";
     }
 
+    /*
+     * 마이페이지 수정 화면
+     * /mypage/update, /user/mypage/update 둘 다 접속 가능
+     */
     @PreAuthorize("isAuthenticated()")
-    @GetMapping("/user/mypage/update")
+    @GetMapping({"/mypage/update", "/user/mypage/update"})
     public String updateMyPage(Model model, Principal principal) {
         UserResponse user = userService.getLoginUserResponse(principal.getName());
 
@@ -119,8 +127,11 @@ public class UserController {
         return "user/mypage-update";
     }
 
+    /*
+     * 마이페이지 수정 처리
+     */
     @PreAuthorize("isAuthenticated()")
-    @PostMapping("/user/mypage/update")
+    @PostMapping({"/mypage/update", "/user/mypage/update"})
     public String updateMyInfo(
             @ModelAttribute("request") UserUpdateRequest request,
             Model model,
@@ -137,7 +148,7 @@ public class UserController {
             return "user/mypage-update";
         }
 
-        return "redirect:/user/mypage";
+        return "redirect:/mypage";
     }
 
     @ResponseBody

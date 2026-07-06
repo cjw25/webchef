@@ -25,11 +25,6 @@ public class UserService implements UserDetailsService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
 
-    /*
-     * 다른 Service에서 사용하는 Entity 조회 메서드
-     * Controller가 Entity를 직접 받는 게 아니라,
-     * Service끼리 Entity를 사용하는 건 괜찮다.
-     */
     @Transactional(readOnly = true)
     public User getUserEntity(Long id) {
         return userRepository.findById(id)
@@ -47,9 +42,6 @@ public class UserService implements UserDetailsService {
         return getUserEntity(username);
     }
 
-    /*
-     * 회원가입
-     */
     @Transactional
     public void createUser(UserCreateRequest request) {
         validateCreateRequest(request);
@@ -59,27 +51,18 @@ public class UserService implements UserDetailsService {
         user.setPassword(passwordEncoder.encode(request.getPassword()));
         user.setName(request.getName().trim());
         user.setEmail(request.getEmail().trim());
-
-        // 회원가입 기본 권한은 무조건 USER
         user.setRole(Role.USER);
         user.setActive(true);
 
         userRepository.save(user);
     }
 
-    /*
-     * 마이페이지 조회용
-     * Controller에는 Entity가 아니라 Response DTO만 넘긴다.
-     */
     @Transactional(readOnly = true)
     public UserResponse getLoginUserResponse(String username) {
         User user = getUserEntity(username);
         return new UserResponse(user);
     }
 
-    /*
-     * 일반 회원 본인 정보 수정
-     */
     @Transactional
     public void updateMyInfo(String username, UserUpdateRequest request) {
         User user = getUserEntity(username);
@@ -96,9 +79,6 @@ public class UserService implements UserDetailsService {
         userRepository.save(user);
     }
 
-    /*
-     * 아이디 찾기
-     */
     @Transactional(readOnly = true)
     public String findUsername(String name, String email) {
         if (isBlank(name)) {
@@ -115,9 +95,6 @@ public class UserService implements UserDetailsService {
         return user.getUsername();
     }
 
-    /*
-     * 비밀번호 재설정
-     */
     @Transactional
     public String resetPassword(String username, String email) {
         if (isBlank(username)) {
@@ -139,9 +116,6 @@ public class UserService implements UserDetailsService {
         return temporaryPassword;
     }
 
-    /*
-     * 회원가입 검증
-     */
     private void validateCreateRequest(UserCreateRequest request) {
         if (request == null) {
             throw new IllegalArgumentException("회원가입 정보가 없습니다.");
@@ -183,9 +157,6 @@ public class UserService implements UserDetailsService {
         }
     }
 
-    /*
-     * 일반 회원 본인 정보 수정 검증
-     */
     private void validateUpdateRequest(User user, UserUpdateRequest request) {
         if (request == null) {
             throw new IllegalArgumentException("수정 정보가 없습니다.");
@@ -217,9 +188,6 @@ public class UserService implements UserDetailsService {
         }
     }
 
-    /*
-     * 임시 비밀번호 생성
-     */
     private String createTemporaryPassword() {
         String chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
         SecureRandom random = new SecureRandom();
@@ -237,9 +205,6 @@ public class UserService implements UserDetailsService {
         return value == null || value.trim().isEmpty();
     }
 
-    /*
-     * Spring Security 로그인 처리
-     */
     @Override
     @Transactional(readOnly = true)
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
