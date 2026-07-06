@@ -10,12 +10,19 @@ import java.time.LocalDateTime;
 public class UserResponse {
 
     private final Long id;
+
     private final String username;
+
     private final String name;
+
     private final String email;
+
     private final Role role;
+
     private final Boolean active;
+
     private final LocalDateTime createdAt;
+
     private final LocalDateTime updatedAt;
 
     public UserResponse(User user) {

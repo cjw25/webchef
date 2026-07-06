@@ -37,6 +37,7 @@ public class SecurityConfig {
                                 "/user/create",
                                 "/user/find-id",
                                 "/user/find-password",
+                                "/mypage/**",
                                 "/fridge/**",
                                 "/course/list",
                                 "/course/detail/**",
@@ -53,6 +54,10 @@ public class SecurityConfig {
                                 "/api/chat/**",
                                 "/api/users/register"
                         ).permitAll()
+
+                        .requestMatchers("/admin/**").hasRole("ADMIN")
+                        .requestMatchers("/instructor/**").hasAnyRole("INSTRUCTOR", "ADMIN")
+
                         .anyRequest().authenticated()
                 )
 
