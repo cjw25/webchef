@@ -5,8 +5,12 @@ import com.example.fivechef.WebChef.entity.CourseStatus;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 
-public interface CourseRepository extends JpaRepository<Course, Long> {
+import java.util.List;
+
+public interface CourseRepository extends JpaRepository<Course, Long>, JpaSpecificationExecutor<Course> {
+
 
     Page<Course> findByTitleContainingOrDescriptionContaining(
             String titleKeyword,
@@ -17,5 +21,10 @@ public interface CourseRepository extends JpaRepository<Course, Long> {
     Page<Course> findByStatus(
             CourseStatus status,
             Pageable pageable
+    );
+
+    List<Course> findTop6ByTitleContainingOrDescriptionContainingOrderByIdDesc(
+            String titleKeyword,
+            String descriptionKeyword
     );
 }
