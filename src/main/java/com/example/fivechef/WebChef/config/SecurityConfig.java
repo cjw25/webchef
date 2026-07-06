@@ -45,7 +45,7 @@ public class SecurityConfig {
                                 "/notice/view/**",
                                 "/css/**",
                                 "/js/**",
-                                "/images/**",
+                                "/img/**",
                                 "/assets/**",
                                 "/api/chat/**",
                                 "/api/users/register"
