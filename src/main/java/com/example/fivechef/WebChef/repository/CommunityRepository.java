@@ -13,6 +13,11 @@ public interface CommunityRepository extends JpaRepository<Community, Long> {
             Pageable pageable
     );
 
+    Page<Community> findByCategory(
+            String category,
+            Pageable pageable
+    );
+
     // 카테고리 + 검색
     Page<Community> findByCategoryAndSubjectContainingOrCategoryAndContentContaining(
             String category1,

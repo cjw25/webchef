@@ -26,10 +26,19 @@ public class CommunityResponse {
     private final LocalDateTime createDate;
     private final LocalDateTime modifyDate;
 
+    private final String originalFileName;
+
+    private final String storedFileName;
+
+    private final String fileUrl;
+
     private final List<AnswerResponse> answers;
 
     public CommunityResponse(Community community) {
         this(community, false);
+    }
+    public boolean hasFile() {
+        return this.fileUrl != null && !this.fileUrl.isBlank();
     }
 
     public CommunityResponse(Community community, boolean includeAnswers) {
@@ -53,6 +62,10 @@ public class CommunityResponse {
 
         this.createDate = community.getCreateDate();
         this.modifyDate = community.getModifyDate();
+
+        this.originalFileName = community.getOriginalFileName();
+        this.storedFileName = community.getStoredFileName();
+        this.fileUrl = community.getFileUrl();
 
         if (includeAnswers && community.getAnswerList() != null) {
             this.answers = community.getAnswerList()

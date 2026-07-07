@@ -67,10 +67,14 @@ public class CommunityController {
     public String createCommunity(
             @Valid @ModelAttribute("request") CommunityCreateRequest request,
             BindingResult bindingResult,
-            @RequestParam("image") MultipartFile[] img,
+            @RequestParam(value = "img", required = false) MultipartFile[] img,
             Model model,
             Principal principal
     ) {
+        if (bindingResult.hasErrors()) {
+            return "community/create";
+        }
+
         try {
             communityService.createCommunity(request, principal.getName(), img);
         } catch (Exception e) {
@@ -105,11 +109,19 @@ public class CommunityController {
     public String updateCommunity(
             @PathVariable("id") Long id,
             @ModelAttribute("request") CommunityUpdateRequest request,
+            @RequestParam(value = "img", required = false) MultipartFile[] img,
+            @RequestParam(value = "deleteFile", defaultValue = "false") boolean deleteFile,
             Model model,
             Principal principal
     ) {
         try {
-            communityService.updateCommunity(id, request, principal.getName());
+            communityService.updateCommunity(
+                    id,
+                    request,
+                    principal.getName(),
+                    img,
+                    deleteFile
+            );
         } catch (Exception e) {
             CommunityResponse community = communityService.getCommunityResponse(id);
 
