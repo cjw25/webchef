@@ -9,6 +9,8 @@ document.addEventListener("DOMContentLoaded", function () {
     const messages = document.getElementById("chatbotMessages");
     const suggestButtons = document.querySelectorAll(".wc-suggest-btn");
 
+    let isSending = false;
+
     if (!openBtn || !closeBtn || !panel || !input || !sendBtn || !messages) {
         return;
     }
@@ -46,6 +48,11 @@ document.addEventListener("DOMContentLoaded", function () {
     suggestButtons.forEach(function (button) {
         button.addEventListener("click", function () {
             const question = button.getAttribute("data-question");
+
+            if (!question) {
+                return;
+            }
+
             input.value = question;
             sendMessage();
         });
@@ -86,11 +93,23 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
     async function sendMessage() {
+        if (isSending) {
+            return;
+        }
+
         const text = input.value.trim();
 
         if (text.length === 0) {
             return;
         }
+
+        if (text.length > 1000) {
+            addMessage("질문은 1000자 이하로 입력해주세요.", "bot");
+            return;
+        }
+
+        isSending = true;
+        sendBtn.disabled = true;
 
         addMessage(text, "user");
         input.value = "";
@@ -124,14 +143,22 @@ document.addEventListener("DOMContentLoaded", function () {
 
             if (data && data.reply) {
                 loadingMessage.textContent = data.reply;
+                loadingMessage.classList.remove("loading");
                 return;
             }
 
             loadingMessage.textContent = "답변 형식이 올바르지 않습니다.";
+            loadingMessage.classList.remove("loading");
 
         } catch (error) {
             loadingMessage.textContent = "AI 챗봇 연결 중 오류가 발생했습니다.";
+            loadingMessage.classList.remove("loading");
             console.error(error);
+
+        } finally {
+            isSending = false;
+            sendBtn.disabled = false;
+            input.focus();
         }
     }
 

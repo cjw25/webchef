@@ -15,12 +15,19 @@ public class ChatApiController {
 
     @PostMapping("/message")
     public ChatResponse message(@RequestBody ChatRequest request) {
-        if (request == null || request.getMessage() == null || request.getMessage().trim().isEmpty()) {
+        if (request == null || isBlank(request.getMessage())) {
             return ChatResponse.fail("질문을 입력해주세요.");
         }
 
-        String reply = openAiChatService.ask(request.getMessage());
+        try {
+            String reply = openAiChatService.ask(request.getMessage());
+            return ChatResponse.ok(reply);
+        } catch (Exception e) {
+            return ChatResponse.fail("AI 챗봇 처리 중 오류가 발생했습니다.");
+        }
+    }
 
-        return ChatResponse.ok(reply);
+    private boolean isBlank(String value) {
+        return value == null || value.trim().isEmpty();
     }
 }
