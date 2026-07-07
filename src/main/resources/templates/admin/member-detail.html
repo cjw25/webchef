@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>회원 상세 | WebChef</title>
+
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <link rel="stylesheet" th:href="@{/css/header.css}">
+    <link rel="stylesheet" th:href="@{/css/footer.css}">
+    <link rel="stylesheet" th:href="@{/css/chatbot-widget.css}">
+    <link rel="stylesheet" th:href="@{/css/admin.css}">
+</head>
+<body>
+
+<div th:replace="~{fragments/header :: header}"></div>
+
+<main class="admin-page">
+
+    <section class="admin-hero">
+        <div>
+            <span class="admin-badge">MEMBER DETAIL</span>
+            <h1>회원 상세</h1>
+            <p>회원 정보와 권한 상태를 확인하고 변경할 수 있습니다.</p>
+        </div>
+
+        <a th:href="@{/admin/members}" class="admin-top-btn">목록으로</a>
+    </section>
+
+    <section class="admin-detail-layout">
+
+        <aside class="admin-profile-card">
+
+            <div class="admin-profile-avatar">
+                <span th:text="${#strings.isEmpty(member.name) ? 'U' : #strings.substring(member.name, 0, 1)}">
+                    U
+                </span>
+            </div>
+
+            <h2 th:text="${member.name}">회원 이름</h2>
+            <p th:text="${member.email}">email@email.com</p>
+
+            <span class="role-badge large"
+                  th:classappend="${member.role.name() == 'INSTRUCTOR'} ? ' instructor' : ' user'"
+                  th:text="${member.role}">
+                USER
+            </span>
+
+        </aside>
+
+        <section class="admin-detail-card">
+
+            <div class="admin-card-title">
+                <span>ACCOUNT</span>
+                <h2>회원 정보</h2>
+            </div>
+
+            <div class="admin-info-list">
+
+                <div class="admin-info-row">
+                    <span>회원 번호</span>
+                    <strong th:text="${member.id}">1</strong>
+                </div>
+
+                <div class="admin-info-row">
+                    <span>아이디</span>
+                    <strong th:text="${member.username}">username</strong>
+                </div>
+
+                <div class="admin-info-row">
+                    <span>이름</span>
+                    <strong th:text="${member.name}">name</strong>
+                </div>
+
+                <div class="admin-info-row">
+                    <span>이메일</span>
+                    <strong th:text="${member.email}">email</strong>
+                </div>
+
+                <div class="admin-info-row">
+                    <span>권한</span>
+                    <strong th:text="${member.role}">USER</strong>
+                </div>
+
+                <div class="admin-info-row">
+                    <span>계정 상태</span>
+                    <strong th:text="${member.active} ? '활성' : '비활성'">활성</strong>
+                </div>
+
+                <div class="admin-info-row">
+                    <span>가입일</span>
+                    <strong th:text="${member.createdAt != null ? #temporals.format(member.createdAt, 'yyyy-MM-dd HH:mm') : '-'}">
+                        2026-07-07
+                    </strong>
+                </div>
+
+                <div class="admin-info-row">
+                    <span>수정일</span>
+                    <strong th:text="${member.updatedAt != null ? #temporals.format(member.updatedAt, 'yyyy-MM-dd HH:mm') : '-'}">
+                        2026-07-07
+                    </strong>
+                </div>
+
+            </div>
+
+            <div class="admin-action-row">
+
+                <a th:href="@{|/admin/members/${member.id}/update|}" class="admin-action-btn red">
+                    정보 수정
+                </a>
+
+                <form th:action="@{|/admin/members/${member.id}/instructor|}"
+                      method="post"
+                      class="inline-form">
+
+                    <input type="hidden"
+                           th:if="${_csrf != null}"
+                           th:name="${_csrf.parameterName}"
+                           th:value="${_csrf.token}">
+
+                    <input type="hidden"
+                           name="instructor"
+                           th:value="${member.role.name() == 'INSTRUCTOR'} ? false : true">
+
+                    <button type="submit"
+                            class="admin-action-btn purple"
+                            th:text="${member.role.name() == 'INSTRUCTOR'} ? '일반 회원으로 변경' : '강사로 변경'">
+                        강사로 변경
+                    </button>
+                </form>
+
+                <form th:action="@{|/admin/members/${member.id}/active|}"
+                      method="post"
+                      class="inline-form">
+
+                    <input type="hidden"
+                           th:if="${_csrf != null}"
+                           th:name="${_csrf.parameterName}"
+                           th:value="${_csrf.token}">
+
+                    <input type="hidden"
+                           name="active"
+                           th:value="${member.active} ? false : true">
+
+                    <button type="submit"
+                            class="admin-action-btn black"
+                            th:text="${member.active} ? '비활성화' : '활성화'">
+                        비활성화
+                    </button>
+                </form>
+
+                <form th:action="@{|/admin/members/${member.id}/delete|}"
+                      method="post"
+                      class="inline-form"
+                      onsubmit="return confirm('정말 이 회원을 삭제하시겠습니까?');">
+
+                    <input type="hidden"
+                           th:if="${_csrf != null}"
+                           th:name="${_csrf.parameterName}"
+                           th:value="${_csrf.token}">
+
+                    <button type="submit" class="admin-action-btn danger">
+                        회원 삭제
+                    </button>
+                </form>
+
+            </div>
+
+        </section>
+
+    </section>
+
+</main>
+
+<div th:replace="~{fragments/footer :: footer}"></div>
+
+</body>
+</html>

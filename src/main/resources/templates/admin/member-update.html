@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>회원 정보 수정 | WebChef</title>
+
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <link rel="stylesheet" th:href="@{/css/header.css}">
+    <link rel="stylesheet" th:href="@{/css/footer.css}">
+    <link rel="stylesheet" th:href="@{/css/chatbot-widget.css}">
+    <link rel="stylesheet" th:href="@{/css/admin.css}">
+</head>
+<body>
+
+<div th:replace="~{fragments/header :: header}"></div>
+
+<main class="admin-page">
+
+    <section class="admin-hero">
+        <div>
+            <span class="admin-badge">EDIT MEMBER</span>
+            <h1>회원 정보 수정</h1>
+            <p>관리자가 회원의 이름, 이메일, 비밀번호를 수정할 수 있습니다.</p>
+        </div>
+
+        <a th:href="@{|/admin/members/${member.id}|}" class="admin-top-btn">
+            상세로
+        </a>
+    </section>
+
+    <section class="admin-form-layout">
+
+        <form th:action="@{|/admin/members/${member.id}/update|}"
+              th:object="${request}"
+              method="post"
+              class="admin-form-card">
+
+            <input type="hidden"
+                   th:if="${_csrf != null}"
+                   th:name="${_csrf.parameterName}"
+                   th:value="${_csrf.token}">
+
+            <div class="admin-card-title">
+                <span>UPDATE</span>
+                <h2>회원 정보</h2>
+                <p>비밀번호를 변경하지 않으려면 비워두면 됩니다.</p>
+            </div>
+
+            <div class="admin-error-box"
+                 th:if="${errorMessage != null}"
+                 th:text="${errorMessage}">
+                에러 메시지
+            </div>
+
+            <div class="admin-form-group">
+                <label>아이디</label>
+                <input type="text"
+                       th:value="${member.username}"
+                       readonly>
+            </div>
+
+            <div class="admin-form-group">
+                <label for="name">이름</label>
+                <input type="text"
+                       id="name"
+                       th:field="*{name}"
+                       placeholder="이름을 입력하세요"
+                       required>
+            </div>
+
+            <div class="admin-form-group">
+                <label for="email">이메일</label>
+                <input type="email"
+                       id="email"
+                       th:field="*{email}"
+                       placeholder="이메일을 입력하세요"
+                       required>
+            </div>
+
+            <div class="admin-form-group">
+                <label for="password">새 비밀번호</label>
+                <input type="password"
+                       id="password"
+                       th:field="*{password}"
+                       placeholder="변경할 비밀번호">
+            </div>
+
+            <div class="admin-form-group">
+                <label for="passwordCheck">새 비밀번호 확인</label>
+                <input type="password"
+                       id="passwordCheck"
+                       th:field="*{passwordCheck}"
+                       placeholder="비밀번호 확인">
+            </div>
+
+            <div class="admin-form-actions">
+                <a th:href="@{|/admin/members/${member.id}|}" class="admin-cancel-btn">
+                    취소
+                </a>
+
+                <button type="submit" class="admin-save-btn">
+                    수정 완료
+                </button>
+            </div>
+
+        </form>
+
+    </section>
+
+</main>
+
+<div th:replace="~{fragments/footer :: footer}"></div>
+
+</body>
+</html>

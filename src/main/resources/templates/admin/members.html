@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>회원 관리 | WebChef</title>
+
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <link rel="stylesheet" th:href="@{/css/header.css}">
+    <link rel="stylesheet" th:href="@{/css/footer.css}">
+    <link rel="stylesheet" th:href="@{/css/chatbot-widget.css}">
+    <link rel="stylesheet" th:href="@{/css/admin.css}">
+</head>
+<body>
+
+<div th:replace="~{fragments/header :: header}"></div>
+
+<main class="admin-page">
+
+    <section class="admin-hero">
+        <div>
+            <span class="admin-badge">MEMBERS</span>
+            <h1>회원 관리</h1>
+            <p>일반 회원과 강사 회원을 관리할 수 있습니다.</p>
+        </div>
+
+        <a th:href="@{/admin}" class="admin-top-btn">대시보드</a>
+    </section>
+
+    <section class="admin-table-card">
+
+        <div class="admin-table-header">
+            <div>
+                <span>USER LIST</span>
+                <h2>회원 목록</h2>
+            </div>
+
+            <a th:href="@{/admin/instructors}" class="admin-sub-btn">강사 목록 보기</a>
+        </div>
+
+        <div class="admin-empty" th:if="${paging == null or paging.totalElements == 0}">
+            회원이 없습니다.
+        </div>
+
+        <div class="admin-table-wrap" th:if="${paging != null and paging.totalElements > 0}">
+            <table class="admin-table">
+                <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>아이디</th>
+                    <th>이름</th>
+                    <th>이메일</th>
+                    <th>권한</th>
+                    <th>상태</th>
+                    <th>가입일</th>
+                    <th>관리</th>
+                </tr>
+                </thead>
+
+                <tbody>
+                <tr th:each="member : ${paging.content}">
+                    <td th:text="${member.id}">1</td>
+
+                    <td>
+                        <strong th:text="${member.username}">username</strong>
+                    </td>
+
+                    <td th:text="${member.name}">name</td>
+
+                    <td th:text="${member.email}">email</td>
+
+                    <td>
+                        <span class="role-badge"
+                              th:classappend="${member.role.name() == 'INSTRUCTOR'} ? ' instructor' : ' user'"
+                              th:text="${member.role}">
+                            USER
+                        </span>
+                    </td>
+
+                    <td>
+                        <span class="status-badge"
+                              th:classappend="${member.active} ? ' active' : ' inactive'"
+                              th:text="${member.active} ? '활성' : '비활성'">
+                            활성
+                        </span>
+                    </td>
+
+                    <td th:text="${member.createdAt != null ? #temporals.format(member.createdAt, 'yyyy-MM-dd') : '-'}">
+                        2026-07-07
+                    </td>
+
+                    <td>
+                        <a th:href="@{|/admin/members/${member.id}|}" class="table-action-btn">
+                            상세
+                        </a>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="admin-pagination" th:if="${paging != null and paging.totalPages > 1}">
+            <a th:if="${paging.hasPrevious()}"
+               th:href="@{/admin/members(page=${paging.number - 1})}">
+                이전
+            </a>
+
+            <a th:each="pageNum : ${#numbers.sequence(0, paging.totalPages - 1)}"
+               th:href="@{/admin/members(page=${pageNum})}"
+               th:text="${pageNum + 1}"
+               th:classappend="${pageNum == paging.number} ? ' active' : ''">
+                1
+            </a>
+
+            <a th:if="${paging.hasNext()}"
+               th:href="@{/admin/members(page=${paging.number + 1})}">
+                다음
+            </a>
+        </div>
+
+    </section>
+
+</main>
+
+<div th:replace="~{fragments/footer :: footer}"></div>
+
+</body>
+</html>
