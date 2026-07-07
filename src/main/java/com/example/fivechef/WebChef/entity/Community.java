@@ -45,6 +45,12 @@ public class Community {
 
     private LocalDateTime modifyDate;
 
+    private String originalFileName;
+
+    private String storedFileName;
+
+    private String fileUrl;
+
     @PrePersist
     public void prePersist() {
         this.createDate = LocalDateTime.now();

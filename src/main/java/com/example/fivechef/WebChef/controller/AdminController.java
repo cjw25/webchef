@@ -21,7 +21,11 @@ public class AdminController {
     private final AdminService adminService;
 
     @GetMapping
-    public String dashboard() {
+    public String dashboard(Model model) {
+        model.addAttribute("memberCount", adminService.getMemberCount());
+        model.addAttribute("userCount", adminService.getUserCount());
+        model.addAttribute("instructorCount", adminService.getInstructorCount());
+
         return "admin/dashboard";
     }
 

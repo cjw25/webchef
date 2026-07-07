@@ -16,8 +16,22 @@ import org.springframework.transaction.annotation.Transactional;
 public class AdminService {
 
     private final UserRepository userRepository;
-
     private final PasswordEncoder passwordEncoder;
+
+    @Transactional(readOnly = true)
+    public long getMemberCount() {
+        return userRepository.countByRoleNot(Role.ADMIN);
+    }
+
+    @Transactional(readOnly = true)
+    public long getUserCount() {
+        return userRepository.countByRole(Role.USER);
+    }
+
+    @Transactional(readOnly = true)
+    public long getInstructorCount() {
+        return userRepository.countByRole(Role.INSTRUCTOR);
+    }
 
     @Transactional(readOnly = true)
     public Page<AdminMemberResponse> getMembers(int page) {
@@ -27,7 +41,6 @@ public class AdminService {
                 Sort.by(Sort.Order.desc("id"))
         );
 
-        // ADMIN 계정은 관리자 회원관리 목록에서 제외
         return userRepository.findByRoleNot(Role.ADMIN, pageable)
                 .map(AdminMemberResponse::new);
     }
@@ -88,9 +101,7 @@ public class AdminService {
     @Transactional
     public void changeActive(Long id, boolean active) {
         User user = getManageableMemberEntity(id);
-
         user.setActive(active);
-
         userRepository.save(user);
     }
 

@@ -3,6 +3,7 @@ package com.example.fivechef.WebChef.dto;
 import jakarta.validation.constraints.NotBlank;
 import lombok.Getter;
 import lombok.Setter;
+import org.springframework.web.multipart.MultipartFile;
 
 @Getter
 @Setter
@@ -16,5 +17,9 @@ public class CommunityUpdateRequest {
 
     @NotBlank(message = "내용을 입력해주세요.")
     private String content;
+
+    private MultipartFile file;
+
+    private boolean deleteFile;
 
 }

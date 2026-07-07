@@ -10,19 +10,12 @@ import java.time.LocalDateTime;
 public class AdminMemberResponse {
 
     private final Long id;
-
     private final String username;
-
     private final String name;
-
     private final String email;
-
     private final Role role;
-
     private final Boolean active;
-
     private final LocalDateTime createdAt;
-
     private final LocalDateTime updatedAt;
 
     public AdminMemberResponse(User user) {
@@ -36,12 +29,12 @@ public class AdminMemberResponse {
         this.updatedAt = user.getUpdatedAt();
     }
 
-    public boolean isInstructor() {
-        return this.role == Role.INSTRUCTOR;
-    }
-
     public boolean isUser() {
         return this.role == Role.USER;
+    }
+
+    public boolean isInstructor() {
+        return this.role == Role.INSTRUCTOR;
     }
 
     public boolean isActive() {

@@ -5,12 +5,15 @@ import com.example.fivechef.WebChef.dto.CommunityCreateRequest;
 import com.example.fivechef.WebChef.dto.CommunityResponse;
 import com.example.fivechef.WebChef.dto.CommunityUpdateRequest;
 import com.example.fivechef.WebChef.service.CommunityService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.security.Principal;
 
@@ -62,12 +65,18 @@ public class CommunityController {
     @PreAuthorize("isAuthenticated()")
     @PostMapping("/community/create")
     public String createCommunity(
-            @ModelAttribute("request") CommunityCreateRequest request,
+            @Valid @ModelAttribute("request") CommunityCreateRequest request,
+            BindingResult bindingResult,
+            @RequestParam(value = "img", required = false) MultipartFile[] img,
             Model model,
             Principal principal
     ) {
+        if (bindingResult.hasErrors()) {
+            return "community/create";
+        }
+
         try {
-            communityService.createCommunity(request, principal.getName());
+            communityService.createCommunity(request, principal.getName(), img);
         } catch (Exception e) {
             model.addAttribute("errorMessage", e.getMessage());
             return "community/create";
@@ -100,11 +109,19 @@ public class CommunityController {
     public String updateCommunity(
             @PathVariable("id") Long id,
             @ModelAttribute("request") CommunityUpdateRequest request,
+            @RequestParam(value = "img", required = false) MultipartFile[] img,
+            @RequestParam(value = "deleteFile", defaultValue = "false") boolean deleteFile,
             Model model,
             Principal principal
     ) {
         try {
-            communityService.updateCommunity(id, request, principal.getName());
+            communityService.updateCommunity(
+                    id,
+                    request,
+                    principal.getName(),
+                    img,
+                    deleteFile
+            );
         } catch (Exception e) {
             CommunityResponse community = communityService.getCommunityResponse(id);
 
