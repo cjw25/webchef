@@ -74,10 +74,10 @@ public class CommunityService {
     @Transactional
     public void createCommunity(CommunityCreateRequest request,
                                 String username,
-                                MultipartFile[] image) {
+                                MultipartFile[] img) {
         validateCreateRequest(request);
 
-        MultipartFile uploadFile = extractSingleFile(image);
+        MultipartFile uploadFile = extractSingleFile(img);
         validateFile(uploadFile);
 
         User author = userService.getLoginUserEntity(username);

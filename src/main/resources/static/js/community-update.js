@@ -9,7 +9,7 @@ let writeSelectedFiles = [];
 const existingFileItems = document.querySelectorAll('#write-existing-file-list .write-file-item');
 const MAX_FILE_COUNT = 5;
 
-function getRemainingImageCount(){
+function getRemainingImgCount(){
     const deletingCount = document.querySelectorAll('#write-existing-file-list input[type="checkbox"]:checked').length;
     const remainingExisting = existingFileItems.length - deletingCount;
     return remainingExisting;
@@ -43,7 +43,7 @@ function syncWriteInputFiles(){
 }
 
 function addFiles(newFiles){
-    const remaining = getRemainingImageCount();
+    const remaining = getRemainingImgCount();
     const availableSlots = MAX_FILE_COUNT - remaining - writeSelectedFiles.length;
 
     if (availableSlots <= 0){
