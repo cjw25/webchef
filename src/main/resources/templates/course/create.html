@@ -43,15 +43,21 @@
 
                 <select th:field="*{category}" class="category-level">
                     <option value="">난이도</option>
-                    <option value="korean">쉬움</option>
-                    <option value="chinese">보통</option>
-                    <option value="japanese">어려움</option>
+                    <option value="easy">쉬움</option>
+                    <option value="medium">보통</option>
+                    <option value="hard">어려움</option>
                 </select>
 
-                <div class="category-time">
-                    <label>조리시간<span class="req">*</span></label>
-                    <input type="text" th:field="*{category}" placeholder="조리시간을 입력하세요">
-                </div>
+                <select th:field="*{category}" class="category-time">
+                    <option value="">조리시간</option>
+                    <option value="less">10분미만</option>
+                    <option value="ten">10분 이상</option>
+                    <option value="twenty">20분 이상</option>
+                    <option value="thirty">30분 이상</option>
+                    <option value="forty">40분 이상</option>
+                    <option value="fifty">50분 이상</option>
+                    <option value="hour">1시간 이상</option>
+                </select>
 
                 <p class="add-field-error" th:if="${#fields.hasErrors('category')}" th:errors="*{category}"></p>
             </div>
@@ -85,6 +91,11 @@
                        style="display: none;">
 
                 <div class="add-file-list" id="add-file-list"></div>
+            </div>
+
+            <div class="add-actions">
+                <a th:href="@{/course/list}" class="add-btn add-btn-prev">처음으로</a>
+                <button type="submit" class="add-btn add-btn-submit">강의 등록</button>
             </div>
 
         </form>
