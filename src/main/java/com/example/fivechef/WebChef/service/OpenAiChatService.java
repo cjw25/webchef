@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.HttpStatusCodeException;
+import org.springframework.web.client.ResourceAccessException;
 import org.springframework.web.client.RestTemplate;
 
 import java.util.List;
@@ -17,6 +18,7 @@ import java.util.Map;
 public class OpenAiChatService {
 
     private final RestTemplate restTemplate;
+
     private final ObjectMapper objectMapper;
 
     @Value("${chatbot.api.url}")
@@ -27,6 +29,8 @@ public class OpenAiChatService {
 
     @Value("${chatbot.api.model:gpt-4o-mini}")
     private String chatbotModel;
+
+    private static final int MAX_USER_MESSAGE_LENGTH = 1000;
 
     private static final String WEBCHEF_PERSONA = """
             너는 WebChef 서비스의 전용 AI 챗봇이다.
@@ -79,7 +83,7 @@ public class OpenAiChatService {
 
     public String ask(String userMessage) {
         if (isBlank(chatbotApiKey)) {
-            return "OpenAI API Key가 설정되어 있지 않습니다. OPENAI_API_KEY 환경변수를 확인해주세요.";
+            return "AI 챗봇 API Key가 서버에 설정되어 있지 않습니다. WEBCHEF_OPENAI_API_KEY 환경변수를 확인해주세요.";
         }
 
         if (isBlank(userMessage)) {
@@ -88,8 +92,8 @@ public class OpenAiChatService {
 
         String safeMessage = userMessage.trim();
 
-        if (safeMessage.length() > 1000) {
-            safeMessage = safeMessage.substring(0, 1000);
+        if (safeMessage.length() > MAX_USER_MESSAGE_LENGTH) {
+            safeMessage = safeMessage.substring(0, MAX_USER_MESSAGE_LENGTH);
         }
 
         try {
@@ -112,12 +116,12 @@ public class OpenAiChatService {
                     "temperature", 0.7
             );
 
-            HttpEntity<Map<String, Object>> request = new HttpEntity<>(body, headers);
+            HttpEntity<Map<String, Object>> requestEntity = new HttpEntity<>(body, headers);
 
             ResponseEntity<String> response = restTemplate.exchange(
                     chatbotApiUrl,
                     HttpMethod.POST,
-                    request,
+                    requestEntity,
                     String.class
             );
 
@@ -127,11 +131,37 @@ public class OpenAiChatService {
             System.out.println("OpenAI API 오류 상태코드: " + e.getStatusCode());
             System.out.println("OpenAI API 오류 응답: " + e.getResponseBodyAsString());
 
-            return "AI 챗봇 연결 중 문제가 발생했습니다. API Key, 모델명, 사용량 또는 결제 상태를 확인해주세요.";
+            return makeOpenAiErrorMessage(e);
+
+        } catch (ResourceAccessException e) {
+            System.out.println("OpenAI API 연결 시간 초과 또는 네트워크 오류");
+            e.printStackTrace();
+
+            return "AI 챗봇 연결 시간이 초과되었습니다. 잠시 후 다시 시도해주세요.";
+
         } catch (Exception e) {
             e.printStackTrace();
+
             return "AI 챗봇 처리 중 알 수 없는 오류가 발생했습니다.";
         }
+    }
+
+    private String makeOpenAiErrorMessage(HttpStatusCodeException e) {
+        HttpStatusCode statusCode = e.getStatusCode();
+
+        if (statusCode.value() == 401) {
+            return "AI API 인증에 실패했습니다. 서버의 WEBCHEF_OPENAI_API_KEY 값을 확인해주세요.";
+        }
+
+        if (statusCode.value() == 429) {
+            return "AI 사용량이 많거나 한도에 도달했습니다. 잠시 후 다시 시도해주세요.";
+        }
+
+        if (statusCode.value() == 400) {
+            return "AI 요청 형식에 문제가 있습니다. 모델명이나 요청 내용을 확인해주세요.";
+        }
+
+        return "AI 챗봇 연결 중 문제가 발생했습니다. API Key, 모델명, 사용량 또는 결제 상태를 확인해주세요.";
     }
 
     private String extractReply(String responseBody) throws Exception {
@@ -160,7 +190,13 @@ public class OpenAiChatService {
             return "AI 응답 내용이 없습니다.";
         }
 
-        return content.asText();
+        String reply = content.asText();
+
+        if (isBlank(reply)) {
+            return "AI 응답 내용이 비어 있습니다.";
+        }
+
+        return reply.trim();
     }
 
     private boolean isBlank(String value) {

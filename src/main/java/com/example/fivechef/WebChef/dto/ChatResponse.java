@@ -8,6 +8,7 @@ import lombok.Getter;
 public class ChatResponse {
 
     private boolean success;
+
     private String reply;
 
     public static ChatResponse ok(String reply) {

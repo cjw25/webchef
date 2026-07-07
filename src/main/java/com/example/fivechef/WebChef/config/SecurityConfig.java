@@ -1,6 +1,5 @@
 package com.example.fivechef.WebChef.config;
 
-import com.example.fivechef.WebChef.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -16,7 +15,6 @@ import org.springframework.security.web.SecurityFilterChain;
 @EnableMethodSecurity
 public class SecurityConfig {
 
-
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
@@ -25,9 +23,9 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
-                // 개발 중 403 방지용. 나중에 배포 전에 CSRF 다시 켜도 됨.
+                // 개발 중 403 방지용.
+                // 배포 전에 CSRF를 다시 켤 거면 chatbot-widget.js의 CSRF 헤더 코드는 그대로 유지하면 됨.
                 .csrf(AbstractHttpConfigurer::disable)
-
 
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(
@@ -37,24 +35,30 @@ public class SecurityConfig {
                                 "/user/create",
                                 "/user/find-id",
                                 "/user/find-password",
-                                "/mypage/**",
+
                                 "/fridge/**",
                                 "/course/list",
                                 "/course/detail/**",
+
                                 "/community/list",
                                 "/community/view/**",
+
                                 "/notice/list",
                                 "/notice/view/**",
                                 "/inquiry/**",
                                 "/tips/**",
+
                                 "/css/**",
                                 "/js/**",
                                 "/img/**",
                                 "/uploads/**",
                                 "/assets/**",
+
                                 "/api/chat/**",
                                 "/api/users/register"
                         ).permitAll()
+
+                        .requestMatchers("/mypage/**").authenticated()
 
                         .requestMatchers("/admin/**").hasRole("ADMIN")
                         .requestMatchers("/instructor/**").hasAnyRole("INSTRUCTOR", "ADMIN")
