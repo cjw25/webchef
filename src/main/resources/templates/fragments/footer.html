@@ -8,33 +8,97 @@
     <p>© 2026 WebChef. 자취생을 위한 요리 학습 플랫폼.</p>
   </div>
 
-  <div class="metaverse-dock" id="metaverseDock">
+  <!-- 오른쪽 하단 AI 챗봇 / 메타버스 -->
+  <div class="wc-floating-tools" id="floatingTools">
 
-    <div class="dock-handle">
-      <span></span>
-      <p>2D Metaverse</p>
-    </div>
+    <button type="button" id="chatbotOpenBtn" class="wc-chat-floating-btn">
+      <span class="wc-chat-btn-icon">AI</span>
+      <span class="wc-chat-btn-text">챗봇</span>
+    </button>
 
-    <div class="dock-content">
-
-      <div class="dock-info">
-        <strong>WebChef 2D 메타버스</strong>
-        <p>하단 바를 올려 WebChef 2D 메타버스에 입장하세요.</p>
-      </div>
-
-      <div class="dock-actions">
-        <button type="button" id="metaverseLaunchBtn">
-          메타버스 입장
-        </button>
-
-        <a href="/course/list">
-          강의 먼저 보기
-        </a>
-      </div>
-
-    </div>
+    <a href="/metaverse" class="wc-metaverse-floating-btn">
+      <span>🌐</span>
+      <strong>메타버스</strong>
+    </a>
 
   </div>
+
+  <!-- WebChef AI 챗봇 패널 -->
+  <section id="chatbotPanel" class="wc-chatbot-panel" aria-hidden="true">
+
+    <div class="wc-chatbot-header">
+      <div class="wc-chatbot-brand">
+        <img th:src="@{/img/webchef-logo.png}"
+             src="/img/webchef-logo.png"
+             alt="WebChef">
+
+        <div>
+          <strong>WebChef 챗봇</strong>
+          <span>요리 · 자취 생활 AI 도우미</span>
+        </div>
+      </div>
+
+      <div class="wc-chatbot-header-actions">
+        <button type="button"
+                id="chatbotResetBtn"
+                class="wc-chatbot-small-btn"
+                title="대화 초기화">
+          ↻
+        </button>
+
+        <button type="button"
+                id="chatbotCloseBtn"
+                class="wc-chatbot-close-btn"
+                title="닫기">
+          ×
+        </button>
+      </div>
+    </div>
+
+    <div class="wc-chatbot-body" id="chatbotMessages">
+
+      <div class="wc-chatbot-welcome">
+        <div class="wc-chatbot-logo-circle">
+          <img th:src="@{/img/webchef-logo.png}"
+               src="/img/webchef-logo.png"
+               alt="WebChef">
+        </div>
+
+        <p>안녕하세요.</p>
+        <strong>WebChef AI 챗봇이에요.</strong>
+        <h2>무엇을 도와드릴까요?</h2>
+      </div>
+
+      <div class="wc-chatbot-suggest-grid">
+        <button type="button"
+                class="wc-suggest-btn"
+                data-question="계란이랑 김치로 만들 수 있는 요리 알려줘">
+          냉장고 재료로 요리 추천
+        </button>
+
+        <button type="button"
+                class="wc-suggest-btn"
+                data-question="자취방 청소 루틴 알려줘">
+          자취방 청소 루틴
+        </button>
+
+        <button type="button"
+                class="wc-suggest-btn"
+                data-question="이번 주 식비 줄이는 방법 알려줘">
+          식비 절약 팁
+        </button>
+      </div>
+
+    </div>
+
+    <div class="wc-chatbot-input-area">
+      <input type="text" id="chatbotInput" placeholder="무엇이든 물어보세요.">
+      <button type="button" id="chatbotSendBtn">↑</button>
+    </div>
+
+  </section>
+
+  <script th:src="@{/js/chatbot-widget.js}"></script>
 
 </footer>
 
