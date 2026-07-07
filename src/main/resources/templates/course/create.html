@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>요리강의 추가</title>
+
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <link rel="stylesheet" th:href="@{/css/header.css}">
+    <link rel="stylesheet" th:href="@{/css/course.css}">
+    <link rel="stylesheet" th:href="@{/css/course-create.css}">
+</head>
+
+<body>
+
+<div th:replace="~{fragments/header :: header}"></div>
+
+<main class="add">
+
+    <div class="add-crumb">
+        <a th:href="@{/course/list}" style="color:inherit;text-decoration:none;">요리 강의</a>
+        &nbsp;›&nbsp; <span>강의 추가</span>
+    </div>
+
+    <div class="add-card">
+        <div class="add-error-box" th:if="${errorMessage}" th:text="${errorMessage}"></div>
+
+        <form th:action="@{/course/add}" th:object="${request}" method="post" enctype="multipart/form-data">
+
+            <input type="hidden" th:if="${_csrf}" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+
+            <div class="add-field">
+                <label>카테고리<span class="req">*</span></label>
+                <select th:field="*{category}">
+                    <option value="">분류</option>
+                    <option value="korean">한식</option>
+                    <option value="chinese">중식</option>
+                    <option value="japanese">일식</option>
+                    <option value="western">양식</option>
+                    <option value="dessert">간식 / 디저트</option>
+                    <option value="etc">기타</option>
+                </select>
+
+                <select th:field="*{category}">
+                    <option value="">난이도</option>
+                    <option value="korean">쉬움</option>
+                    <option value="chinese">보통</option>
+                    <option value="japanese">어려움</option>
+                </select>
+                <p class="write-field-error" th:if="${#fields.hasErrors('category')}" th:errors="*{category}"></p>
+            </div>
+
+        </form>
+    </div>
+
+</main>
+
+</body>
+</html>

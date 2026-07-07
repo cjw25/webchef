@@ -178,6 +178,30 @@ a {
   border-radius: 30px;
 }
 
+.add-box{
+
+  display: flex;
+  justify-content: end;
+  padding: 0 258px;
+}
+
+.add-btn{
+     background-color: #C70000;
+     color: #ffffff;
+     padding: 10px;
+     font-weight: bolder;
+     border-radius: 10px;
+     transition: all 0.3s;
+
+}
+
+.add-btn:hover{
+
+    background-color: #FFC3C3;
+    transform:translateY(-3px);
+
+}
+
 .bottom {
   height: 200px;
   background: linear-gradient(to bottom, #FFFFFF, #FFC7C7);
