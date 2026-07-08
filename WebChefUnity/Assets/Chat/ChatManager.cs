@@ -1,18 +1,18 @@
-using System.Collections;
+ï»¿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using TMPro;
 using UnityEngine.SceneManagement;
-using Unity.Netcode; // ¡Ú À¯´ÏÆ¼ ³İÄÚµå ¶óÀÌºê·¯¸® Ãß°¡
+using Unity.Netcode; // â˜… ìœ ë‹ˆí‹° ë„·ì½”ë“œ ë¼ì´ë¸ŒëŸ¬ë¦¬ ì¶”ê°€
 
-// ¡Ú ¸ÖÆ¼ÇÃ·¹ÀÌ¾î Åë½Å(RPC)À» À§ÇØ NetworkBehaviour¸¦ »ó¼Ó¹Ş½À´Ï´Ù.
+// â˜… ë©€í‹°í”Œë ˆì´ì–´ í†µì‹ (RPC)ì„ ìœ„í•´ NetworkBehaviourë¥¼ ìƒì†ë°›ìŠµë‹ˆë‹¤.
 public class ChatManager : NetworkBehaviour
 {
-    [Header("ÀüÃ¼ Ã¤ÆÃÃ¢ UI")]
+    [Header("ì „ì²´ ì±„íŒ…ì°½ UI")]
     public TMP_InputField chatInput;
     public TMP_Text chatWindow;
 
-    [Header("Ã¤ÆÃ È¯°æ ¼³Á¤")]
+    [Header("ì±„íŒ… í™˜ê²½ ì„¤ì •")]
     public float chatDisplayTime = 5f;
 
     private List<string> chatHistory = new List<string>();
@@ -35,7 +35,7 @@ public class ChatManager : NetworkBehaviour
 
     public override void OnDestroy()
     {
-        // ³İÄÚµå ÀÚÃ¼ÀÇ ³»Àå OnDestroy ½Ã½ºÅÛÀ» ¸ÕÀú ÇÑ ¹ø ½ÇÇàÇØ ÁÖ´Â ¾ÈÀüÀåÄ¡
+        // ë„·ì½”ë“œ ìì²´ì˜ ë‚´ì¥ OnDestroy ì‹œìŠ¤í…œì„ ë¨¼ì € í•œ ë²ˆ ì‹¤í–‰í•´ ì£¼ëŠ” ì•ˆì „ì¥ì¹˜
         base.OnDestroy();
 
         if (Instance == this)
@@ -48,7 +48,7 @@ public class ChatManager : NetworkBehaviour
     {
         if (Instance != this) return;
 
-        // 1. »õ ¹æ¿¡ ÀÖ´Â ÀÔ·ÂÃ¢(InputField)À» »õ·Î Ã£¾Æ ¿Ïº®ÇÏ°Ô ¿¬°áÇÕ´Ï´Ù.
+        // 1. ìƒˆ ë°©ì— ìˆëŠ” ì…ë ¥ì°½(InputField)ì„ ìƒˆë¡œ ì°¾ì•„ ì™„ë²½í•˜ê²Œ ì—°ê²°í•©ë‹ˆë‹¤.
         TMP_InputField newInputField = GameObject.FindObjectOfType<TMP_InputField>(true);
         if (newInputField != null)
         {
@@ -58,7 +58,7 @@ public class ChatManager : NetworkBehaviour
             chatInput.onSubmit.AddListener(OnChatSubmit);
         }
 
-        // 2. »õ ¹æÀÇ ´ëÈ­Ã¢(Text)À» ÀÚµ¿À¸·Î »õ·Î °íÄ¨´Ï´Ù.
+        // 2. ìƒˆ ë°©ì˜ ëŒ€í™”ì°½(Text)ì„ ìë™ìœ¼ë¡œ ìƒˆë¡œ ê³ ì¹©ë‹ˆë‹¤.
         TMP_Text[] allTexts = GameObject.FindObjectsOfType<TMP_Text>(true);
         foreach (TMP_Text t in allTexts)
         {
@@ -74,7 +74,6 @@ public class ChatManager : NetworkBehaviour
 
     void Start()
     {
-
         if (Instance != this) return;
         if (chatWindow != null) chatWindow.text = "";
 
@@ -90,20 +89,24 @@ public class ChatManager : NetworkBehaviour
     {
         if (Instance != this) return;
 
-        if (Input.GetKeyDown(KeyCode.Return) || Input.GetKeyDown(KeyCode.KeypadEnter))
+        // ğŸ’¡ [ë²„ê·¸ ìˆ˜ì • 1] ì±„íŒ…ì°½ì´ ì´ë¯¸ ì¼œì ¸ìˆëŠ” ìƒíƒœë¼ë©´ Updateì˜ ì—”í„° ì²˜ë¦¬ëŠ” ì™„ì „íˆ ë¬´ì‹œí•©ë‹ˆë‹¤.
+        // UI ì‹œìŠ¤í…œ ë‚´ë¶€ì˜ ì—”í„° ì „ì†¡ ê¸°ëŠ¥(OnChatSubmit)ê³¼ í”„ë ˆì„ ì¶©ëŒì„ ë§‰ê¸° ìœ„í•¨ì…ë‹ˆë‹¤.
+        if (chatInput != null && chatInput.isFocused)
         {
-            if (chatInput != null && !chatInput.isFocused)
-            {
-                StartCoroutine(ActivateChatInputDeferred());
-            }
-        }
-
-        if (Input.GetKeyDown(KeyCode.Escape))
-        {
-            if (chatInput != null && chatInput.isFocused)
+            if (Input.GetKeyDown(KeyCode.Escape))
             {
                 chatInput.text = "";
                 ResetFocus();
+            }
+            return; // ì±„íŒ…ì°½ì´ í™œì„±í™”ë˜ì–´ ìˆì„ ë• ì•„ë˜ì˜ "ì±„íŒ…ì°½ ì¼œê¸°" ì½”ë“œë¡œ ì ˆëŒ€ ì•ˆ ë‚´ë ¤ê°‘ë‹ˆë‹¤.
+        }
+
+        // ğŸ’¡ [ë²„ê·¸ ìˆ˜ì • 2] ì±„íŒ…ì°½ì´ í™•ì‹¤í•˜ê²Œ êº¼ì ¸ìˆì„ ë•Œ 'ì—”í„°'ë¥¼ ëˆŒëŸ¬ì•¼ë§Œ ì±„íŒ…ì°½ì´ í™œì„±í™”ë©ë‹ˆë‹¤.
+        if (Input.GetKeyDown(KeyCode.Return) || Input.GetKeyDown(KeyCode.KeypadEnter))
+        {
+            if (chatInput != null)
+            {
+                StartCoroutine(ActivateChatInputDeferred());
             }
         }
     }
@@ -116,44 +119,39 @@ public class ChatManager : NetworkBehaviour
 
     void OnChatSubmit(string text)
     {
+        // ğŸ’¡ [ë²„ê·¸ ìˆ˜ì • 3] ì±„íŒ…ì°½ í¬ì»¤ìŠ¤ê°€ ì—†ëŠ” ìƒíƒœ(ë°±ê·¸ë¼ìš´ë“œ ì›€ì§ì„ ì…ë ¥ ë“±)ì—ì„œ í˜¸ì¶œë˜ë©´ ì¦‰ì‹œ ì°¨ë‹¨í•©ë‹ˆë‹¤.
+        if (chatInput == null || !chatInput.isFocused) return;
+
         if (string.IsNullOrEmpty(text.Trim())) return;
         chatInput.text = "";
 
-        // ¡Ú [¸ÖÆ¼ÇÃ·¹ÀÌ °³Á¶] ³»°¡ ¾´ ±ÛÀ» ³» È­¸é¿¡ ¹Ù·Î ¶ç¿ìÁö ¾Ê°í ¼­¹ö(RPC)·Î Àü¼ÛÇÕ´Ï´Ù.
-        // À¯Àú ÀÌ¸§ ´ë½Å ³İÄÚµå °íÀ¯ÀÇ ClientId¸¦ ÇÔ²² Àü´ŞÇÕ´Ï´Ù.
+        // â˜… [ë©€í‹°í”Œë ˆì´ ê°œì¡°] ë‚´ê°€ ì“´ ê¸€ì„ ë‚´ í™”ë©´ì— ë°”ë¡œ ë„ìš°ì§€ ì•Šê³  ì„œë²„(RPC)ë¡œ ì „ì†¡í•©ë‹ˆë‹¤.
         ulong myClientId = NetworkManager.Singleton.LocalClientId;
         SendChatMessageServerRpc(myClientId, text);
 
         ResetFocus();
     }
 
-    // ¡Ú [¸ÖÆ¼ÇÃ·¹ÀÌ ÇÙ½É - ServerRpc] 
-    // Å¬¶óÀÌ¾ğÆ®°¡ ¿£ÅÍ¸¦ Ä¡¸é ÀÌ ÇÔ¼ö¸¦ ÅëÇØ ¼­¹ö ÄÄÇ»ÅÍ·Î Ã¤ÆÃ µ¥ÀÌÅÍ°¡ ¸ÕÀú ¼öÁıµË´Ï´Ù.
+    // â˜… [ë©€í‹°í”Œë ˆì´ í•µì‹¬ - ServerRpc] 
     [ServerRpc(RequireOwnership = false)]
     private void SendChatMessageServerRpc(ulong senderClientId, string message)
     {
-        // ¼­¹ö°¡ Àü ¼¼°è 20¸íÀÇ À¯Àú(Client)µé¿¡°Ô ÀÌ Ã¤ÆÃ ³»¿ëÀ» ¶È°°ÀÌ »Ñ·ÁÁİ´Ï´Ù.
         ReceiveChatMessageClientRpc(senderClientId, message);
     }
 
-    // ¡Ú [¸ÖÆ¼ÇÃ·¹ÀÌ ÇÙ½É - ClientRpc]
-    // ¼­¹ö°¡ ½ÅÈ£¸¦ ÁÖ¸é ¹æ¿¡ ÀÖ´Â 20¸í ÇÃ·¹ÀÌ¾îµéÀÇ ÄÄÇ»ÅÍ¿¡¼­ µ¿½Ã¿¡ ÀÌ ÇÔ¼ö°¡ ½ÇÇàµË´Ï´Ù.
+    // â˜… [ë©€í‹°í”Œë ˆì´ í•µì‹¬ - ClientRpc]
     [ClientRpc]
     private void ReceiveChatMessageClientRpc(ulong senderClientId, string message)
     {
-        // 1. ÀüÃ¼ Ã¤ÆÃÃ¢ UI °»½Å ¿¬»ê
-        string formattedMessage = $"[À¯Àú {senderClientId}]: {message}";
+        string formattedMessage = $"[ìœ ì € {senderClientId}]: {message}";
         chatHistory.Add(formattedMessage);
         UpdateChatWindowText(formattedMessage);
 
-        // 2. ¡Ú [°¡Àå Áß¿ä] ¹æ ¾ÈÀÇ ¸ğµç ÇÃ·¹ÀÌ¾î Áß "ÁøÂ¥ ÀÌ Ã¤ÆÃÀ» Ä£ ÁÖÀÎ"À» Á¤È®ÇÏ°Ô Á¶ÁØÇÕ´Ï´Ù.
         foreach (PlayerMove player in GameObject.FindObjectsOfType<PlayerMove>())
         {
             NetworkObject netObj = player.GetComponent<NetworkObject>();
-            // ³İÄÚµå ID °ËÁõÀ» °ÅÃÄ ÀÏÄ¡ÇÏ´Â Å¸°ÙÀ» Á¤¹Ğ Å¸°İÇÕ´Ï´Ù.
             if (netObj != null && netObj.OwnerClientId == senderClientId)
             {
-                // ÇØ´ç ÇÃ·¹ÀÌ¾î ¸Ó¸® À§¿¡ ºÙ¾îÀÖ´Â ¸»Ç³¼± Äµ¹ö½º¸¦ Ã£½À´Ï´Ù.
                 Canvas[] canvases = player.GetComponentsInChildren<Canvas>(true);
                 foreach (Canvas canvas in canvases)
                 {
@@ -166,7 +164,6 @@ public class ChatManager : NetworkBehaviour
                         if (bubbleObj != null)
                         {
                             bubbleObj.SetActive(true);
-                            // ÀÌÀü Å¸ÀÌ¸Ó ÄÚ·çÆ¾ÀÌ µ¹°í ÀÖ´Ù¸é Á¤Áö ¿¬»ê Ã³¸® ÈÄ »õ·Î ±¸µ¿
                             ChatBubbleTimeout timeoutScript = bubbleObj.GetComponent<ChatBubbleTimeout>();
                             if (timeoutScript == null) timeoutScript = bubbleObj.AddComponent<ChatBubbleTimeout>();
                             timeoutScript.TriggerHide(3f);
@@ -217,7 +214,7 @@ public class ChatManager : NetworkBehaviour
     }
 }
 
-// ¡Ú ¸ÖÆ¼ÇÃ·¹ÀÌ¾î ¸»Ç³¼± °³º° Å¸ÀÌ¸Ó ¼Ò¸ê Ã³¸®¸¦ À§ÇÑ µµ¿ì¹Ì Å¬·¡½º
+// â˜… ë©€í‹°í”Œë ˆì´ì–´ ë§í’ì„  ê°œë³„ íƒ€ì´ë¨¸ ì†Œë©¸ ì²˜ë¦¬ë¥¼ ìœ„í•œ ë„ìš°ë¯¸ í´ë˜ìŠ¤
 public class ChatBubbleTimeout : MonoBehaviour
 {
     private Coroutine currentCoroutine;

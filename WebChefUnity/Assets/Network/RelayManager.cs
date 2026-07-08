@@ -6,6 +6,7 @@ using UnityEngine;
 using System.Threading.Tasks;
 using System.IO;
 
+[RequireComponent(typeof(UnityTransport))]
 public class RelayManager : MonoBehaviour
 {
     public static RelayManager Instance { get; private set; }
