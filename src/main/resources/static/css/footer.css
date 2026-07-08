@@ -7,7 +7,6 @@
     border-top: 1px solid #eeeeee;
 }
 
-/* footer 문구 가운데 정렬 */
 .footer-content {
     width: 100%;
     min-height: 72px;
@@ -29,88 +28,6 @@
     font-weight: 700;
 }
 
-/* 2D Metaverse 하단 도크 */
-.metaverse-dock,
-.footer-metaverse,
-.metaverse-mini,
-.metaverse-box,
-#metaverseDock {
-    position: fixed;
-    left: 50%;
-    bottom: 18px;
-    transform: translateX(-50%);
-
-    width: min(760px, calc(100% - 40px));
-    height: 58px;
-
-    background: #fff0f0;
-    border: 1px solid #f5c5c5;
-    border-radius: 18px 18px 0 0;
-
-    box-shadow: 0 -8px 24px rgba(0, 0, 0, 0.08);
-
-    z-index: 60;
-
-    display: flex;
-    align-items: center;
-    justify-content: center;
-
-    color: #d71920;
-
-    font-size: 14px;
-    font-weight: 900;
-    letter-spacing: 0.3px;
-}
-
-.metaverse-dock::before,
-.footer-metaverse::before,
-.metaverse-mini::before,
-.metaverse-box::before,
-#metaverseDock::before {
-    content: "";
-
-    position: absolute;
-    top: 8px;
-    left: 50%;
-    transform: translateX(-50%);
-
-    width: 260px;
-    height: 5px;
-
-    border-radius: 999px;
-
-    background: #d71920;
-}
-
-.dock-handle {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 8px;
-}
-
-.dock-handle span {
-    width: 8px;
-    height: 8px;
-
-    border-radius: 50%;
-
-    background: #d71920;
-}
-
-.dock-handle p {
-    margin: 0;
-}
-
-.dock-content {
-    display: none;
-}
-
-/* fixed 도크가 footer를 가리지 않게 여백 */
-body {
-    padding-bottom: 90px;
-}
-
 @media (max-width: 640px) {
     .footer,
     .site-footer {
@@ -124,31 +41,5 @@ body {
 
     .footer-content p {
         font-size: 13px;
-    }
-
-    .metaverse-dock,
-    .footer-metaverse,
-    .metaverse-mini,
-    .metaverse-box,
-    #metaverseDock {
-        width: calc(100% - 24px);
-        height: 54px;
-        bottom: 12px;
-
-        border-radius: 16px;
-
-        font-size: 13px;
-    }
-
-    .metaverse-dock::before,
-    .footer-metaverse::before,
-    .metaverse-mini::before,
-    .metaverse-box::before,
-    #metaverseDock::before {
-        width: 160px;
-    }
-
-    body {
-        padding-bottom: 82px;
     }
 }

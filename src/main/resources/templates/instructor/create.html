@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>강사 신청 | WebChef</title>
+
+    <link rel="stylesheet" th:href="@{/css/header.css}">
+    <link rel="stylesheet" th:href="@{/css/footer.css}">
+    <link rel="stylesheet" th:href="@{/css/instructor.css}">
+    <link rel="stylesheet" th:href="@{/css/chatbot-widget.css}">
+</head>
+<body>
+
+<div th:replace="~{fragments/header :: header}"></div>
+
+<main class="instructor-page">
+
+    <section class="instructor-hero">
+        <span>INSTRUCTOR</span>
+        <h1>강사 신청</h1>
+        <p>WebChef에서 요리와 자취 생활 노하우를 알려줄 강사로 신청할 수 있습니다.</p>
+    </section>
+
+    <section class="instructor-card">
+
+        <div class="status-box" th:if="${instructor != null}">
+            <strong>현재 신청 상태</strong>
+            <p>
+                <span th:if="${instructor.pending}">승인 대기 중입니다.</span>
+                <span th:if="${instructor.approved}">강사 승인이 완료되었습니다.</span>
+                <span th:if="${instructor.rejected}">반려되었습니다. 다시 신청할 수 있습니다.</span>
+            </p>
+
+            <p th:if="${instructor.rejected and instructor.rejectReason != null}"
+               th:text="'반려 사유: ' + ${instructor.rejectReason}">
+                반려 사유
+            </p>
+
+            <a th:href="@{/instructor/status}" class="small-link">상태 자세히 보기</a>
+        </div>
+
+        <div class="error-box"
+             th:if="${errorMessage != null}"
+             th:text="${errorMessage}">
+            오류 메시지
+        </div>
+
+        <form th:action="@{/instructor/create}"
+              th:object="${request}"
+              method="post"
+              class="instructor-form"
+              th:if="${instructor == null or instructor.rejected}">
+
+            <input type="hidden"
+                   th:if="${_csrf != null}"
+                   th:name="${_csrf.parameterName}"
+                   th:value="${_csrf.token}">
+
+            <div class="form-group">
+                <label for="specialty">전문 분야</label>
+                <input type="text"
+                       id="specialty"
+                       th:field="*{specialty}"
+                       placeholder="예: 자취 요리, 한식, 도시락, 식비 절약 요리"
+                       required>
+            </div>
+
+            <div class="form-group">
+                <label for="introduction">자기소개</label>
+                <textarea id="introduction"
+                          th:field="*{introduction}"
+                          placeholder="강사로 활동하고 싶은 이유를 작성해주세요."
+                          required></textarea>
+            </div>
+
+            <div class="form-group">
+                <label for="career">경력 / 경험</label>
+                <textarea id="career"
+                          th:field="*{career}"
+                          placeholder="요리 경험, 교육 경험, 프로젝트 경험 등을 작성해주세요."></textarea>
+            </div>
+
+            <div class="form-group">
+                <label for="portfolioUrl">포트폴리오 URL</label>
+                <input type="text"
+                       id="portfolioUrl"
+                       th:field="*{portfolioUrl}"
+                       placeholder="노션, 블로그, 유튜브, 깃허브 등">
+            </div>
+
+            <button type="submit" class="primary-btn">
+                강사 신청하기
+            </button>
+
+        </form>
+
+        <div th:if="${instructor != null and instructor.pending}" class="guide-box">
+            이미 강사 신청이 접수되었습니다. 관리자의 승인을 기다려주세요.
+        </div>
+
+        <div th:if="${instructor != null and instructor.approved}" class="guide-box">
+            강사 승인이 완료되었습니다.
+            <a th:href="@{/instructor}">강사 페이지로 이동</a>
+        </div>
+
+    </section>
+
+</main>
+
+<div th:replace="~{fragments/footer :: footer}"></div>
+
+</body>
+</html>

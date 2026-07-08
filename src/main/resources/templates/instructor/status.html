@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>강사 신청 상태 | WebChef</title>
+
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <link rel="stylesheet" th:href="@{/css/header.css}">
+    <link rel="stylesheet" th:href="@{/css/footer.css}">
+    <link rel="stylesheet" th:href="@{/css/chatbot-widget.css}">
+    <link rel="stylesheet" th:href="@{/css/instructor.css}">
+</head>
+<body>
+
+<div th:replace="~{fragments/header :: header}"></div>
+
+<main class="instructor-page">
+
+    <section class="instructor-hero">
+        <span>STATUS</span>
+        <h1>강사 신청 상태</h1>
+        <p>내 강사 신청 진행 상태를 확인할 수 있습니다.</p>
+    </section>
+
+    <section class="instructor-card">
+
+        <div th:if="${instructor == null}" class="guide-box">
+            아직 강사 신청 내역이 없습니다.
+            <a th:href="@{/instructor/create}">강사 신청하기</a>
+        </div>
+
+        <div th:if="${instructor != null}" class="status-detail">
+
+            <div class="status-line">
+                <span>상태</span>
+                <strong th:if="${instructor.pending}">승인 대기</strong>
+                <strong th:if="${instructor.approved}">승인 완료</strong>
+                <strong th:if="${instructor.rejected}">반려</strong>
+            </div>
+
+            <div class="status-line">
+                <span>전문 분야</span>
+                <strong th:text="${instructor.specialty}">전문 분야</strong>
+            </div>
+
+            <div class="status-line">
+                <span>자기소개</span>
+                <p th:text="${instructor.introduction}">자기소개</p>
+            </div>
+
+            <div class="status-line" th:if="${instructor.career != null}">
+                <span>경력</span>
+                <p th:text="${instructor.career}">경력</p>
+            </div>
+
+            <div class="status-line" th:if="${instructor.portfolioUrl != null}">
+                <span>포트폴리오</span>
+                <a th:href="${instructor.portfolioUrl}"
+                   th:text="${instructor.portfolioUrl}"
+                   target="_blank">
+                    포트폴리오
+                </a>
+            </div>
+
+            <div class="status-line" th:if="${instructor.rejected}">
+                <span>반려 사유</span>
+                <p th:text="${instructor.rejectReason}">반려 사유</p>
+            </div>
+
+            <div class="button-row">
+                <a th:href="@{/instructor/create}"
+                   class="primary-link"
+                   th:if="${instructor.rejected}">
+                    다시 신청하기
+                </a>
+
+                <a th:href="@{/instructor}"
+                   class="primary-link"
+                   th:if="${instructor.approved}">
+                    강사 페이지로 이동
+                </a>
+            </div>
+
+        </div>
+
+    </section>
+
+</main>
+
+<div th:replace="~{fragments/footer :: footer}"></div>
+
+</body>
+</html>

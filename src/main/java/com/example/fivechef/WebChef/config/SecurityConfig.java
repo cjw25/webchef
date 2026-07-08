@@ -35,32 +35,35 @@ public class SecurityConfig {
                                 "/user/create",
                                 "/user/find-id",
                                 "/user/find-password",
-
                                 "/fridge/**",
                                 "/course/list",
                                 "/course/detail/**",
-
                                 "/community/list",
                                 "/community/view/**",
-
                                 "/notice/list",
                                 "/notice/view/**",
                                 "/inquiry/**",
                                 "/tips/**",
-
                                 "/css/**",
                                 "/js/**",
                                 "/img/**",
                                 "/uploads/**",
                                 "/assets/**",
-
                                 "/api/chat/**",
                                 "/api/users/register"
                         ).permitAll()
 
                         .requestMatchers("/mypage/**").authenticated()
 
+                        .requestMatchers(
+                                "/instructor/create",
+                                "/instructor/create/**",
+                                "/instructor/status",
+                                "/instructor/status/**"
+                        ).authenticated()
+
                         .requestMatchers("/admin/**").hasRole("ADMIN")
+
                         .requestMatchers("/instructor/**").hasAnyRole("INSTRUCTOR", "ADMIN")
 
                         .anyRequest().authenticated()
