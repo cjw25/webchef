@@ -1,4 +1,5 @@
 ﻿using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using Unity.Netcode;
@@ -15,14 +16,18 @@ public class RoomManager : MonoBehaviour
 
     private void Awake()
     {
+        // 💡 [DontDestroy 에러 수정] 부모가 있다면 끊어내어 에러를 방지합니다.
+        if (transform.parent != null)
+        {
+            transform.SetParent(null);
+        }
+
         if (Instance != null && Instance != this)
         {
             Destroy(gameObject);
             return;
         }
         Instance = this;
-
-        // 🔑 [주석 해제] 이제 하이어라키 최상위에 둘 것이므로 씬이 바뀌어도 파괴되지 않게 방어합니다.
         DontDestroyOnLoad(gameObject);
     }
 
@@ -43,26 +48,27 @@ public class RoomManager : MonoBehaviour
     {
         isTransferring = true; // 문 철통 잠금!
 
-        NetworkManager.Singleton.SceneManager.LoadScene(sceneName, LoadSceneMode.Single);
-
-        // 💡 씬이 완전히 로드되고 목적지 문(Door.cs)이 플레이어 위치를 밀어낼 때까지 대기
-        yield return new WaitForSeconds(0.6f);
-
-        if (NetworkManager.Singleton.LocalClient != null && NetworkManager.Singleton.LocalClient.PlayerObject != null)
+        // 💡 [네트워크 상태 체크] 호스트/서버 상태가 정상일 때만 넷코드 씬 로드를 사용하고, 아닐 땐 일반 로드를 씁니다.
+        if (NetworkManager.Singleton != null && NetworkManager.Singleton.IsServer)
         {
-            GameObject player = NetworkManager.Singleton.LocalClient.PlayerObject.gameObject;
-
-            Rigidbody2D rb = player.GetComponent<Rigidbody2D>();
-            Collider2D col = player.GetComponent<Collider2D>();
-
-            if (rb != null) rb.simulated = true;
-            if (col != null) col.enabled = true;
+            NetworkManager.Singleton.SceneManager.LoadScene(sceneName, LoadSceneMode.Single);
+        }
+        else if (NetworkManager.Singleton == null || !NetworkManager.Singleton.IsClient)
+        {
+            // 멀티플레이 네트워크가 안 켜져 있을 때를 대비한 싱글플레이 안전장치
+            SceneManager.LoadScene(sceneName);
         }
 
-        targetDoorName = "";
+        // 💡 [치명적 타이밍 버그 수정] 
+        // 기존의 0.6초 고정 대기를 삭제했습니다! 이제 씬이 로드되자마자 
+        // Door.cs의 CheckAndRepositionLocalPlayer()가 즉시 실행되어 위치를 밀어냅니다.
+        yield return null;
 
-        // 걸어나갈 시간 확보 후 자물쇠 해제 (와리가리 원천 차단)
-        yield return new WaitForSeconds(1.0f);
+        // 💡 플레이어가 완벽하게 문 밖 안전지대(3.5 거리)로 탈출해서 걸어나갈 수 있도록 
+        // 문 자물쇠(isTransferring)를 충분히(1.5초) 유지해 줍니다.
+        yield return new WaitForSeconds(1.5f);
+
+        targetDoorName = "";
         isTransferring = false;
         Debug.Log("🔓 [이동 완료] 모든 데이터 초기화 및 문 잠금 해제.");
     }
