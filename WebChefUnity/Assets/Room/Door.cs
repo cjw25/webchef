@@ -6,17 +6,22 @@ using Unity.Netcode.Components;
 
 public class Door : MonoBehaviour
 {
+    public enum SpawnDirection { Right, Left, Up, Down }
+
     [Header("이동할 씬 이름")]
     public string nextSceneName;
 
     [Header("다음 방에서 플레이어가 스폰될 문 이름")]
     public string targetDoorName;
 
-    [Header("★ 문에서 방 안쪽으로 밀어낼 거리")]
-    public float spawnDistance = 2.5f;
+    [Header("★ 플레이어가 튕겨져 나올 방향")]
+    public SpawnDirection spawnDirection = SpawnDirection.Right;
+
+    [Header("★ 문에서 얼마나 멀리 떨어질지 거리")]
+    public float spawnDistance = 3.5f;
 
     private Collider2D doorCollider;
-    private static bool globalTransferLock = false;
+    private bool isSpawnedHere = false; // 내가 이번에 이 문을 통해 태어났는가?
 
     private void Awake()
     {
@@ -25,8 +30,6 @@ public class Door : MonoBehaviour
 
     private void Start()
     {
-        globalTransferLock = false;
-
         if (NetworkManager.Singleton != null && NetworkManager.Singleton.SceneManager != null)
         {
             NetworkManager.Singleton.SceneManager.OnSceneEvent += OnNetworkSceneEvent;
@@ -65,29 +68,40 @@ public class Door : MonoBehaviour
 
     private void OnTriggerEnter2D(Collider2D collision)
     {
-        if (globalTransferLock) return;
+        // 💡 룸매니저가 이동 중이거나, 내가 방금 스폰되어 탈출 중인 문이라면 작동 금지
         if (RoomManager.Instance != null && RoomManager.Instance.isTransferring) return;
+        if (isSpawnedHere) return;
 
         if (collision.CompareTag("Player"))
         {
             NetworkObject netObj = collision.GetComponent<NetworkObject>();
-
             if (netObj != null && netObj.IsOwner)
             {
-                globalTransferLock = true;
-                if (doorCollider != null) doorCollider.enabled = false;
-
-                Rigidbody2D playerRb = collision.GetComponent<Rigidbody2D>();
-                if (playerRb != null) playerRb.velocity = Vector2.zero;
-
                 if (RoomManager.Instance != null)
                 {
-                    RoomManager.Instance.RequestChangeRoom(nextSceneName, targetDoorName, NetworkManager.Singleton.LocalClientId);
+                    RoomManager.Instance.RequestChangeRoom(nextSceneName, targetDoorName);
                 }
-                else
+            }
+        }
+    }
+
+    // 💡 [문 관통 버그 해결 핵심] 
+    // 플레이어가 스폰된 후, 문 콜라이더 영역을 '완전히 걸어서 빠져나갔을 때' 비로소 자물쇠를 완전히 해제합니다.
+    private void OnTriggerExit2D(Collider2D collision)
+    {
+        if (collision.CompareTag("Player"))
+        {
+            NetworkObject netObj = collision.GetComponent<NetworkObject>();
+            if (netObj != null && netObj.IsOwner)
+            {
+                if (isSpawnedHere)
                 {
-                    globalTransferLock = false;
-                    if (doorCollider != null) doorCollider.enabled = true;
+                    isSpawnedHere = false;
+                    if (RoomManager.Instance != null)
+                    {
+                        RoomManager.Instance.ClearTransferLock(); // 룸매니저 자물쇠도 해제 신호 송신
+                    }
+                    Debug.Log("🔒 플레이어가 문을 완전히 탈출함. 문 정상 활성화!");
                 }
             }
         }
@@ -95,45 +109,32 @@ public class Door : MonoBehaviour
 
     private IEnumerator CheckAndRepositionLocalPlayer()
     {
-        if (doorCollider != null) doorCollider.enabled = false;
-        globalTransferLock = true;
+        // 도착하자마자 이 문은 센서 체크 대상에서 제외 (자물쇠 작동)
+        isSpawnedHere = true;
+        if (doorCollider != null) doorCollider.enabled = true; // 트리거는 켜두어야 탈출(Exit)을 감지합니다.
 
-        // 씬 전환 후 넷코드 정렬 대기
-        yield return new WaitForSeconds(0.2f);
+        yield return new WaitForFixedUpdate();
+        yield return new WaitForFixedUpdate();
 
         GameObject localPlayer = null;
-        foreach (GameObject player in GameObject.FindGameObjectsWithTag("Player"))
+        if (NetworkManager.Singleton != null && NetworkManager.Singleton.LocalClient != null)
         {
-            NetworkObject netObj = player.GetComponent<NetworkObject>();
-            if (netObj != null && netObj.IsOwner)
-            {
-                localPlayer = player;
-                break;
-            }
+            var playerObj = NetworkManager.Singleton.LocalClient.PlayerObject;
+            if (playerObj != null) localPlayer = playerObj.gameObject;
         }
 
         if (localPlayer != null)
         {
-            // 💡 [지옥의 핑퐁 버그 수정 핵심 연산]
-            // 문의 위치에서 맵 중심(0, 0)을 바라보는 방향 벡터를 구합니다.
-            // 이렇게 하면 문이 상하좌우 어디에 있든 상관없이 '무조건 방 안쪽 안전한 맨바닥' 방향이 계산됩니다.
-            Vector3 doorPos = transform.position;
-            Vector3 centerDirection = (Vector3.zero - doorPos).normalized;
-
-            // X축 이동량이 더 크면 좌우 문, Y축 이동량이 더 크면 상하 문으로 판단하여 정밀 보정합니다.
-            Vector3 offset = Vector3.zero;
-            if (Mathf.Abs(centerDirection.x) > Mathf.Abs(centerDirection.y))
+            Vector2 offset = Vector2.zero;
+            switch (spawnDirection)
             {
-                // 좌우 이동 (X축으로만 밀어내기)
-                offset = new Vector3(Mathf.Sign(centerDirection.x) * spawnDistance, 0, 0);
-            }
-            else
-            {
-                // 상하 이동 (Y축으로만 밀어내기)
-                offset = new Vector3(0, Mathf.Sign(centerDirection.y) * spawnDistance, 0);
+                case SpawnDirection.Right: offset = Vector2.right * spawnDistance; break;
+                case SpawnDirection.Left: offset = Vector2.left * spawnDistance; break;
+                case SpawnDirection.Up: offset = Vector2.up * spawnDistance; break;
+                case SpawnDirection.Down: offset = Vector2.down * spawnDistance; break;
             }
 
-            Vector3 finalSpawnPos = doorPos + offset;
+            Vector3 finalSpawnPos = transform.position + new Vector3(offset.x, offset.y, 0);
 
             Rigidbody2D rb = localPlayer.GetComponent<Rigidbody2D>();
             if (rb != null)
@@ -144,22 +145,21 @@ public class Door : MonoBehaviour
 
             if (localPlayer.TryGetComponent<NetworkTransform>(out var netTransform))
             {
+                netTransform.Interpolate = false;
                 netTransform.enabled = false;
+
                 localPlayer.transform.position = finalSpawnPos;
                 netTransform.Teleport(finalSpawnPos, localPlayer.transform.rotation, localPlayer.transform.localScale);
 
                 yield return new WaitForFixedUpdate();
+
                 netTransform.enabled = true;
+                netTransform.Interpolate = true;
             }
             else
             {
                 localPlayer.transform.position = finalSpawnPos;
             }
         }
-
-        // 플레이어가 안전한 맨바닥에 정착했으므로 0.3초 뒤 문을 활성화합니다.
-        yield return new WaitForSeconds(0.3f);
-        if (doorCollider != null) doorCollider.enabled = true;
-        globalTransferLock = false;
     }
 }

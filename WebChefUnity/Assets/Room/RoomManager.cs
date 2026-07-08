@@ -11,16 +11,12 @@ public class RoomManager : MonoBehaviour
     [Header("다음 방에서 플레이어가 도착할 문 이름")]
     public string targetDoorName;
 
-    // 🔒 무한 와리가리 방지용 자물쇠
+    // 🔒 무한 와리가리 및 관통 차단용 전역 자물쇠
     public bool isTransferring { get; private set; } = false;
 
     private void Awake()
     {
-        // 💡 [DontDestroy 에러 수정] 부모가 있다면 끊어내어 에러를 방지합니다.
-        if (transform.parent != null)
-        {
-            transform.SetParent(null);
-        }
+        if (transform.parent != null) transform.SetParent(null);
 
         if (Instance != null && Instance != this)
         {
@@ -36,40 +32,70 @@ public class RoomManager : MonoBehaviour
         isTransferring = false;
     }
 
-    public void RequestChangeRoom(string sceneName, string targetDoorName, ulong clientId)
+    public void RequestChangeRoom(string sceneName, string targetDoorName)
     {
         if (isTransferring) return;
-
-        this.targetDoorName = targetDoorName;
-        StartCoroutine(ChangeRoomRoutine(sceneName, clientId));
+        StartCoroutine(ChangeRoomRoutine(sceneName, targetDoorName));
     }
 
-    private IEnumerator ChangeRoomRoutine(string sceneName, ulong clientId)
+    private IEnumerator ChangeRoomRoutine(string sceneName, string targetDoorName)
     {
-        isTransferring = true; // 문 철통 잠금!
+        isTransferring = true;
+        this.targetDoorName = targetDoorName;
 
-        // 💡 [네트워크 상태 체크] 호스트/서버 상태가 정상일 때만 넷코드 씬 로드를 사용하고, 아닐 땐 일반 로드를 씁니다.
+        SetPlayerPhysicsState(false);
+
         if (NetworkManager.Singleton != null && NetworkManager.Singleton.IsServer)
         {
             NetworkManager.Singleton.SceneManager.LoadScene(sceneName, LoadSceneMode.Single);
         }
         else if (NetworkManager.Singleton == null || !NetworkManager.Singleton.IsClient)
         {
-            // 멀티플레이 네트워크가 안 켜져 있을 때를 대비한 싱글플레이 안전장치
             SceneManager.LoadScene(sceneName);
         }
 
-        // 💡 [치명적 타이밍 버그 수정] 
-        // 기존의 0.6초 고정 대기를 삭제했습니다! 이제 씬이 로드되자마자 
-        // Door.cs의 CheckAndRepositionLocalPlayer()가 즉시 실행되어 위치를 밀어냅니다.
-        yield return null;
+        // 씬 로드가 끝날 때까지 대기
+        yield return new WaitForSeconds(0.4f);
+        yield return new WaitForFixedUpdate();
 
-        // 💡 플레이어가 완벽하게 문 밖 안전지대(3.5 거리)로 탈출해서 걸어나갈 수 있도록 
-        // 문 자물쇠(isTransferring)를 충분히(1.5초) 유지해 줍니다.
-        yield return new WaitForSeconds(1.5f);
+        // 💡 위치 조정을 마치고 물리를 켭니다. 이제 문 콜라이더 밖으로 걸어 나가야 합니다.
+        SetPlayerPhysicsState(true);
 
-        targetDoorName = "";
+        // 대충 시간초로 풀던 구버전 코드 삭제 (이제 풀기 신호는 Door의 OnTriggerExit2D가 줍니다)
+    }
+
+    // 💡 Door.cs에서 플레이어가 완벽히 탈출했을 때 호출할 외부 함수
+    public void ClearTransferLock()
+    {
+        this.targetDoorName = "";
         isTransferring = false;
-        Debug.Log("🔓 [이동 완료] 모든 데이터 초기화 및 문 잠금 해제.");
+        Debug.Log("🔓 [자물쇠 완전 해제] 플레이어가 안전지대로 나갔으므로 다음 이동이 가능합니다.");
+    }
+
+    private void SetPlayerPhysicsState(bool isActive)
+    {
+        if (NetworkManager.Singleton != null && NetworkManager.Singleton.LocalClient != null && NetworkManager.Singleton.LocalClient.PlayerObject != null)
+        {
+            GameObject player = NetworkManager.Singleton.LocalClient.PlayerObject.gameObject;
+            Rigidbody2D rb = player.GetComponent<Rigidbody2D>();
+            Collider2D col = player.GetComponent<Collider2D>();
+
+            if (rb != null)
+            {
+                if (!isActive)
+                {
+                    rb.velocity = Vector2.zero;
+                    rb.angularVelocity = 0f;
+                    rb.bodyType = RigidbodyType2D.Kinematic;
+                }
+                else
+                {
+                    rb.bodyType = RigidbodyType2D.Dynamic;
+                    rb.velocity = Vector2.zero;
+                }
+            }
+
+            if (col != null) col.enabled = isActive;
+        }
     }
 }
