@@ -22,7 +22,10 @@
         &nbsp;›&nbsp; <span>강의 추가</span>
     </div>
 
+    <div class="add-subtitle"><strong>레시피</strong>를 알려주세요</div>
+
     <div class="add-card">
+        <div class="box-header"></div>
         <div class="add-error-box" th:if="${errorMessage}" th:text="${errorMessage}"></div>
 
         <form th:action="@{/course/create}" th:object="${request}" method="post" enctype="multipart/form-data">

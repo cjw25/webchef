@@ -1,0 +1,136 @@
+:root{
+    --wc-card: #FFFFFF;
+    --wc-text: #211D2E;
+    --wc-text-soft: #6F6B7D;
+    --wc-accent: #e20f00;
+    --wc-accent-dark: #C7362B;
+    --wc-pink-bg: #fff5f5;
+    --wc-pink-text: #C7362B;
+    --wc-border: #c4c4c4;
+    --wc-field-bg: #ffffff;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    height: 100vh;
+    color: #111;
+    background: #fff;
+    font-family: Arial, sans-serif;
+}
+
+a {
+    color: inherit;
+    text-decoration: none;
+}
+
+/* 전체 페이지 */
+.page {
+     display: flex;
+     flex-direction: column;
+     height: 100%;
+}
+
+.main {
+  display: flex;
+  flex: 1;
+}
+
+.add-wrap {
+  max-width: 1500px;
+  padding: 50px 258px;
+}
+
+.add-crumb {
+  margin-bottom: 40px;
+}
+
+.add-crumb span {
+  color: #ce1b1b;
+  font-weight: bolder;
+}
+
+.add-subtitle {
+  font-size: 35px;
+  line-height:1.6;
+  font-weight: bolder;
+  color: #696969;
+}
+
+.add-subtitle strong {
+  color: #ff4a4a;
+}
+
+.add-card {
+  background: #fff5f5;
+  border: 1px solid #ff4a4a;
+  margin-top: 30px;
+}
+
+.box-header {
+  background: linear-gradient(#ff4a4a, #fff5f5);
+  height: 50px;
+}
+
+.add-error-box{
+  background: var(--wc-pink-bg);
+  color: var(--wc-accent-dark);
+  padding: 15px 15px;
+  border-radius: 5px;
+  font-size: 13.5px;
+  font-weight: 600;
+}
+
+.add-field-error{
+    color: var(--wc-accent-dark);
+    font-size: 12.5px;
+    margin-top: 8px;
+}
+
+.add-field {
+  padding-bottom: 50px;
+}
+
+.add-field label{
+  display:block;
+  font-size: 17px;
+  font-weight: 700;
+  color: rgb(0, 0, 0);
+  margin-bottom: 9px;
+  padding: 0px 20px;
+}
+
+.add-field label .req{ color: var(--wc-accent); margin-left:2px; }
+
+.add-field select {
+  width: 250px;
+  height: 50px;
+  font-family: inherit;
+  font-size: 15px;
+  color: var(--wc-text);
+  background: var(--wc-field-bg);
+  border: 1.5px solid var(--wc-border);
+  border-radius: 12px;
+  padding: 10px 20px;
+  outline: none;
+  transition: border-color .15s ease, background .15s ease;
+}
+.add-field input[type="text"] {
+  width: 760px;
+}
+.add-field textarea{
+    width: 100%;
+    font-family: inherit;
+    font-size: 14.5px;
+    color: var(--wc-text);
+    background: var(--wc-field-bg);
+    border: 1.5px solid var(--wc-border);
+    border-radius: 12px;
+    padding: 13px 16px;
+    outline: none;
+    transition: border-color .15s ease, background .15s ease;
+}
