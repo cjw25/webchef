@@ -40,6 +40,8 @@ public class SecurityConfig {
                                 "/course/detail/**",
                                 "/community/list",
                                 "/community/view/**",
+                                "/metaverse",
+                                "/unity/**",
                                 "/notice/list",
                                 "/notice/view/**",
                                 "/inquiry/**",

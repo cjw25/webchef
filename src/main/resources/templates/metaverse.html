@@ -2,22 +2,68 @@
 <html lang="ko" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <title>WebChef 메타버스</title>
+    <title>WebChef 메타버스 | WebChef</title>
 
-    <link rel="stylesheet" href="/css/header.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <link rel="stylesheet" th:href="@{/css/header.css}">
+    <link rel="stylesheet" th:href="@{/css/footer.css}">
+    <link rel="stylesheet" th:href="@{/css/chatbot-widget.css}">
+    <link rel="stylesheet" th:href="@{/css/metaverse.css}">
 </head>
 <body>
 
 <div th:replace="~{fragments/header :: header}"></div>
 
-<main style="min-height: calc(100vh - 82px); padding: 80px 40px; text-align: center;">
-    <h1>WebChef 2D 메타버스</h1>
-    <p>Unity WebGL 또는 2D 메타버스 공간을 여기에 연결하면 됩니다.</p>
+<main class="metaverse-page">
 
-    <div style="max-width: 960px; height: 540px; margin: 40px auto 0; border: 1px solid #eeeeee; border-radius: 24px; background: #fff8f6; display: flex; align-items: center; justify-content: center;">
-        <strong>메타버스 화면 영역</strong>
-    </div>
+    <section class="metaverse-hero">
+        <div>
+            <span class="metaverse-badge">2D METAVERSE</span>
+            <h1>WebChef 메타버스</h1>
+            <p>Unity WebGL로 제작한 WebChef 2D 메타버스 공간입니다.</p>
+        </div>
+
+        <a th:href="@{/}" class="metaverse-home-btn">메인으로</a>
+    </section>
+
+    <section class="metaverse-frame-section">
+
+        <div class="metaverse-frame-header">
+            <div>
+                <span>UNITY WEBGL</span>
+                <h2>메타버스 입장</h2>
+            </div>
+
+            <button type="button"
+                    class="metaverse-full-btn"
+                    onclick="openMetaverseFullScreen()">
+                전체화면으로 열기
+            </button>
+        </div>
+
+        <div class="metaverse-frame-box">
+            <iframe
+                    id="unityFrame"
+                    class="metaverse-frame"
+                    th:src="@{/unity/index.html}"
+                    src="/unity/index.html"
+                    title="WebChef Unity WebGL"
+                    allowfullscreen>
+            </iframe>
+        </div>
+
+    </section>
+
 </main>
+
+<div th:replace="~{fragments/footer :: footer}"></div>
+
+<script>
+    function openMetaverseFullScreen() {
+        window.open("/unity/index.html", "_blank");
+    }
+</script>
 
 </body>
 </html>
