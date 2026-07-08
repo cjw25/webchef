@@ -6,9 +6,9 @@
 
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
-    <link rel="stylesheet" href="/css/header.css">
-    <link rel="stylesheet" href="/css/footer.css">
-    <link rel="stylesheet" href="/css/tips.css">
+    <link rel="stylesheet" th:href="@{/css/header.css}">
+    <link rel="stylesheet" th:href="@{/css/footer.css}">
+    <link rel="stylesheet" th:href="@{/css/tips.css}">
 </head>
 <body>
 
@@ -247,11 +247,19 @@
             </div>
         </div>
 
+        <section class="add-box">
+            <a class="add-btn"
+               href="@{/tips/create}">
+                팁 추가
+            </a>
+        </section>
+
         <div class="bottom"></div>
 
     </div>
 </main>
 
 <div th:replace="~{fragments/footer :: footer}"></div>
+
 </body>
 </html>

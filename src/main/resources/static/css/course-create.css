@@ -1,38 +1,38 @@
 :root{
-    --wc-card: #FFFFFF;
-    --wc-text: #211D2E;
-    --wc-text-soft: #6F6B7D;
-    --wc-accent: #e20f00;
-    --wc-accent-dark: #C7362B;
-    --wc-pink-bg: #fff5f5;
-    --wc-pink-text: #C7362B;
-    --wc-border: #c4c4c4;
-    --wc-field-bg: #ffffff;
+  --wc-card: #FFFFFF;
+  --wc-text: #211D2E;
+  --wc-text-soft: #6F6B7D;
+  --wc-accent: #e20f00;
+  --wc-accent-dark: #C7362B;
+  --wc-pink-bg: #fff5f5;
+  --wc-pink-text: #C7362B;
+  --wc-border: #c4c4c4;
+  --wc-field-bg: #ffffff;
 }
 
 * {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
 }
 
 body {
-    height: 100vh;
-    color: #111;
-    background: #fff;
-    font-family: Arial, sans-serif;
+  height: 100vh;
+  color: #111;
+  background: #fff;
+  font-family: Arial, sans-serif;
 }
 
 a {
-    color: inherit;
-    text-decoration: none;
+  color: inherit;
+  text-decoration: none;
 }
 
 /* 전체 페이지 */
 .page {
-     display: flex;
-     flex-direction: column;
-     height: 100%;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
 }
 
 .main {
@@ -43,6 +43,7 @@ a {
 .add-wrap {
   max-width: 1500px;
   padding: 50px 258px;
+  margin: 0 auto;
 }
 
 .add-crumb {
@@ -86,9 +87,9 @@ a {
 }
 
 .add-field-error{
-    color: var(--wc-accent-dark);
-    font-size: 12.5px;
-    margin-top: 8px;
+  color: var(--wc-accent-dark);
+  font-size: 12.5px;
+  margin-top: 8px;
 }
 
 .add-field {
@@ -101,36 +102,172 @@ a {
   font-weight: 700;
   color: rgb(0, 0, 0);
   margin-bottom: 9px;
-  padding: 0px 20px;
+  padding: 0px 25px;
 }
 
 .add-field label .req{ color: var(--wc-accent); margin-left:2px; }
 
 .add-field select {
-  width: 250px;
+  width: 291.25px;
   height: 50px;
   font-family: inherit;
-  font-size: 15px;
+  font-size: 16px;
   color: var(--wc-text);
   background: var(--wc-field-bg);
   border: 1.5px solid var(--wc-border);
   border-radius: 12px;
-  padding: 10px 20px;
+  padding: 10px 15px;
   outline: none;
   transition: border-color .15s ease, background .15s ease;
+  margin-left: 25px;
 }
+
 .add-field input[type="text"] {
-  width: 760px;
+  width: 95%;
+  height: 50px;
+  padding: 10px 15px;
+  font-size: 16px;
+  border: 1.5px solid var(--wc-border);
+  border-radius: 12px;
+  margin-left: 25px;
 }
 .add-field textarea{
-    width: 100%;
-    font-family: inherit;
-    font-size: 14.5px;
+  width: 95%;
+  height: 300px;
+  font-family: inherit;
+  font-size: 14.5px;
+  color: var(--wc-text);
+  background: var(--wc-field-bg);
+  border: 1.5px solid var(--wc-border);
+  border-radius: 12px;
+  padding: 13px 15px;
+  outline: none;
+  transition: border-color .15s ease, background .15s ease;
+  margin-left: 25px;
+}
+
+.add-field select{
+  appearance: none;
+  -webkit-appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%23211D2E' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 16px center;
+  cursor: pointer;
+}
+
+.add-field textarea{
+  min-height: 220px;
+  resize: vertical;
+  line-height: 1.7;
+}
+.add-field select:focus,
+.add-field input[type="text"]:focus,
+.add-field textarea:focus{
+  border-color: var(--wc-accent);
+  background: #fff;
+}
+.add-field ::placeholder{ color: #B5AFC4; }
+
+.add-char-count{
+  text-align:right;
+  padding-right: 25px;
+  font-size:12px;
+  color: var(--wc-text-soft);
+  margin-top:6px;
+}
+
+.add-file-drop{
+  width: 95%;
+  height: 200px;
+  padding: 10px 15px;
+  margin-left: 25px;
+  border: 1.5px dashed var(--wc-border);
+  border-radius: 12px;
+  background: var(--wc-field-bg);
+  text-align: center;
+  align-content: center;
+  cursor: pointer;
+  transition: border-color .15s ease, background .15s ease;
+}
+
+.add-file-drop:hover, .add-file-drop.dragover{
+    border-color: var(--wc-accent);
+    background: var(--wc-pink-bg);
+}
+.add-file-drop input[type="file"]{ display:none; }
+.add-file-drop-icon{
+    width: 38px; height: 38px;
+    margin: 0 auto 10px;
+    color: var(--wc-accent-dark);
+    display:flex; align-items:center; justify-content:center;
+    font-size: 18px;
+}
+.add-file-drop-text{
+    font-size: 13.5px;
+    font-weight: 600;
     color: var(--wc-text);
+    margin-bottom: 4px;
+}
+.add-file-drop-sub{
+    font-size: 12px;
+    color: var(--wc-text-soft);
+}
+.add-file-list{
+    margin-top: 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+.add-file-item{
+    display:flex; align-items:center; justify-content:space-between;
     background: var(--wc-field-bg);
-    border: 1.5px solid var(--wc-border);
-    border-radius: 12px;
-    padding: 13px 16px;
-    outline: none;
-    transition: border-color .15s ease, background .15s ease;
+    border: 1px solid var(--wc-border);
+    border-radius: 10px;
+    padding: 10px 14px;
+    font-size: 13px;
+    color: var(--wc-text);
+}
+.add-file-item .add-file-name{
+    display:flex; align-items:center; gap:8px;
+    overflow:hidden; text-overflow:ellipsis; white-space:nowrap;
+}
+.add-file-item .add-file-remove{
+    background:none; border:none; cursor:pointer;
+    color: var(--wc-text-soft);
+    font-size: 15px;
+    padding: 0 2px;
+}
+.add-file-item .add-file-remove:hover{ color: var(--wc-accent); }
+
+.add-actions{
+  display:flex;
+  gap: 10px;
+  padding-top: 10px;
+  padding: 25px;
+}
+.add-btn{
+  flex:1;
+  padding: 20px 0;
+  border-radius: 12px;
+  font-size: 20px;
+  font-weight: 700;
+  border: none;
+  cursor: pointer;
+  text-align:center;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  text-decoration:none;
+}
+.add-btn-prev{
+  background: #ffffff;
+  border: 1px solid #ff4a4a;
+  color: var(--wc-text-soft);
+}
+.add-btn-submit{
+  background: var(--wc-accent);
+  color: #fff;
+}
+.add-btn-submit:hover{
+  background: rgb(155, 0, 0);
 }

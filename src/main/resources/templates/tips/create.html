@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>자취 요리 팁 추가</title>
+
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <link rel="stylesheet" th:href="@{/css/header.css}">
+    <link rel="stylesheet" th:href="@{/css/footer.css}">
+    <link rel="stylesheet" th:href="@{/css/tips-create.css}">
+</head>
+<body>
+
+<div th:replace="~{fragments/header :: header}"></div>
+
+<main class="add-wrap">
+
+    <div class="add-crumb">
+        <a th:href="@{/tips/list}" style="color:inherit;text-decoration:none;">자취 요리 팁</a>
+        &nbsp;›&nbsp; <span>팁 추가</span>
+    </div>
+
+    <div class="add-tag">Tips</div>
+    <div class="add-title"><strong>정보</strong>를 알려주세요</div>
+    <div class="add-subtitle">재료 손질과 보관, 조리 도구 관리법까지 요리에 필요한 팁을 작성해주세요.</div>
+
+    <div class="add-card">
+        <div class="box-header"></div>
+        <div class="add-error-box" th:if="${errorMessage}" th:text="${errorMessage}"></div>
+
+        <form th:action="@{/tips/create}" th:object="${request}" method="post" enctype="multipart/form-data">
+
+            <input type="hidden" th:if="${_csrf}" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+
+            <div class="add-field">
+                <label>카테고리<span class="req">*</span></label>
+                <select th:field="*{category}">
+                    <option value="">카테고리 선택</option>
+                    <option value="prep">재료 손질법</option>
+                    <option value="store">재료 보관법</option>
+                    <option value="tools">조구 도구 관리법</option>
+                </select>
+                <p class="add-field-error" th:if="${#fields.hasErrors('category')}" th:errors="*{category}"></p>
+            </div>
+
+            <div class="add-field">
+                <label>제목<span class="req">*</span></label>
+                <input type="text" th:field="*{subject}" placeholder="제목을 입력하세요">
+                <p class="add-field-error" th:if="${#fields.hasErrors('subject')}" th:errors="*{subject}"></p>
+            </div>
+
+            <div class="add-field">
+                <label>내용<span class="req">*</span></label>
+                <textarea th:field="*{content}" id="add-content" placeholder="내용을 입력하세요"></textarea>
+                <div class="add-char-count"><span id="add-char-current">0</span> / 2000</div>
+                <p class="add-field-error" th:if="${#fields.hasErrors('content')}" th:errors="*{content}"></p>
+            </div>
+
+            <div class="add-field">
+                <label>사진 첨부</label>
+
+                <label class="add-file-drop" for="add-file-input" id="add-file-drop">
+                    <div class="add-file-drop-icon">📎</div>
+                    <div class="add-file-drop-text">클릭하거나 파일을 선택하세요</div>
+                    <div class="add-file-drop-sub">JPG, JPEG, PNG, GIF, WEBP / 최대 10MB</div>
+                </label>
+
+                <input type="file"
+                       name="img"
+                       id="add-file-input"
+                       accept="image/jpeg,image/png,image/gif,image/webp"
+                       style="display: none;">
+
+                <div class="add-file-list" id="add-file-list"></div>
+            </div>
+
+            <div class="add-actions">
+                <a th:href="@{/tips/list}" class="add-btn add-btn-prev">처음으로</a>
+                <button type="submit" class="add-btn add-btn-submit">확인</button>
+            </div>
+
+        </form>
+
+    </div>
+
+</main>
+
+<div th:replace="~{fragments/footer :: footer}"></div>
+
+</body>
+</html>
