@@ -59,14 +59,15 @@
       var buildUrl = "Build";
       var loaderUrl = buildUrl + "/unity.loader.js";
       var config = {
-        dataUrl: buildUrl + "/unity.data.br",
-        frameworkUrl: buildUrl + "/unity.framework.js.br",
-        codeUrl: buildUrl + "/unity.wasm.br",
+        dataUrl: buildUrl + "/WebCheifWebGL.data.br",
+        frameworkUrl: buildUrl + "/WebCheifWebGL.framework.js.br",
+        codeUrl: buildUrl + "/WebCheifWebGL.wasm.br",
         streamingAssetsUrl: "StreamingAssets",
         companyName: "DefaultCompany",
         productName: "WebChefUnity",
         productVersion: "1.0",
         showBanner: unityShowBanner,
+        decompressionFallback: "Brotli"
       };
 
       // By default, Unity keeps WebGL canvas render target size matched with
