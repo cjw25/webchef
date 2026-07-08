@@ -19,7 +19,6 @@
         <!-- 헤더 메뉴 -->
         <nav class="gnb">
 
-            <!-- 냉장고를 부탁해 -->
             <div class="gnb-item">
                 <a href="/fridge" class="gnb-link">냉장고를 부탁해</a>
 
@@ -50,13 +49,11 @@
                 </div>
             </div>
 
-            <!-- 요리 강의 -->
             <div class="gnb-item">
                 <a href="/course/list" class="gnb-link">요리 강의</a>
 
                 <div class="mega-menu">
                     <div class="mega-inner">
-
                         <div class="mega-title-box">
                             <h3>요리 강의</h3>
                             <p>
@@ -87,18 +84,15 @@
                             <a href="/course/list?sort=popular">인기 시청 순</a>
                             <a href="/course/list?sort=search">인기 검색 순</a>
                         </div>
-
                     </div>
                 </div>
             </div>
 
-            <!-- 자취 요리 팁 -->
             <div class="gnb-item">
                 <a href="/tips/list" class="gnb-link">자취 요리 팁</a>
 
                 <div class="mega-menu">
                     <div class="mega-inner">
-
                         <div class="mega-title-box">
                             <h3>자취 요리 팁</h3>
                             <p>
@@ -113,18 +107,15 @@
                             <a href="/tips/list?category=INGREDIENT_STORE">재료보관법</a>
                             <a href="/tips/list?category=TOOL_MANAGE">조리도구 관리법</a>
                         </div>
-
                     </div>
                 </div>
             </div>
 
-            <!-- 우리들의 대화 -->
             <div class="gnb-item">
                 <a href="/community/list" class="gnb-link">우리들의 대화</a>
 
                 <div class="mega-menu">
                     <div class="mega-inner">
-
                         <div class="mega-title-box">
                             <h3>우리들의 대화</h3>
                             <p>
@@ -139,18 +130,15 @@
                             <a href="/community/list?category=장보기 팁">장보기 팁</a>
                             <a href="/community/list?category=간편조리도구팁">간편 조리 도구 팁</a>
                         </div>
-
                     </div>
                 </div>
             </div>
 
-            <!-- 고객센터 -->
             <div class="gnb-item">
                 <a href="/notice/list" class="gnb-link">고객센터</a>
 
                 <div class="mega-menu">
                     <div class="mega-inner">
-
                         <div class="mega-title-box">
                             <h3>고객센터</h3>
                             <p>
@@ -164,7 +152,6 @@
                             <a href="/notice/list">공지사항</a>
                             <a href="/inquiry/list">1 : 1 문의</a>
                         </div>
-
                     </div>
                 </div>
             </div>
@@ -182,6 +169,18 @@
             <a href="/mypage" class="login-link">마이페이지</a>
 
             <a href="/metaverse" class="metaverse-header-btn">메타버스</a>
+
+            <a th:if="${isLogin and loginRole == 'USER'}"
+               th:href="@{/instructor/create}"
+               class="header-action-btn instructor-request-btn">
+                강사 신청
+            </a>
+
+            <a th:if="${isLogin and loginRole == 'INSTRUCTOR'}"
+               th:href="@{/instructor}"
+               class="header-action-btn instructor-page-btn">
+                강사 페이지
+            </a>
 
             <form th:action="@{/user/logout}" method="post" class="logout-form">
                 <button type="submit" class="logout-btn">로그아웃</button>

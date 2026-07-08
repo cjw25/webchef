@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <title>강의 등록 | WebChef</title>
+
+  <link rel="stylesheet" th:href="@{/css/header.css}">
+  <link rel="stylesheet" th:href="@{/css/footer.css}">
+  <link rel="stylesheet" th:href="@{/css/instructor.css}">
+</head>
+<body>
+
+<div th:replace="~{fragments/header :: header}"></div>
+
+<main class="instructor-page">
+
+  <section class="instructor-hero">
+    <span>CREATE COURSE</span>
+    <h1>강의 등록</h1>
+    <p>강의 등록 화면입니다.</p>
+  </section>
+
+  <section class="instructor-card">
+    <div class="guide-box">
+      이 화면은 Course 등록 로직과 연결하면 됩니다.
+    </div>
+  </section>
+
+</main>
+
+<div th:replace="~{fragments/footer :: footer}"></div>
+
+</body>
+</html>

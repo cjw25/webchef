@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <title>강사 강의 관리 | WebChef</title>
+
+  <link rel="stylesheet" th:href="@{/css/header.css}">
+  <link rel="stylesheet" th:href="@{/css/footer.css}">
+  <link rel="stylesheet" th:href="@{/css/instructor.css}">
+</head>
+<body>
+
+<div th:replace="~{fragments/header :: header}"></div>
+
+<main class="instructor-page">
+
+  <section class="instructor-hero">
+    <span>COURSES</span>
+    <h1>내 강의 관리</h1>
+    <p>강사가 등록한 강의를 관리하는 페이지입니다.</p>
+  </section>
+
+  <section class="instructor-card">
+    <div class="guide-box">
+      강의 등록 기능은 다음 단계에서 Course 기능과 연결하면 됩니다.
+    </div>
+
+    <a th:href="@{/instructor/courses/create}" class="primary-link">
+      강의 등록하기
+    </a>
+  </section>
+
+</main>
+
+<div th:replace="~{fragments/footer :: footer}"></div>
+
+</body>
+</html>

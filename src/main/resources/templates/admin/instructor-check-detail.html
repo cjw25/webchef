@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <title>강사 신청 상세 | WebChef</title>
+
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <link rel="stylesheet" th:href="@{/css/header.css}">
+  <link rel="stylesheet" th:href="@{/css/footer.css}">
+  <link rel="stylesheet" th:href="@{/css/chatbot-widget.css}">
+  <link rel="stylesheet" th:href="@{/css/admin.css}">
+</head>
+<body>
+
+<div th:replace="~{fragments/header :: header}"></div>
+
+<main class="admin-page">
+
+  <section class="admin-hero">
+    <div>
+      <span class="admin-badge">INSTRUCTOR DETAIL</span>
+      <h1>강사 신청 상세</h1>
+      <p>강사 신청 내용을 확인하고 승인 또는 반려할 수 있습니다.</p>
+    </div>
+
+    <a th:href="@{/admin/instructors/check}" class="admin-top-btn">목록으로</a>
+  </section>
+
+  <section class="admin-detail-card instructor-detail-card">
+
+    <div class="admin-card-title">
+      <span>DETAIL</span>
+      <h2 th:text="${instructor.name}">신청자 이름</h2>
+    </div>
+
+    <div class="admin-error-box"
+         th:if="${errorMessage != null}"
+         th:text="${errorMessage}">
+      오류 메시지
+    </div>
+
+    <div class="admin-info-list">
+
+      <div class="admin-info-row">
+        <span>아이디</span>
+        <strong th:text="${instructor.username}">username</strong>
+      </div>
+
+      <div class="admin-info-row">
+        <span>이메일</span>
+        <strong th:text="${instructor.email}">email</strong>
+      </div>
+
+      <div class="admin-info-row">
+        <span>전문 분야</span>
+        <strong th:text="${instructor.specialty}">specialty</strong>
+      </div>
+
+      <div class="admin-info-row">
+        <span>상태</span>
+        <strong th:text="${instructor.status}">PENDING</strong>
+      </div>
+
+      <div class="admin-info-row">
+        <span>자기소개</span>
+        <strong th:text="${instructor.introduction}">introduction</strong>
+      </div>
+
+      <div class="admin-info-row" th:if="${instructor.career != null}">
+        <span>경력</span>
+        <strong th:text="${instructor.career}">career</strong>
+      </div>
+
+      <div class="admin-info-row" th:if="${instructor.portfolioUrl != null}">
+        <span>포트폴리오</span>
+        <strong>
+          <a th:href="${instructor.portfolioUrl}"
+             th:text="${instructor.portfolioUrl}"
+             target="_blank">
+            portfolio
+          </a>
+        </strong>
+      </div>
+
+      <div class="admin-info-row" th:if="${instructor.rejectReason != null}">
+        <span>반려 사유</span>
+        <strong th:text="${instructor.rejectReason}">reject reason</strong>
+      </div>
+
+    </div>
+
+    <div class="admin-action-row" th:if="${instructor.pending}">
+
+      <form th:action="@{|/admin/instructors/check/${instructor.id}/approve|}"
+            method="post"
+            class="inline-form">
+
+        <input type="hidden"
+               th:if="${_csrf != null}"
+               th:name="${_csrf.parameterName}"
+               th:value="${_csrf.token}">
+
+        <button type="submit" class="admin-action-btn red">
+          승인
+        </button>
+      </form>
+
+      <form th:action="@{|/admin/instructors/check/${instructor.id}/reject|}"
+            method="post"
+            class="inline-form reject-form">
+
+        <input type="hidden"
+               th:if="${_csrf != null}"
+               th:name="${_csrf.parameterName}"
+               th:value="${_csrf.token}">
+
+        <input type="text"
+               name="rejectReason"
+               placeholder="반려 사유"
+               class="reject-input">
+
+        <button type="submit" class="admin-action-btn danger">
+          반려
+        </button>
+      </form>
+
+    </div>
+
+  </section>
+
+</main>
+
+<div th:replace="~{fragments/footer :: footer}"></div>
+
+</body>
+</html>

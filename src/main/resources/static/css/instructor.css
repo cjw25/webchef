@@ -1,0 +1,246 @@
+body {
+    margin: 0;
+    background: #fff7f7;
+    color: #111111;
+    font-family: Arial, "Noto Sans KR", sans-serif;
+}
+
+.instructor-page {
+    min-height: 100vh;
+    padding: 64px 0 100px;
+    background:
+            radial-gradient(circle at 12% 0%, rgba(215, 25, 32, 0.12), transparent 32%),
+            linear-gradient(180deg, #ffffff 0%, #fff7f7 100%);
+}
+
+.instructor-hero {
+    width: min(1100px, calc(100% - 48px));
+    margin: 0 auto 32px;
+}
+
+.instructor-hero span {
+    height: 34px;
+    padding: 0 15px;
+    border-radius: 999px;
+    background: #ffe1e5;
+    color: #d71920;
+    display: inline-flex;
+    align-items: center;
+    font-size: 13px;
+    font-weight: 900;
+}
+
+.instructor-hero h1 {
+    margin: 20px 0 10px;
+    font-size: 44px;
+    font-weight: 900;
+    letter-spacing: -1.4px;
+}
+
+.instructor-hero p {
+    margin: 0;
+    color: #666666;
+    font-size: 16px;
+    font-weight: 700;
+}
+
+.instructor-card {
+    width: min(760px, calc(100% - 48px));
+    margin: 0 auto;
+    padding: 34px;
+    border: 1px solid #eeeeee;
+    border-radius: 28px;
+    background: #ffffff;
+    box-shadow: 0 24px 64px rgba(0, 0, 0, 0.08);
+}
+
+.instructor-form {
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+}
+
+.form-group label {
+    margin-bottom: 8px;
+    display: block;
+    font-size: 14px;
+    font-weight: 900;
+}
+
+.form-group input,
+.form-group textarea {
+    width: 100%;
+    padding: 0 16px;
+    border: 1px solid #dddddd;
+    border-radius: 14px;
+    font-size: 15px;
+    font-weight: 700;
+    outline: none;
+    box-sizing: border-box;
+}
+
+.form-group input {
+    height: 52px;
+}
+
+.form-group textarea {
+    min-height: 140px;
+    padding-top: 14px;
+    resize: vertical;
+}
+
+.form-group input:focus,
+.form-group textarea:focus {
+    border-color: #d71920;
+    box-shadow: 0 0 0 4px rgba(215, 25, 32, 0.1);
+}
+
+.primary-btn,
+.primary-link {
+    height: 50px;
+    padding: 0 22px;
+    border: none;
+    border-radius: 14px;
+    background: #d71920;
+    color: #ffffff;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 15px;
+    font-weight: 900;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+.small-link {
+    color: #d71920;
+    font-size: 14px;
+    font-weight: 900;
+    text-decoration: none;
+}
+
+.status-box,
+.guide-box,
+.error-box {
+    margin-bottom: 22px;
+    padding: 18px;
+    border-radius: 18px;
+    font-size: 14px;
+    font-weight: 800;
+}
+
+.status-box {
+    background: #fff7f7;
+    border: 1px solid #ffd2d2;
+}
+
+.guide-box {
+    background: #f9fafb;
+    border: 1px solid #eeeeee;
+}
+
+.error-box {
+    background: #fff0f1;
+    color: #d71920;
+    border: 1px solid #ffc7ce;
+}
+
+.status-box strong {
+    display: block;
+    margin-bottom: 6px;
+    color: #d71920;
+    font-size: 15px;
+    font-weight: 900;
+}
+
+.status-box p {
+    margin: 4px 0;
+}
+
+.status-detail {
+    display: flex;
+    flex-direction: column;
+}
+
+.status-line {
+    padding: 18px 0;
+    border-bottom: 1px solid #eeeeee;
+}
+
+.status-line span {
+    display: block;
+    margin-bottom: 8px;
+    color: #666666;
+    font-size: 13px;
+    font-weight: 900;
+}
+
+.status-line strong,
+.status-line p,
+.status-line a {
+    margin: 0;
+    color: #111111;
+    font-size: 15px;
+    font-weight: 800;
+    line-height: 1.6;
+    word-break: break-all;
+}
+
+.button-row {
+    margin-top: 24px;
+    display: flex;
+    gap: 10px;
+}
+
+.instructor-grid {
+    width: min(1100px, calc(100% - 48px));
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 18px;
+}
+
+.menu-card {
+    min-height: 180px;
+    padding: 28px;
+    border: 1px solid #eeeeee;
+    border-radius: 26px;
+    background: #ffffff;
+    color: #111111;
+    text-decoration: none;
+    box-shadow: 0 20px 54px rgba(0, 0, 0, 0.06);
+}
+
+.menu-card span {
+    color: #d71920;
+    font-size: 14px;
+    font-weight: 900;
+}
+
+.menu-card h2 {
+    margin: 28px 0 10px;
+    font-size: 24px;
+    font-weight: 900;
+}
+
+.menu-card p {
+    margin: 0;
+    color: #666666;
+    font-size: 14px;
+    font-weight: 700;
+    line-height: 1.6;
+}
+
+@media (max-width: 800px) {
+    .instructor-hero h1 {
+        font-size: 34px;
+    }
+
+    .instructor-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .instructor-card {
+        padding: 24px 18px;
+    }
+}

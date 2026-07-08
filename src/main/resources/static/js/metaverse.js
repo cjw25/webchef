@@ -34,15 +34,15 @@ document.addEventListener("DOMContentLoaded", function () {
         updateBannerVisibility();
     }
 
-    const buildUrl = "/metaverse/WebChefUnity/Build";
+    const buildUrl = "/unity/Build";
 
-    const loaderUrl = buildUrl + "/WebChefUnity.loader.js";
+    const loaderUrl = buildUrl + "/WebCheifWebGL.loader.js";
 
     const config = {
-        dataUrl: buildUrl + "/WebChefUnity.data",
-        frameworkUrl: buildUrl + "/WebChefUnity.framework.js",
-        codeUrl: buildUrl + "/WebChefUnity.wasm",
-        streamingAssetsUrl: "/metaverse/WebChefUnity/StreamingAssets",
+        dataUrl: buildUrl + "/WebCheifWebGL.data.br",
+        frameworkUrl: buildUrl + "/WebCheifWebGL.framework.js.br",
+        codeUrl: buildUrl + "/WebCheifWebGL.wasm.br",
+        streamingAssetsUrl: "/unity/StreamingAssets",
         companyName: "FiveChef",
         productName: "WebChefUnity",
         productVersion: "1.0",
@@ -72,7 +72,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
     script.onerror = function () {
         loadingBar.style.display = "none";
-        alert("Unity loader 파일을 찾을 수 없습니다. WebChefUnity.loader.js 경로를 확인하세요.");
+        alert("Unity loader 파일을 찾을 수 없습니다. /unity/Build/WebCheifWebGL.loader.js 경로를 확인하세요.");
     };
 
     document.body.appendChild(script);

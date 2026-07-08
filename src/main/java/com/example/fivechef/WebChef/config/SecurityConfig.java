@@ -27,6 +27,10 @@ public class SecurityConfig {
                 // 배포 전에 CSRF를 다시 켤 거면 chatbot-widget.js의 CSRF 헤더 코드는 그대로 유지하면 됨.
                 .csrf(AbstractHttpConfigurer::disable)
 
+                .headers(headers -> headers
+                        .frameOptions(frameOptions -> frameOptions.sameOrigin())
+                )
+
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(
                                 "/",
@@ -35,32 +39,37 @@ public class SecurityConfig {
                                 "/user/create",
                                 "/user/find-id",
                                 "/user/find-password",
-
                                 "/fridge/**",
                                 "/course/list",
                                 "/course/detail/**",
-
                                 "/community/list",
                                 "/community/view/**",
-
+                                "/metaverse",
+                                "/unity/**",
                                 "/notice/list",
                                 "/notice/view/**",
                                 "/inquiry/**",
                                 "/tips/**",
-
                                 "/css/**",
                                 "/js/**",
                                 "/img/**",
                                 "/uploads/**",
                                 "/assets/**",
-
                                 "/api/chat/**",
                                 "/api/users/register"
                         ).permitAll()
 
                         .requestMatchers("/mypage/**").authenticated()
 
+                        .requestMatchers(
+                                "/instructor/create",
+                                "/instructor/create/**",
+                                "/instructor/status",
+                                "/instructor/status/**"
+                        ).authenticated()
+
                         .requestMatchers("/admin/**").hasRole("ADMIN")
+
                         .requestMatchers("/instructor/**").hasAnyRole("INSTRUCTOR", "ADMIN")
 
                         .anyRequest().authenticated()
