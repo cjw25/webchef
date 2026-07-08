@@ -1,0 +1,82 @@
+:root{
+  --wc-card: #FFFFFF;
+  --wc-text: #211D2E;
+  --wc-text-soft: #6F6B7D;
+  --wc-accent: #e20f00;
+  --wc-accent-dark: #C7362B;
+  --wc-pink-bg: #fff5f5;
+  --wc-pink-text: #C7362B;
+  --wc-border: #c4c4c4;
+  --wc-field-bg: #ffffff;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  height: 100vh;
+  color: #111;
+  background: #fff;
+  font-family: Arial, sans-serif;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+/* 전체 페이지 */
+.page {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.main {
+  display: flex;
+  flex: 1;
+}
+
+.add-wrap {
+  max-width: 1500px;
+  padding: 50px 258px;
+}
+
+.add-crumb {
+  margin-bottom: 15px;
+}
+
+.add-crumb span {
+  color: #cf0000;
+  font-weight: bolder;
+}
+
+.add-tag {
+  display:inline-block;
+  align-items:center;
+  background: #ffbaba;
+  color: #e20f00;
+  font-size: 17px;
+  font-weight: bolder;
+  padding: 10px 15px;
+  border-radius: 10px;
+  margin-bottom: 15px;
+}
+
+.add-wrap h1{
+  font-size: 30px;
+  margin: 0 0 6px;
+  letter-spacing: -0.5px;
+  color: var(--wc-text);
+}
+.add-wrap h1 .highlight {
+  color: #e20f00;
+}
+
+.add-subtitle{
+  color: #8f8f8f;
+  font-size: 18px;
+}
