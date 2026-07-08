@@ -27,6 +27,10 @@ public class SecurityConfig {
                 // 배포 전에 CSRF를 다시 켤 거면 chatbot-widget.js의 CSRF 헤더 코드는 그대로 유지하면 됨.
                 .csrf(AbstractHttpConfigurer::disable)
 
+                .headers(headers -> headers
+                        .frameOptions(frameOptions -> frameOptions.sameOrigin())
+                )
+
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(
                                 "/",
