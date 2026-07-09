@@ -240,6 +240,14 @@ PrefabInstance:
       propertyPath: NetworkConfig.PlayerPrefab
       value: 
       objectReference: {fileID: 2621955845656765648, guid: e8718759b4c8b4f42a16d7f0f60ab13b, type: 3}
+    - target: {fileID: 3605308779810942039, guid: 3db6a170530de284d8a7e5b37a9f209f, type: 3}
+      propertyPath: NetworkConfig.ConnectionApproval
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 3605308779810942039, guid: 3db6a170530de284d8a7e5b37a9f209f, type: 3}
+      propertyPath: NetworkConfig.ClientConnectionBufferTimeout
+      value: 120
+      objectReference: {fileID: 0}
     - target: {fileID: 6705605967926377291, guid: 3db6a170530de284d8a7e5b37a9f209f, type: 3}
       propertyPath: m_LocalPosition.x
       value: -0.8
