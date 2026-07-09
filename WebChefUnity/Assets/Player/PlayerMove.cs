@@ -43,9 +43,10 @@ public class PlayerMove : NetworkBehaviour
             // [중요 변경점]
             // 서버 권한 이동에서는 서버가 타인 컴퓨터의 물리(Rigidbody)도 제어해야 하므로,
             // 호스트/독립 서버가 아닌 '순수 클라이언트' 화면에서만 타인의 물리를 꺼줍니다.
-            if (rb != null && !IsServer)
+            if (rb != null)
             {
-                rb.simulated = false;
+                rb.bodyType = RigidbodyType2D.Kinematic;
+                rb.velocity = Vector2.zero;
             }
         }
     }
