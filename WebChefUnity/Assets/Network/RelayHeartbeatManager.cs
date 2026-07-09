@@ -7,7 +7,7 @@ public class RelayHeartbeatManager : MonoBehaviour
     private string allocationId;
     private bool isHeartbeatRunning = false;
 
-    public void StratHeartBeat(string allocId)
+    public void StartHeartbeat(string allocId)
     {
         this.allocationId = allocId;
 
