@@ -24,7 +24,7 @@
     <div class="notice-subtitle">공지사항</div>
 
     <div class="notice-card">
-
+        <div class="box-header"></div>
         <div class="notice-error-box" th:if="${errorMessage}" th:text="${errorMessage}"></div>
 
         <form th:action="@{/notice/create}" th:object="${request}" method="post" enctype="multipart/form-data">
