@@ -12,11 +12,11 @@ public class PlayerMove : NetworkBehaviour
     private Rigidbody2D rb;
     private Collider2D playerCollider;
     private Vector2 moveInput;
+    public static PlayerMove Instance;
 
     private bool isFrozen = false;
 
-    public static PlayerMove Instance;
-
+    private float clientPingTimer = 0f;
     public override void OnNetworkSpawn()
     {
         rb = GetComponent<Rigidbody2D>();
@@ -134,6 +134,12 @@ public class PlayerMove : NetworkBehaviour
     {
         if (!IsOwner) return;
 
+        clientPingTimer += Time.deltaTime;
+        if (clientPingTimer >= 20f)
+        {
+            clientPingTimer = 0f;
+            KeepAliveServerRpc();
+        }
         if (isFrozen || (ChatManager.Instance != null && ChatManager.Instance.IsTyping()))
         {
             if (moveInput != Vector2.zero)
@@ -175,5 +181,11 @@ public class PlayerMove : NetworkBehaviour
         {
             rb.velocity = inputDirection * moveSpeed;
         }
+    }
+
+    [ServerRpc]
+    private void KeepAliveServerRpc()
+    {
+        Debug.Log($"[서버 수신] 클라이언트 {OwnerClientId}번의 신호 송신 중...");
     }
 }

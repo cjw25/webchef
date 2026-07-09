@@ -100,6 +100,8 @@ public class RelayManager : MonoBehaviour
                 await File.WriteAllTextAsync(filePath, joinCode);
 
                 Debug.Log($"[전용 서버 가동 성공] 검증 서버가 시작되었습니다. 코드: {joinCode}");
+                RelayHeartbeatManager heartbeat = gameObject.AddComponent<RelayHeartbeatManager>();
+            heartbeat.StartHeartbeat(allocation.AllocationId.ToString());
                 return joinCode;
             }
             else
