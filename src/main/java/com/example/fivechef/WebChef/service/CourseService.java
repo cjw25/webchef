@@ -5,6 +5,7 @@ import com.example.fivechef.WebChef.dto.CourseResponse;
 import com.example.fivechef.WebChef.dto.CourseUpdateRequest;
 import com.example.fivechef.WebChef.entity.Course;
 import com.example.fivechef.WebChef.entity.CourseStatus;
+import com.example.fivechef.WebChef.entity.SubscriptionPlanType;
 import com.example.fivechef.WebChef.entity.User;
 import com.example.fivechef.WebChef.repository.CourseRepository;
 import lombok.RequiredArgsConstructor;
@@ -17,52 +18,45 @@ import org.springframework.transaction.annotation.Transactional;
 public class CourseService {
 
     private final CourseRepository courseRepository;
+
     private final UserService userService;
 
-    @Transactional(readOnly = true)
-    public Course getCourseEntity(Long id) {
-        return courseRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("강의를 찾을 수 없습니다."));
-    }
+    private final CoursePlanPolicyService coursePlanPolicyService;
 
     @Transactional(readOnly = true)
     public Page<CourseResponse> getCourses(int page, String keyword) {
         Pageable pageable = PageRequest.of(
                 page,
-                10,
+                12,
                 Sort.by(Sort.Order.desc("id"))
         );
 
-        if (isBlank(keyword)) {
-            return courseRepository.findAll(pageable)
-                    .map(CourseResponse::new);
+        if (keyword == null || keyword.trim().isEmpty()) {
+            return courseRepository.findByStatus(
+                    CourseStatus.OPEN,
+                    pageable
+            ).map(CourseResponse::new);
         }
 
         String kw = keyword.trim();
 
         return courseRepository.findByTitleContainingOrDescriptionContaining(
-                        kw,
-                        kw,
-                        pageable
-                )
-                .map(CourseResponse::new);
-    }
-
-    @Transactional(readOnly = true)
-    public Page<CourseResponse> getOpenCourses(int page, int size) {
-        Pageable pageable = PageRequest.of(
-                page,
-                size,
-                Sort.by(Sort.Order.desc("id"))
-        );
-
-        return courseRepository.findByStatus(CourseStatus.OPEN, pageable)
-                .map(CourseResponse::new);
+                kw,
+                kw,
+                pageable
+        ).map(CourseResponse::new);
     }
 
     @Transactional(readOnly = true)
     public CourseResponse getCourseResponse(Long id) {
-        return new CourseResponse(getCourseEntity(id));
+        Course course = getCourseEntity(id);
+        return new CourseResponse(course);
+    }
+
+    @Transactional(readOnly = true)
+    public Course getCourseEntity(Long id) {
+        return courseRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("강의를 찾을 수 없습니다."));
     }
 
     @Transactional
@@ -71,11 +65,17 @@ public class CourseService {
 
         User instructor = userService.getLoginUserEntity(username);
 
+        int price = request.getPrice() == null ? 0 : request.getPrice();
+
+        SubscriptionPlanType requiredPlanType =
+                coursePlanPolicyService.decideRequiredPlan(price);
+
         Course course = new Course();
         course.setTitle(request.getTitle().trim());
         course.setDescription(request.getDescription().trim());
-        course.setThumbnailUrl(trimOrNull(request.getThumbnailUrl()));
-        course.setPrice(request.getPrice() == null ? 0 : request.getPrice());
+        course.setThumbnailUrl(request.getThumbnailUrl());
+        course.setPrice(price);
+        course.setRequiredPlanType(requiredPlanType);
         course.setCategory(request.getCategory());
         course.setDifficulty(request.getDifficulty());
         course.setStatus(request.getStatus() == null ? CourseStatus.DRAFT : request.getStatus());
@@ -89,10 +89,17 @@ public class CourseService {
         validateUpdateRequest(request);
 
         Course course = getCourseEntity(id);
+
+        int price = request.getPrice() == null ? 0 : request.getPrice();
+
+        SubscriptionPlanType requiredPlanType =
+                coursePlanPolicyService.decideRequiredPlan(price);
+
         course.setTitle(request.getTitle().trim());
         course.setDescription(request.getDescription().trim());
-        course.setThumbnailUrl(trimOrNull(request.getThumbnailUrl()));
-        course.setPrice(request.getPrice() == null ? 0 : request.getPrice());
+        course.setThumbnailUrl(request.getThumbnailUrl());
+        course.setPrice(price);
+        course.setRequiredPlanType(requiredPlanType);
         course.setCategory(request.getCategory());
         course.setDifficulty(request.getDifficulty());
         course.setStatus(request.getStatus() == null ? CourseStatus.DRAFT : request.getStatus());
@@ -119,16 +126,16 @@ public class CourseService {
             throw new IllegalArgumentException("강의 설명을 입력해주세요.");
         }
 
+        if (request.getPrice() == null || request.getPrice() < 0) {
+            throw new IllegalArgumentException("강의 가격은 0원 이상이어야 합니다.");
+        }
+
         if (request.getCategory() == null) {
-            throw new IllegalArgumentException("강의 카테고리를 선택해주세요.");
+            throw new IllegalArgumentException("카테고리를 선택해주세요.");
         }
 
         if (request.getDifficulty() == null) {
-            throw new IllegalArgumentException("강의 난이도를 선택해주세요.");
-        }
-
-        if (request.getPrice() != null && request.getPrice() < 0) {
-            throw new IllegalArgumentException("강의 가격은 0원 이상이어야 합니다.");
+            throw new IllegalArgumentException("난이도를 선택해주세요.");
         }
     }
 
@@ -145,25 +152,17 @@ public class CourseService {
             throw new IllegalArgumentException("강의 설명을 입력해주세요.");
         }
 
+        if (request.getPrice() == null || request.getPrice() < 0) {
+            throw new IllegalArgumentException("강의 가격은 0원 이상이어야 합니다.");
+        }
+
         if (request.getCategory() == null) {
-            throw new IllegalArgumentException("강의 카테고리를 선택해주세요.");
+            throw new IllegalArgumentException("카테고리를 선택해주세요.");
         }
 
         if (request.getDifficulty() == null) {
-            throw new IllegalArgumentException("강의 난이도를 선택해주세요.");
+            throw new IllegalArgumentException("난이도를 선택해주세요.");
         }
-
-        if (request.getPrice() != null && request.getPrice() < 0) {
-            throw new IllegalArgumentException("강의 가격은 0원 이상이어야 합니다.");
-        }
-    }
-
-    private String trimOrNull(String value) {
-        if (isBlank(value)) {
-            return null;
-        }
-
-        return value.trim();
     }
 
     private boolean isBlank(String value) {

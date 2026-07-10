@@ -6,6 +6,7 @@ import com.example.fivechef.WebChef.dto.CourseUpdateRequest;
 import com.example.fivechef.WebChef.entity.CourseCategory;
 import com.example.fivechef.WebChef.entity.CourseStatus;
 import com.example.fivechef.WebChef.entity.Difficulty;
+import com.example.fivechef.WebChef.service.CourseAccessService;
 import com.example.fivechef.WebChef.service.CourseService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -21,6 +22,8 @@ import java.security.Principal;
 public class CourseController {
 
     private final CourseService courseService;
+
+    private final CourseAccessService courseAccessService;
 
     @GetMapping("/course/list")
     public String list(
@@ -39,10 +42,19 @@ public class CourseController {
     @GetMapping("/course/detail/{id}")
     public String detail(
             @PathVariable("id") Long id,
-            Model model
+            Model model,
+            Principal principal
     ) {
         CourseResponse course = courseService.getCourseResponse(id);
+
         model.addAttribute("course", course);
+        model.addAttribute(
+                "courseAccess",
+                courseAccessService.getCourseAccess(
+                        id,
+                        principal == null ? null : principal.getName()
+                )
+        );
 
         return "course/detail";
     }

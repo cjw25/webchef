@@ -48,6 +48,8 @@ public class SecurityConfig {
                                 "/unity/**",
                                 "/notice/list",
                                 "/notice/view/**",
+                                "/payment/success",
+                                "/payment/fail",
                                 "/inquiry/**",
                                 "/tips/**",
                                 "/css/**",
@@ -60,6 +62,11 @@ public class SecurityConfig {
                         ).permitAll()
 
                         .requestMatchers("/mypage/**").authenticated()
+
+                        .requestMatchers(
+                                "/payment/course/**",
+                                "/api/payments/**"
+                        ).authenticated()
 
                         .requestMatchers(
                                 "/instructor/create",
