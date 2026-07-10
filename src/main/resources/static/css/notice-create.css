@@ -41,9 +41,9 @@ a {
 }
 
 .notice-wrap {
-  max-width: 1000px;
+  max-width: 1200px;
   padding: 50px 258px;
-  /* margin: 0 auto; */
+  margin: 0 auto;
 }
 
 .notice-crumb {
