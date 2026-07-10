@@ -32,6 +32,14 @@ public class Course {
     @Column(nullable = false)
     private Integer price = 0;
 
+    // 가격 기준으로 자동 결정되는 구독권
+    // 0원: null
+    // 1원 ~ 200,000원: BASIC
+    // 200,001원 이상: PREMIUM
+    @Enumerated(EnumType.STRING)
+    @Column(length = 30)
+    private SubscriptionPlanType requiredPlanType;
+
     // 카테고리
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 30)
