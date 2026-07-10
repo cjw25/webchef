@@ -45,11 +45,12 @@ public class Community {
 
     private LocalDateTime modifyDate;
 
-    private String originalFileName;
+    @Column(nullable = false)
+    private int viewCount = 0;
 
-    private String storedFileName;
-
-    private String fileUrl;
+    @OneToMany(mappedBy = "community", cascade =CascadeType.ALL, orphanRemoval = true)
+    @OrderBy("sortOrder asc")
+    private List<CommunityImage> images = new ArrayList<>();
 
     @PrePersist
     public void prePersist() {

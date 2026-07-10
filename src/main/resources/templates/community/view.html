@@ -1,10 +1,111 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ko" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+
 <head>
     <meta charset="UTF-8">
-    <title>Title</title>
+    <title th:text="${community.subject} + ' | WebChef'">글상세 | WebChef</title>
+
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <link rel="stylesheet" th:href="@{/css/header.css}">
+    <link rel="stylesheet" th:href="@{/css/community.css}">
+    <link rel="stylesheet" th:href="@{/css/community-create.css}">
+    <link rel="stylesheet" th:href="@{/css/community-view.css}">
+
 </head>
+
 <body>
+
+<!-- 공통 헤더 -->
+<div th:replace="~{fragments/header :: header}"></div>
+
+<main class="write-wrap">
+
+    <div class="write-crumb">
+        <a th:href="@{/community/list}" style="color:inherit;text-decoration:none;">우리들의 대화</a>
+        &nbsp;›&nbsp; <span th:text="${community.subject}">글제목</span>
+    </div>
+
+    <div class="write-tag" th:text="'✍️ ' + ${community.category}">✍️ COMMUNITY</div>
+
+    <div class="write-card view-card">
+
+        <div class="view-header">
+            <h1 class="view-subject" th:text="${community.subject}">제목입니다</h1>
+            <div class="view-meta">
+                <span class="view-author" th:text="${community.authorName}">작성자</span>
+                <span class="view-dot">·</span>
+                <span class="view-date" th:text="${#temporals.format(community.createDate, 'yyyy.MM.dd HH:mm')}">2026.07.06 12:00</span>
+                <span class="view-dot">·</span>
+                <span class="view-views">👁 <span th:text="${community.viewCount}">0</span></span>
+            </div>
+        </div>
+
+        <hr class="view-divider">
+
+        <!-- 첨부 이미지 -->
+        <div class="view-images" th:if="${community.images != null and !community.images.isEmpty()}">
+            <img th:each="img : ${community.images}" th:src="@{${img}}" alt="첨부 이미지" class="view-image">
+        </div>
+
+        <div class="view-content" th:text="${community.content}">
+            내용이 여기에 표시됩니다.
+        </div>
+
+        <hr class="view-divider">
+
+        <div class="view-vote-box">
+            <form th:action="@{/community/vote/{id}(id=${community.id})}" method="post">
+                <input type="hidden" th:if="${_csrf}" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+                <button type="submit" class="write-btn write-btn-vote">
+                    👍 추천 <span th:text="${community.voterCount}">0</span>
+                </button>
+            </form>
+        </div>
+
+    <div class="view-bottom-actions">
+        <a th:href="@{/community/list}" class="write-btn write-btn-prev write-btn-sm">목록으로</a>
+
+        <div class="view-actions" sec:authorize="isAuthenticated()" th:if="${community.mine}">
+            <a th:href="@{/community/update/{id}(id=${community.id})}" class="write-btn write-btn-prev">수정</a>
+            <form th:action="@{/community/delete/{id}(id=${community.id})}" method="post" class="view-delete-form"
+                  onsubmit="return confirm('정말 삭제하시겠어요?');">
+                <input type="hidden" th:if="${_csrf}" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+                <button type="submit" class="write-btn write-btn-danger">삭제</button>
+            </form>
+        </div>
+
+    </div>
+</div>
+
+    <!-- 답변(댓글) 영역 -->
+    <div class="write-card answer-card">
+        <h2 class="answer-title">답변 <span th:text="${community.answers != null ? community.answers.size() : 0}">0</span></h2>
+
+        <form th:action="@{/answer/create}" th:object="${answerRequest}" method="post" class="answer-form"
+              sec:authorize="isAuthenticated()">
+            <input type="hidden" th:if="${_csrf}" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+            <input type="hidden" th:field="*{communityId}"/>
+            <textarea th:field="*{content}" placeholder="답변을 남겨보세요" class="answer-input"></textarea>
+            <button type="submit" class="write-btn write-btn-submit">등록</button>
+        </form>
+
+        <ul class="answer-list">
+            <li class="answer-item" th:each="answer : ${community.answers}">
+                <div class="answer-item-header">
+                    <span class="answer-author" th:text="${answer.authorName}">닉네임</span>
+                    <span class="answer-date" th:text="${#temporals.format(answer.createDate, 'yyyy.MM.dd HH:mm')}">2026.07.06</span>
+                </div>
+                <p class="answer-content" th:text="${answer.content}">답변 내용</p>
+            </li>
+        </ul>
+
+        <p class="answer-empty" th:if="${community.answers == null or community.answers.isEmpty()}">
+            아직 답변이 없어요. 첫 답변을 남겨보세요!
+        </p>
+    </div>
+
+</main>
 
 </body>
 </html>

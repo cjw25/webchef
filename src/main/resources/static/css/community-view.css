@@ -1,0 +1,279 @@
+.view-card {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+/* 헤더 영역 */
+.view-header {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.view-subject {
+    font-size: 26px;
+    font-weight: 700;
+    line-height: 1.4;
+    word-break: keep-all;
+    margin: 0;
+}
+
+.view-meta {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 14px;
+    color: #8a8a8a;
+}
+
+.view-author {
+    font-weight: 600;
+    color: #4a4a4a;
+}
+
+.view-dot {
+    color: #d0d0d0;
+}
+
+.view-views {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+}
+
+/* 구분선 */
+.view-divider {
+    border: none;
+    border-top: 1px solid #eee;
+    margin: 4px 0;
+}
+
+/* 첨부 이미지 */
+.view-images {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+}
+
+.view-image {
+    width: 400px;
+    max-height: 350px;
+    border-radius: 12px;
+    cursor: zoom-in;
+}
+
+/* 본문 내용 */
+.view-content {
+    font-size: 16px;
+    line-height: 1.8;
+    color: #2b2b2b;
+    white-space: pre-wrap;
+    word-break: break-word;
+    min-height: 80px;
+    text-align: center;
+}
+
+/* 추천(투표) 영역 */
+.view-vote-box {
+    display: flex;
+    justify-content: center;
+    padding: 12px 0;
+}
+
+.write-btn-vote {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 10px 24px;
+    border-radius: 999px;
+    border: 1px solid #ff7a45;
+    background: #fff;
+    color: #ff7a45;
+    font-weight: 600;
+    font-size: 15px;
+    cursor: pointer;
+    transition: background 0.15s ease, color 0.15s ease;
+}
+
+.write-btn-vote:hover {
+    background: #ff7a45;
+    color: #fff;
+}
+
+.write-btn-vote.voted {
+    background: #ff7a45;
+    color: #fff;
+}
+
+/* 수정/삭제 액션 */
+.view-actions {
+    display: flex;
+    justify-content: flex-end;
+    align-items:center;
+    gap: 8px;
+    flex: none;
+}
+
+.view-actions .write-btn {
+    flex: none;
+    padding: 14px 24px;
+}
+
+.view-bottom-actions{
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.write-btn-sm{
+    flex: none;
+    padding: 8px 18px;
+    font-size: 14px;
+}
+
+.write-btn-danger {
+    background: #fff;
+    color: #e74c3c;
+    border: 1px solid #e74c3c;
+}
+
+.write-btn-danger:hover {
+    background: #e74c3c;
+    color: #fff;
+}
+
+.view-delete-form {
+    display: inline;
+}
+
+/* 답변(댓글) 영역 */
+.answer-card {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.answer-title {
+    font-size: 18px;
+    font-weight: 700;
+    margin: 0;
+}
+
+.answer-form {
+    display: flex;
+    gap: 10px;
+    align-items: flex-start;
+}
+
+.answer-input {
+    flex: 1;
+    min-height: 60px;
+    padding: 12px 14px;
+    border: 1px solid #ddd;
+    border-radius: 10px;
+    font-size: 14px;
+    font-family: inherit;
+    resize: vertical;
+}
+
+.answer-input:focus {
+    outline: none;
+    border-color: #ff7a45;
+}
+
+.answer-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+}
+
+.answer-item {
+    padding: 14px 0;
+    border-bottom: 1px solid #f0f0f0;
+}
+
+.answer-item:last-child {
+    border-bottom: none;
+}
+
+.answer-item-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 6px;
+}
+
+.answer-author {
+    font-weight: 600;
+    font-size: 14px;
+    color: #4a4a4a;
+}
+
+.answer-date {
+    font-size: 12px;
+    color: #aaa;
+}
+
+.answer-content {
+    margin: 0;
+    font-size: 14px;
+    line-height: 1.6;
+    color: #333;
+    white-space: pre-wrap;
+    word-break: break-word;
+}
+
+.answer-empty {
+    text-align: center;
+    color: #aaa;
+    font-size: 14px;
+    padding: 24px 0;
+}
+
+/* 이미지 확대 보기 (라이트박스) */
+.view-image-modal {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.85);
+    z-index: 999;
+    justify-content: center;
+    align-items: center;
+    cursor: zoom-out;
+}
+
+.view-image-modal.active {
+    display: flex;
+}
+
+.view-image-modal img {
+    max-width: 90%;
+    max-height: 90%;
+    border-radius: 8px;
+}
+
+/* 모바일 대응 */
+@media (max-width: 600px) {
+    .view-subject {
+        font-size: 20px;
+    }
+
+    .answer-form {
+        flex-direction: column;
+    }
+
+    .answer-form .write-btn-submit {
+        align-self: flex-end;
+    }
+}
+
+
+
+

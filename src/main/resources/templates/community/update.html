@@ -3,13 +3,14 @@
 
 <head>
     <meta charset="UTF-8">
-    <title>글수정 | WebChef</title>
+    <title>글 수정 | WebChef</title>
 
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
     <link rel="stylesheet" th:href="@{/css/header.css}">
     <link rel="stylesheet" th:href="@{/css/community.css}">
     <link rel="stylesheet" th:href="@{/css/community-create.css}">
+    <link rel="stylesheet" th:href="@{/css/community-view.css}">
 </head>
 
 <body>
@@ -21,21 +22,20 @@
 
     <div class="write-crumb">
         <a th:href="@{/community/list}" style="color:inherit;text-decoration:none;">우리들의 대화</a>
-        &nbsp;›&nbsp; <span>글수정</span>
+        &nbsp;›&nbsp; <span>글 수정</span>
     </div>
 
     <div class="write-tag">✍️ COMMUNITY</div>
-    <h1>이야기를 <span class="highlight">수정해주세요</span></h1>
-    <p class="write-subtitle">내용을 다시 다듬어서 더 알찬 글로 완성해보세요.</p>
+    <h1>글을 <span class="highlight">수정해주세요</span></h1>
+    <p class="write-subtitle">내용을 고치고 저장하면 바로 반영돼요.</p>
 
     <div class="write-card">
 
         <div class="write-error-box" th:if="${errorMessage}" th:text="${errorMessage}"></div>
 
-        <form th:action="@{/community/update/{id}(id=${request.id})}" th:object="${request}" method="post" enctype="multipart/form-data">
+        <form th:action="@{/community/update/{id}(id=${community.id})}" th:object="${request}" method="post" enctype="multipart/form-data">
 
             <input type="hidden" th:if="${_csrf}" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
-            <input type="hidden" th:field="*{id}"/>
 
             <div class="write-field">
                 <label>카테고리<span class="req">*</span></label>
@@ -45,53 +45,62 @@
                     <option value="장보기 팁">장보기 팁</option>
                     <option value="간편조리도구팁">간편조리도구팁</option>
                 </select>
-                <p class="write-field-error" th:if="${#fields.hasErrors('category')}" th:errors="*{category}"></p>
             </div>
 
             <div class="write-field">
                 <label>제목<span class="req">*</span></label>
                 <input type="text" th:field="*{subject}" placeholder="제목을 입력하세요">
-                <p class="write-field-error" th:if="${#fields.hasErrors('subject')}" th:errors="*{subject}"></p>
             </div>
 
             <div class="write-field">
                 <label>내용<span class="req">*</span></label>
                 <textarea th:field="*{content}" id="write-content" placeholder="내용을 입력하세요"></textarea>
                 <div class="write-char-count"><span id="write-char-current">0</span> / 2000</div>
-                <p class="write-field-error" th:if="${#fields.hasErrors('content')}" th:errors="*{content}"></p>
             </div>
 
-            <div class="write-field">
-                <label>사진 첨부</label>
-
-                <!-- 기존 첨부 이미지 -->
-                <div class="write-file-list" id="write-existing-file-list" th:if="${existingImages != null and !existingImages.isEmpty()}">
-                    <div class="write-file-item" th:each="img : ${existingImages}">
-                        <img th:src="@{${img.url}}" alt="첨부 이미지" class="write-existing-thumb">
-                        <label>
-                            <input type="checkbox" name="deleteImageIds" th:value="${img.id}">
-                            삭제
+            <!-- 기존 사진 -->
+            <div class="write-field" th:if="${community.imageDetails != null and !community.imageDetails.isEmpty()}">
+                <label>현재 등록된 사진</label>
+                <div class="write-file-list">
+                    <div class="write-file-item existing-image-item" th:each="img : ${community.imageDetails}">
+                        <img th:src="@{${img.fileUrl}}" class="write-file-thumb" alt="기존 사진">
+                        <label class="write-file-main">
+                            <input type="radio" th:field="*{mainSelect}" th:value="'existing-' + ${img.id}">
+                            대표사진
                         </label>
+                        <input type="checkbox" th:field="*{deleteImageIds}" th:value="${img.id}" class="existing-delete-checkbox" style="display:none;">
+                        <button type="button" class="write-file-remove existing-remove-btn">✕</button>
                     </div>
                 </div>
 
+            </div>
+
+            <!-- 새 사진 첨부 -->
+            <div class="write-field">
+                <label>사진 추가</label>
+                <p class="write-file-drop-sub" style="margin-bottom:10px;">
+                    기존 사진은 그대로 두고, 새 사진을 추가로 첨부할 수 있어요. (전체 최대 5장)
+                </p>
+
                 <label class="write-file-drop" for="write-file-input" id="write-file-drop">
                     <div class="write-file-drop-icon">📎</div>
-                    <div class="write-file-drop-text">클릭하거나 파일을 끌어다 놓으세요</div>
-                    <div class="write-file-drop-sub">JPG, PNG (최대 10MB, 최대 5개)</div>
-                    <input type="file" name="img" id="write-file-input" multiple accept="image/*">
+                    <div class="write-file-drop-text">클릭하거나 파일을 선택하세요</div>
+                    <div class="write-file-drop-sub">JPG, JPEG, PNG, GIF, WEBP / 최대 10MB</div>
                 </label>
+
+                <input type="file"
+                       name="img"
+                       id="write-file-input"
+                       multiple
+                       accept="image/jpeg,image/png,image/gif,image/webp"
+                       style="display: none;">
+
                 <div class="write-file-list" id="write-file-list"></div>
             </div>
 
-            <div class="write-tip-box">
-                <span>💡</span>
-                <span><b>글수정 팁</b> — 사진을 추가하거나 삭제해서 더 풍부한 글로 만들어보세요!</span>
-            </div>
-
             <div class="write-actions">
-                <a th:href="@{/community/detail/{id}(id=${request.id})}" class="write-btn write-btn-prev">취소</a>
-                <button type="submit" class="write-btn write-btn-submit">수정완료</button>
+                <a th:href="@{/community/view/{id}(id=${community.id})}" class="write-btn write-btn-prev">취소</a>
+                <button type="submit" class="write-btn write-btn-submit">수정 완료</button>
             </div>
 
         </form>
