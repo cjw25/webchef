@@ -156,6 +156,15 @@
     font-size: 12px;
     color: var(--wc-text-soft);
 }
+
+.write-file-main{
+    display:flex;
+    align-items:center;
+    gap:6px;
+    font-size:13px;
+    color: var(--wc-text-soft);
+    white-space:nowrap;
+}
 .write-file-list{
     margin-top: 12px;
     display: flex;
@@ -183,6 +192,27 @@
 }
 .write-file-item .write-file-remove:hover{ color: var(--wc-accent); }
 
+.write-file-thumb{
+    width: 44px;
+        height: 44px;
+        object-fit: cover;
+        border-radius: 8px;
+        flex-shrink: 0;
+}
+
+.existing-remove-btn {
+    margin-left: 8px;
+}
+
+.write-checkbox-label{
+    display:flex;
+    align-items:center;
+    gap:8px;
+    margin-top:10px;
+    font-size:13px;
+    color: vat(--wc-text-soft);
+    cursor:pointer;
+}
 .write-tip-box{
     display:flex; gap:10px;
     background: var(--wc-pink-bg);

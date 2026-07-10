@@ -13,10 +13,13 @@ import org.springframework.data.domain.*;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
+import com.example.fivechef.WebChef.entity.CommunityImage;
+
 
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -28,6 +31,7 @@ public class CommunityService {
             List.of("jpg", "jpeg", "png", "gif", "webp");
 
     private static final long MAX_FILE_SIZE = 10 * 1024 * 1024;
+    private static final int MAX_FILE_COUNT = 5;
 
     private final CommunityRepository communityRepository;
 
@@ -43,42 +47,62 @@ public class CommunityService {
     }
 
     @Transactional(readOnly = true)
-    public Page<CommunityResponse> getCommunities(int page, String keyword, String category) {
+    public Page<CommunityResponse> getCommunities(int page, String keyword, String category, String currentUsername) {
         Pageable pageable = PageRequest.of(
                 page,
                 10,
                 Sort.by(Sort.Order.desc("id"))
         );
 
-        if (isBlank(keyword)) {
+        boolean hasCategory = !isBlank(category);
+        boolean hasKeyword = !isBlank(keyword);
+
+        if (!hasCategory && !hasKeyword) {
             return communityRepository.findAll(pageable)
-                    .map(CommunityResponse::new);
+                    .map(community -> new CommunityResponse(community, false, currentUsername));
+        }
+
+        if (hasCategory && !hasKeyword){
+            return communityRepository.findByCategory(category, pageable)
+                    .map(community -> new CommunityResponse(community, false, currentUsername));
         }
 
         String kw = keyword.trim();
 
-        return communityRepository.findBySubjectContainingOrContentContaining(
+        if (!hasCategory){
+            return communityRepository.findBySubjectContainingOrContentContaining(kw, kw, pageable)
+                    .map(community -> new CommunityResponse(community, false, currentUsername));
+        }
+
+        return communityRepository.findByCategoryAndSubjectContainingOrCategoryAndContentContaining(
+                        category,
                         kw,
+                        category,
                         kw,
                         pageable
                 )
-                .map(CommunityResponse::new);
+                .map(community -> new CommunityResponse(community, false, currentUsername));
     }
 
     @Transactional(readOnly = true)
-    public CommunityResponse getCommunityResponse(Long id) {
+    public CommunityResponse getCommunityResponse(Long id){
         Community community = getCommunityEntity(id);
         return new CommunityResponse(community, true);
     }
 
     @Transactional
+    public CommunityResponse getCommunityResponse(Long id, String currentUsername) {
+        Community community = getCommunityEntity(id);
+        community.setViewCount(community.getViewCount() + 1);
+        return new CommunityResponse(community, true, currentUsername);
+    }
+
+    @Transactional
     public void createCommunity(CommunityCreateRequest request,
                                 String username,
-                                MultipartFile[] img) {
+                                MultipartFile[] img,
+                                int mainIndex) {
         validateCreateRequest(request);
-
-        MultipartFile uploadFile = extractSingleFile(img);
-        validateFile(uploadFile);
 
         User author = userService.getLoginUserEntity(username);
 
@@ -88,24 +112,17 @@ public class CommunityService {
         community.setContent(request.getContent().trim());
         community.setAuthor(author);
 
-        saveFileIfExists(community, uploadFile);
-
         communityRepository.save(community);
-    }
 
-    @Transactional
-    public void updateCommunity(Long id,
-                                CommunityUpdateRequest request,
-                                String username) {
-        updateCommunity(id, request, username, null, false);
+        saveImages(community, img, mainIndex);
     }
 
     @Transactional
     public void updateCommunity(Long id,
                                 CommunityUpdateRequest request,
                                 String username,
-                                MultipartFile[] image,
-                                boolean deleteFile) {
+                                MultipartFile[] img
+                                ) {
         validateUpdateRequest(request);
 
         Community community = getCommunityEntity(id);
@@ -117,19 +134,12 @@ public class CommunityService {
         community.setSubject(request.getSubject().trim());
         community.setContent(request.getContent().trim());
 
-        MultipartFile uploadFile = extractSingleFile(image);
-        validateFile(uploadFile);
+        removeImages(community, request.getDeleteImageIds());
 
-        if (deleteFile) {
-            deleteStoredFile(community);
-            clearFileInfo(community);
-        }
+        List<MultipartFile>  validFiles = extractValidFiles(img);
+        List<CommunityImage> newImages = appendImages(community, validFiles);
 
-        if (uploadFile != null && !uploadFile.isEmpty()) {
-            deleteStoredFile(community);
-            clearFileInfo(community);
-            saveFileIfExists(community, uploadFile);
-        }
+        applyMainSelection(community, request.getMainSelect(), newImages);
 
         communityRepository.save(community);
     }
@@ -141,7 +151,7 @@ public class CommunityService {
 
         checkOwnerOrAdmin(community, loginUser, "삭제 권한이 없습니다.");
 
-        deleteStoredFile(community);
+        deleteAllStoredImages(community);
 
         communityRepository.delete(community);
     }
@@ -161,110 +171,231 @@ public class CommunityService {
         communityRepository.save(community);
     }
 
-    private MultipartFile extractSingleFile(MultipartFile[] image) {
-        if (image == null || image.length == 0) {
-            return null;
-        }
+    private List<MultipartFile> extractValidFiles(MultipartFile[] image) {
+        List<MultipartFile> validFiles = new ArrayList<>();
 
-        MultipartFile selectedFile = null;
-        int fileCount = 0;
+        if (image == null) {
+            return validFiles;
+        }
 
         for (MultipartFile file : image) {
-            if (file == null || file.isEmpty()) {
-                continue;
+            if (file != null && !file.isEmpty()) {
+                validFiles.add(file);
             }
-
-            fileCount++;
-            selectedFile = file;
         }
 
-        if (fileCount > 1) {
-            throw new IllegalArgumentException("현재 첨부파일은 1개만 업로드할 수 있습니다.");
-        }
-
-        return selectedFile;
+        return validFiles;
     }
 
-    private void validateFile(MultipartFile file) {
-        if (file == null || file.isEmpty()) {
+    private void saveImages(Community community, MultipartFile[] image, int mainIndex) {
+        List<MultipartFile> validFiles = extractValidFiles(image);
+
+        if (validFiles.isEmpty()) {
             return;
         }
 
-        if (file.getSize() > MAX_FILE_SIZE) {
-            throw new IllegalArgumentException("파일 용량은 10MB를 초과할 수 없습니다.");
+        if (validFiles.size() > MAX_FILE_COUNT) {
+            throw new IllegalArgumentException("사진은 최대 " + MAX_FILE_COUNT + "개까지 첨부할 수 있어요.");
         }
 
-        String originalFileName = file.getOriginalFilename();
-
-        if (originalFileName == null || originalFileName.isBlank()) {
-            throw new IllegalArgumentException("잘못된 파일입니다.");
-        }
-
-        String extension = getExtension(originalFileName).toLowerCase();
-
-        if (!ALLOWED_EXTENSIONS.contains(extension)) {
-            throw new IllegalArgumentException("이미지 파일(jpg, jpeg, png, gif, webp)만 업로드할 수 있습니다.");
-        }
-    }
-
-    private void saveFileIfExists(Community community, MultipartFile file) {
-        if (file == null || file.isEmpty()) {
-            return;
-        }
+        Path uploadPath = Paths.get(uploadDir).toAbsolutePath().normalize();
 
         try {
-            String originalFileName = file.getOriginalFilename();
-
-            if (originalFileName == null || originalFileName.isBlank()) {
-                return;
-            }
-
-            String extension = getExtension(originalFileName).toLowerCase();
-            String storedFileName = UUID.randomUUID() + "." + extension;
-
-            Path uploadPath = Paths.get(uploadDir)
-                    .toAbsolutePath()
-                    .normalize();
-
             if (!Files.exists(uploadPath)) {
                 Files.createDirectories(uploadPath);
             }
+        } catch (Exception e) {
+            throw new IllegalArgumentException("업로드 폴더 생성 중 오류가 발생했습니다.");
+        }
 
+        int normalizedMainIndex = (mainIndex >= 0 && mainIndex < validFiles.size()) ? mainIndex : 0;
+
+        for (int i = 0; i < validFiles.size(); i++) {
+            MultipartFile file = validFiles.get(i);
+
+            if (file.getSize() > MAX_FILE_SIZE) {
+                throw new IllegalArgumentException("사진 용량은 10MB를 초과할 수 없어요.");
+            }
+
+            String originalFileName = file.getOriginalFilename();
+            if (originalFileName == null || originalFileName.isBlank()) {
+                throw new IllegalArgumentException("잘못된 파일입니다.");
+            }
+
+            String extension = getExtension(originalFileName).toLowerCase();
+            if (!ALLOWED_EXTENSIONS.contains(extension)) {
+                throw new IllegalArgumentException("이미지 파일(jpg, jpeg, png, gif, webp)만 업로드할 수 있어요.");
+            }
+
+            String storedFileName = UUID.randomUUID() + "." + extension;
             Path filePath = uploadPath.resolve(storedFileName);
 
-            file.transferTo(filePath.toFile());
+            try {
+                file.transferTo(filePath.toFile());
+            } catch (Exception e) {
+                throw new IllegalArgumentException("파일 저장 중 오류가 발생했습니다.");
+            }
 
-            community.setOriginalFileName(originalFileName);
-            community.setStoredFileName(storedFileName);
-            community.setFileUrl("/uploads/community/" + storedFileName);
+            CommunityImage communityImage = new CommunityImage();
+            communityImage.setCommunity(community);
+            communityImage.setOriginalFileName(originalFileName);
+            communityImage.setStoredFileName(storedFileName);
+            communityImage.setFileUrl("/uploads/community/" + storedFileName);
+            communityImage.setSortOrder(i);
+            communityImage.setMain(i == normalizedMainIndex);
 
-        } catch (Exception e) {
-            throw new IllegalArgumentException("파일 업로드 중 오류가 발생했습니다.");
+            community.getImages().add(communityImage);
         }
     }
 
-    private void deleteStoredFile(Community community) {
-        if (isBlank(community.getStoredFileName())) {
+    private void removeImages(Community community, List<Long> deleteImageIds) {
+        if (deleteImageIds == null || deleteImageIds.isEmpty()) {
             return;
         }
 
-        try {
-            Path filePath = Paths.get(uploadDir)
-                    .toAbsolutePath()
-                    .normalize()
-                    .resolve(community.getStoredFileName());
+        List<CommunityImage> toRemove = community.getImages().stream()
+                .filter(img -> deleteImageIds.contains(img.getId()))
+                .toList();
 
-            Files.deleteIfExists(filePath);
-
-        } catch (Exception e) {
-            throw new IllegalArgumentException("기존 파일 삭제 중 오류가 발생했습니다.");
+        for (CommunityImage img : toRemove) {
+            try {
+                Path filePath = Paths.get(uploadDir)
+                        .toAbsolutePath()
+                        .normalize()
+                        .resolve(img.getStoredFileName());
+                Files.deleteIfExists(filePath);
+            } catch (Exception e) {
+                // 개별 파일 삭제 실패는 무시하고 계속 진행
+            }
         }
+
+        community.getImages().removeAll(toRemove);
     }
 
-    private void clearFileInfo(Community community) {
-        community.setOriginalFileName(null);
-        community.setStoredFileName(null);
-        community.setFileUrl(null);
+    private List<CommunityImage> appendImages(Community community, List<MultipartFile> validFiles) {
+        List<CommunityImage> added = new ArrayList<>();
+
+        if (validFiles.isEmpty()) {
+            return added;
+        }
+
+        int existingCount = community.getImages().size();
+
+        if (existingCount + validFiles.size() > MAX_FILE_COUNT) {
+            throw new IllegalArgumentException("사진은 최대 " + MAX_FILE_COUNT + "개까지 첨부할 수 있어요.");
+        }
+
+        Path uploadPath = Paths.get(uploadDir).toAbsolutePath().normalize();
+
+        try {
+            if (!Files.exists(uploadPath)) {
+                Files.createDirectories(uploadPath);
+            }
+        } catch (Exception e) {
+            throw new IllegalArgumentException("업로드 폴더 생성 중 오류가 발생했습니다.");
+        }
+
+        int nextSortOrder = community.getImages().stream()
+                .mapToInt(CommunityImage::getSortOrder)
+                .max()
+                .orElse(-1) + 1;
+
+        for (int i = 0; i < validFiles.size(); i++) {
+            MultipartFile file = validFiles.get(i);
+
+            if (file.getSize() > MAX_FILE_SIZE) {
+                throw new IllegalArgumentException("사진 용량은 10MB를 초과할 수 없어요.");
+            }
+
+            String originalFileName = file.getOriginalFilename();
+            if (originalFileName == null || originalFileName.isBlank()) {
+                throw new IllegalArgumentException("잘못된 파일입니다.");
+            }
+
+            String extension = getExtension(originalFileName).toLowerCase();
+            if (!ALLOWED_EXTENSIONS.contains(extension)) {
+                throw new IllegalArgumentException("이미지 파일(jpg, jpeg, png, gif, webp)만 업로드할 수 있어요.");
+            }
+
+            String storedFileName = UUID.randomUUID() + "." + extension;
+            Path filePath = uploadPath.resolve(storedFileName);
+
+            try {
+                file.transferTo(filePath.toFile());
+            } catch (Exception e) {
+                throw new IllegalArgumentException("파일 저장 중 오류가 발생했습니다.");
+            }
+
+            CommunityImage communityImage = new CommunityImage();
+            communityImage.setCommunity(community);
+            communityImage.setOriginalFileName(originalFileName);
+            communityImage.setStoredFileName(storedFileName);
+            communityImage.setFileUrl("/uploads/community/" + storedFileName);
+            communityImage.setSortOrder(nextSortOrder + i);
+            communityImage.setMain(false);
+
+            community.getImages().add(communityImage);
+            added.add(communityImage);
+        }
+
+        return added;
+    }
+
+    private void applyMainSelection(Community community, String mainSelect, List<CommunityImage> newImages) {
+        for (CommunityImage img : community.getImages()) {
+            img.setMain(false);
+        }
+
+        if (community.getImages().isEmpty()) {
+            return;
+        }
+
+        if (mainSelect != null && mainSelect.startsWith("existing-")) {
+            Long selectedId = Long.valueOf(mainSelect.substring("existing-".length()));
+
+            boolean matched = community.getImages().stream()
+                    .filter(img -> img.getId() != null && img.getId().equals(selectedId))
+                    .findFirst()
+                    .map(img -> {
+                        img.setMain(true);
+                        return true;
+                    })
+                    .orElse(false);
+
+            if (matched) {
+                return;
+            }
+        }
+
+        if (mainSelect != null && mainSelect.startsWith("new-")) {
+            int idx = Integer.parseInt(mainSelect.substring("new-".length()));
+
+            if (idx >= 0 && idx < newImages.size()) {
+                newImages.get(idx).setMain(true);
+                return;
+            }
+        }
+
+        community.getImages().get(0).setMain(true);
+    }
+
+    private void deleteAllStoredImages(Community community) {
+        if (community.getImages() == null) {
+            return;
+        }
+
+        for (CommunityImage image : community.getImages()) {
+            try {
+                Path filePath = Paths.get(uploadDir)
+                        .toAbsolutePath()
+                        .normalize()
+                        .resolve(image.getStoredFileName());
+
+                Files.deleteIfExists(filePath);
+            } catch (Exception e) {
+                // 개별 파일 삭제 실패는 무시하고 계속 진행
+            }
+        }
     }
 
     private String getExtension(String filename) {
@@ -319,4 +450,5 @@ public class CommunityService {
     private boolean isBlank(String value) {
         return value == null || value.trim().isEmpty();
     }
+
 }

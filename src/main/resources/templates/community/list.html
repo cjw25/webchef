@@ -115,6 +115,12 @@
 
             </div>
 
+            <a class="community-thumb-link" th:if="${community.hasFile()}" th:href="@{|/community/view/${community.id}|}">
+                <div class="community-thumb">
+                    <img th:src="@{${community.thumbnailUrl}}" alt="대표 사진">
+                </div>
+            </a>
+
             <a class="community-title-link"
                th:href="@{|/community/view/${community.id}|}">
 
@@ -156,6 +162,9 @@
                 </div>
 
                 <div class="community-state">
+                    <span>
+                        👀 <span th:text="${community.viewCount}">0</span>
+                    </span>
 
                     <span>
                         ❤️ <span th:text="${community.voterCount}">0</span>

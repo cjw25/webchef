@@ -27,10 +27,13 @@ public class CommunityController {
     public String list(Model model,
                        @RequestParam(defaultValue = "0") int page,
                        @RequestParam(defaultValue = "") String keyword,
-                       @RequestParam(required = false) String category) {
+                       @RequestParam(required = false) String category,
+                       Principal principal) {
+
+        String username = (principal != null) ? principal.getName() : null;
 
         Page<CommunityResponse> paging =
-                communityService.getCommunities(page, keyword, category);
+                communityService.getCommunities(page, keyword, category, username);
 
         model.addAttribute("paging", paging);
         model.addAttribute("keyword", keyword);
@@ -42,9 +45,11 @@ public class CommunityController {
     @GetMapping("/community/view/{id}")
     public String view(
             @PathVariable("id") Long id,
-            Model model
+            Model model,
+            Principal principal
     ) {
-        CommunityResponse community = communityService.getCommunityResponse(id);
+        String username = (principal !=null) ? principal.getName() : null;
+        CommunityResponse community = communityService.getCommunityResponse(id, username);
 
         AnswerCreateRequest answerRequest = new AnswerCreateRequest();
         answerRequest.setCommunityId(id);
@@ -68,6 +73,7 @@ public class CommunityController {
             @Valid @ModelAttribute("request") CommunityCreateRequest request,
             BindingResult bindingResult,
             @RequestParam(value = "img", required = false) MultipartFile[] img,
+            @RequestParam(value = "mainIndex", required = false, defaultValue = "0") int mainIndex,
             Model model,
             Principal principal
     ) {
@@ -76,7 +82,7 @@ public class CommunityController {
         }
 
         try {
-            communityService.createCommunity(request, principal.getName(), img);
+            communityService.createCommunity(request, principal.getName(), img, mainIndex);
         } catch (Exception e) {
             model.addAttribute("errorMessage", e.getMessage());
             return "community/create";
@@ -98,6 +104,11 @@ public class CommunityController {
         request.setContent(community.getContent());
         request.setCategory(community.getCategory());
 
+        community.getImageDetails().stream()
+                        .filter(com.example.fivechef.WebChef.dto.CommunityImageResponse::isMain)
+                        .findFirst()
+                        .ifPresent(img -> request.setMainSelect("existing-" + img.getId()));
+
         model.addAttribute("community", community);
         model.addAttribute("request", request);
 
@@ -110,7 +121,6 @@ public class CommunityController {
             @PathVariable("id") Long id,
             @ModelAttribute("request") CommunityUpdateRequest request,
             @RequestParam(value = "img", required = false) MultipartFile[] img,
-            @RequestParam(value = "deleteFile", defaultValue = "false") boolean deleteFile,
             Model model,
             Principal principal
     ) {
@@ -119,15 +129,12 @@ public class CommunityController {
                     id,
                     request,
                     principal.getName(),
-                    img,
-                    deleteFile
+                    img
             );
         } catch (Exception e) {
             CommunityResponse community = communityService.getCommunityResponse(id);
-
             model.addAttribute("community", community);
             model.addAttribute("errorMessage", e.getMessage());
-
             return "community/update";
         }
 
