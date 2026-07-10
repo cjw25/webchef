@@ -29,12 +29,21 @@ public class CourseController {
     public String list(
             Model model,
             @RequestParam(value = "page", defaultValue = "0") int page,
-            @RequestParam(value = "keyword", required = false) String keyword
+            @RequestParam(value = "keyword", required = false) String keyword,
+            @RequestParam(value = "category", required = false) CourseCategory category,
+            Principal principal
     ) {
-        Page<CourseResponse> paging = courseService.getCourses(page, keyword);
+        Page<CourseResponse> paging = courseService.getCourses(
+                page,
+                keyword,
+                category,
+                principal == null ? null : principal.getName()
+        );
 
         model.addAttribute("paging", paging);
         model.addAttribute("keyword", keyword);
+        model.addAttribute("selectedCategory", category);
+        model.addAttribute("categories", CourseCategory.values());
 
         return "course/list";
     }

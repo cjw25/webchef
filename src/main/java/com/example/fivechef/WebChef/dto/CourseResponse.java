@@ -32,7 +32,25 @@ public class CourseResponse {
     private final LocalDateTime createdAt;
     private final LocalDateTime updatedAt;
 
+    private final String listTargetUrl;
+    private final String listAccessMessage;
+    private final boolean listAccessible;
+
     public CourseResponse(Course course) {
+        this(
+                course,
+                "/course/detail/" + course.getId(),
+                "강의 상세 보기",
+                true
+        );
+    }
+
+    public CourseResponse(
+            Course course,
+            String listTargetUrl,
+            String listAccessMessage,
+            boolean listAccessible
+    ) {
         this.id = course.getId();
         this.title = course.getTitle();
         this.description = course.getDescription();
@@ -58,6 +76,10 @@ public class CourseResponse {
 
         this.createdAt = course.getCreatedAt();
         this.updatedAt = course.getUpdatedAt();
+
+        this.listTargetUrl = listTargetUrl;
+        this.listAccessMessage = listAccessMessage;
+        this.listAccessible = listAccessible;
     }
 
     private String convertPlanName(SubscriptionPlanType planType) {
