@@ -1,5 +1,5 @@
 # 베이스 이미지 (JDK 17 기준, 본인 프로젝트 자바 버전에 맞게 수정)
-FROM openjdk:17-jdk-slim
+FROM eclipse-temurin:17-jdk-jammy
 
 # jar 파일 복사 (build/libs 폴더에 있는 파일)
 COPY build/libs/*.jar app.jar
