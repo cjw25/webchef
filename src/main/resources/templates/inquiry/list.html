@@ -28,7 +28,13 @@
                     <button type="submit">검색</button>
                 </form>
             </div>
-            <div class="total">총 게시물 <strong>000</strong>건</div>
+
+            <div class="inquiry-header">
+                <div class="total">총 게시물 <strong>000</strong>건</div>
+                <section class="add-box">
+                    <a class="add-btn" th:href="@{/inquiry/create}">문의 등록하기</a>
+                </section>
+            </div>
 
             <div class="inquiry-body">
                 <div class="inquiry-list">

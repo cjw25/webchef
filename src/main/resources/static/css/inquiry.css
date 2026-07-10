@@ -113,6 +113,11 @@ a {
   cursor: pointer;
 }
 
+.inquiry-header {
+  display: flex;
+  justify-content: space-between;
+}
+
 .total {
   padding-top: 40px;
   padding-bottom: 40px;
@@ -120,6 +125,25 @@ a {
 }
 .total strong {
   color: #C70000;
+}
+
+.add-box {
+  padding-top: 40px;
+  padding-bottom: 40px;
+}
+
+.add-btn {
+  background-color: #C70000;
+  color: #ffffff;
+  padding: 10px;
+  font-weight: bolder;
+  border-radius: 10px;
+  transition: all 0.3s;
+}
+
+.add-btn:hover {
+  background-color: #FFC3C3;
+  transform:translateY(-3px);
 }
 
 .inquiry-body {
