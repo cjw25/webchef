@@ -1,10 +1,250 @@
 <!DOCTYPE html>
-<html lang="en">
+<html xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <title>Title</title>
+    <title th:text="${course.title} + ' | WebChef'">강의 상세</title>
+
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <link rel="stylesheet" th:href="@{/css/header.css}">
+    <link rel="stylesheet" th:href="@{/css/course-view.css}">
 </head>
+
 <body>
+
+<div class="page">
+
+    <div th:replace="~{fragments/header :: header}"></div>
+
+    <main class="view-wrap">
+
+        <!-- 강의 헤더 -->
+        <section class="view-hero">
+
+            <div class="view-hero-media">
+                <video th:if="${course.hasVideo()}"
+                       th:src="@{${course.videoUrl}}"
+                       controls
+                       class="view-hero-video"
+                       th:poster="${course.hasFile()} ? @{${course.thumbnailUrl}} : null">
+                </video>
+
+                <img th:if="${!course.hasVideo() and course.hasFile()}"
+                     th:src="@{${course.thumbnailUrl}}"
+                     alt="대표 이미지"
+                     class="view-hero-img">
+            </div>
+
+            <div class="view-hero-info">
+
+                <div class="view-crumb">
+                    <a th:href="@{/course/list}">요리 강의</a>
+                    &nbsp;›&nbsp;
+                    <span th:text="${course.title}">강의 제목</span>
+                </div>
+
+                <h1 class="view-title" th:text="${course.title}">강의 제목</h1>
+
+                <div class="view-badges">
+                    <span class="badge" th:switch="${course.category}">
+                        <span th:case="'KOREAN'">한식</span>
+                        <span th:case="'CHINESE'">중식</span>
+                        <span th:case="'JAPANESE'">일식</span>
+                        <span th:case="'WESTERN'">양식</span>
+                        <span th:case="'DESSERT'">간식 / 디저트</span>
+                        <span th:case="*">기타</span>
+                    </span>
+                    <span class="badge" th:text="${course.difficultyLabel}">난이도</span>
+                    <span class="badge" th:text="${course.cookTime}">조리시간</span>
+                </div>
+
+                <p class="view-description" th:text="${course.description}">강의 설명</p>
+
+                <div class="view-meta">
+                    <span class="view-instructor">
+                        강사 <strong th:text="${course.instructorName}">강사명</strong>
+                    </span>
+                    <span class="view-price" th:text="${course.price} + '원'">0원</span>
+                </div>
+
+                <!-- 강사 전용 관리 버튼 -->
+                <div class="view-owner-actions"
+                     th:if="${isLogin and loginRole == 'INSTRUCTOR' and course.instructorUsername == loginUsername}">
+                    <a th:href="@{'/course/update/' + ${course.id}}" class="btn-outline">강의 수정</a>
+                    <form th:action="@{'/course/delete/' + ${course.id}}" method="post" class="inline-form">
+                        <button type="submit" class="btn-outline btn-danger-outline"
+                                onclick="return confirm('정말 이 강의를 삭제할까요?')">강의 삭제</button>
+                    </form>
+                </div>
+
+            </div>
+
+        </section>
+
+        <!-- 본문: 왼쪽 댓글 / 오른쪽 차시 -->
+        <section class="view-body">
+
+            <!-- 댓글 -->
+            <div class="view-comments">
+
+                <h2 class="section-title">
+                    수강평 <span class="count" th:text="'(' + ${comments.totalElements} + ')'">(0)</span>
+                </h2>
+
+                <div th:if="${errorMessage}" class="view-error-box" th:text="${errorMessage}"></div>
+
+                <form th:if="${isLogin}"
+                      th:action="@{/course/comment/create}"
+                      method="post"
+                      enctype="multipart/form-data"
+                      class="comment-form">
+
+                    <input type="hidden" name="courseId" th:value="${course.id}">
+
+                    <textarea name="content"
+                              placeholder="이 강의에 대한 후기나 궁금한 점을 남겨주세요"
+                              maxlength="1000"
+                              required></textarea>
+
+                    <div class="comment-form-row">
+                        <label class="comment-img-label" for="commentImg">
+                            📎 사진 첨부 (최대 3장)
+                        </label>
+                        <input type="file"
+                               id="commentImg"
+                               name="img"
+                               accept="image/jpeg,image/png,image/gif,image/webp"
+                               multiple
+                               class="comment-img-input">
+                        <button type="submit" class="btn-submit-comment">등록</button>
+                    </div>
+
+                    <div class="comment-img-preview" id="commentImgPreview"></div>
+                </form>
+
+                <p th:if="${!isLogin}" class="comment-login-hint">
+                    <a th:href="@{/user/login}">로그인</a> 후 수강평을 남길 수 있어요.
+                </p>
+
+                <div class="comment-list">
+                    <div class="comment-item" th:each="comment : ${comments.content}">
+
+                        <div class="comment-head">
+                            <span class="comment-author" th:text="${comment.authorName}">작성자</span>
+                            <span class="comment-instructor-badge" th:if="${comment.authorIsInstructor}">강사</span>
+                            <span class="comment-date"
+                                  th:text="${#temporals.format(comment.createDate, 'yyyy.MM.dd HH:mm')}">날짜</span>
+                        </div>
+
+                        <p class="comment-content" th:text="${comment.content}">댓글 내용</p>
+
+                        <div class="comment-images" th:if="${!comment.imageUrls.isEmpty()}">
+                            <img th:each="url : ${comment.imageUrls}" th:src="@{${url}}" alt="첨부 이미지">
+                        </div>
+
+                        <form th:if="${isLogin and (loginRole == 'ADMIN' or comment.authorName == loginUsername)}"
+                              th:action="@{'/course/comment/delete/' + ${comment.id}}"
+                              method="post"
+                              class="inline-form comment-delete-form">
+                            <input type="hidden" name="courseId" th:value="${course.id}">
+                            <button type="submit" class="btn-comment-delete"
+                                    onclick="return confirm('댓글을 삭제할까요?')">삭제</button>
+                        </form>
+
+                    </div>
+
+                    <p class="comment-empty" th:if="${comments.content.isEmpty()}">
+                        아직 등록된 수강평이 없어요. 첫 후기를 남겨보세요!
+                    </p>
+                </div>
+
+                <div class="comment-pagination" th:if="${comments.totalPages > 1}">
+                    <a th:each="p : ${#numbers.sequence(0, comments.totalPages - 1)}"
+                       th:href="@{'/course/view/' + ${course.id} + '?page=' + ${p}}"
+                       th:text="${p + 1}"
+                       th:classappend="${p == commentPage} ? ' active' : ''"
+                       class="page-num">1</a>
+                </div>
+
+            </div>
+
+            <!-- 차시 목록 -->
+            <aside class="view-sessions">
+
+                <div class="sessions-head">
+                    <h2 class="section-title">차시</h2>
+                    <span class="count" th:text="'전체 ' + ${sessions.size()} + '개'">전체 0개</span>
+                </div>
+
+                <!-- 강사 전용: 차시 추가 -->
+                <form th:if="${isLogin and loginRole == 'INSTRUCTOR' and course.instructorUsername == loginUsername}"
+                      th:action="@{'/course/' + ${course.id} + '/session/create'}"
+                      method="post"
+                      class="session-create-form">
+
+                    <input type="text" name="title" placeholder="차시 제목" maxlength="200" required>
+                    <input type="text" name="videoUrl" placeholder="영상 URL (선택)">
+                    <input type="number" name="sortOrder" placeholder="순서" min="0" value="0" required>
+                    <button type="submit" class="btn-add-session">차시 추가</button>
+                </form>
+
+                <ol class="session-list">
+                    <li class="session-item" th:each="session, iter : ${sessions}">
+
+                        <div class="session-item-main">
+                            <span class="session-index" th:text="${iter.count}">1</span>
+                            <span class="session-title" th:text="${session.title}">차시 제목</span>
+                        </div>
+
+                        <div class="session-item-actions">
+
+                            <a th:if="${session.videoUrl != null and !session.videoUrl.isBlank()}"
+                               th:href="@{${session.videoUrl}}"
+                               target="_blank"
+                               class="btn-session-watch">시청</a>
+
+                            <!-- 학생/전체: 퀴즈가 있으면 풀기 버튼 -->
+                            <a th:if="${session.hasQuiz}"
+                               th:href="@{'/quiz/' + ${session.id}}"
+                               class="btn-quiz-take">퀴즈 풀기</a>
+
+                            <!-- 강사 전용: 퀴즈 관리 버튼 -->
+                            <span th:if="${isLogin and loginRole == 'INSTRUCTOR' and course.instructorUsername == loginUsername}">
+                                <a th:if="${!session.hasQuiz}"
+                                   th:href="@{'/course/session/' + ${session.id} + '/quiz/create'}"
+                                   class="btn-quiz-manage">퀴즈 만들기</a>
+                                <a th:if="${session.hasQuiz}"
+                                   th:href="@{'/course/session/' + ${session.id} + '/quiz/edit'}"
+                                   class="btn-quiz-manage">퀴즈 수정</a>
+
+                                <form th:action="@{'/course/session/delete/' + ${session.id}}"
+                                      method="post" class="inline-form">
+                                    <input type="hidden" name="courseId" th:value="${course.id}">
+                                    <button type="submit" class="btn-session-delete"
+                                            onclick="return confirm('이 차시를 삭제할까요?')">삭제</button>
+                                </form>
+                            </span>
+
+                        </div>
+
+                    </li>
+
+                    <li class="session-empty" th:if="${sessions.isEmpty()}">
+                        아직 등록된 차시가 없어요.
+                    </li>
+                </ol>
+
+            </aside>
+
+        </section>
+
+    </main>
+
+    <div th:replace="~{fragments/footer :: footer}"></div>
+
+</div>
+
+<script src="/js/course-view.js"></script>
 
 </body>
 </html>

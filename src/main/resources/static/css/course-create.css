@@ -1,12 +1,13 @@
 :root{
   --wc-card: #FFFFFF;
+  --wc-page-bg: #ffffff;
   --wc-text: #211D2E;
   --wc-text-soft: #6F6B7D;
   --wc-accent: #e20f00;
   --wc-accent-dark: #C7362B;
   --wc-pink-bg: #fff5f5;
   --wc-pink-text: #C7362B;
-  --wc-border: #c4c4c4;
+  --wc-border: #e5e5e5;
   --wc-field-bg: #ffffff;
 }
 
@@ -19,7 +20,7 @@
 body {
   height: 100vh;
   color: #111;
-  background: #fff;
+  background: var(--wc-page-bg);
   font-family: Arial, sans-serif;
 }
 
@@ -41,8 +42,9 @@ a {
 }
 
 .add-wrap {
-  max-width: 1500px;
-  padding: 50px 258px;
+  width: 100%;
+  max-width: 900px;
+  padding: 50px 40px;
   margin: 0 auto;
 }
 
@@ -63,25 +65,25 @@ a {
 }
 
 .add-subtitle strong {
-  color: #ff4a4a;
+  color: var(--wc-accent);
 }
 
+/* 카드: 흰 배경 + 왼쪽 레드 포인트 보더 */
 .add-card {
-  background: #fff5f5;
-  border: 1px solid #ff4a4a;
+  background: var(--wc-card);
+  border: 1px solid var(--wc-border);
+  border-left: 4px solid var(--wc-accent);
+  border-radius: 12px;
   margin-top: 30px;
-}
-
-.box-header {
-  background: linear-gradient(#ff4a4a, #fff5f5);
-  height: 50px;
+  overflow: hidden;
 }
 
 .add-error-box{
   background: var(--wc-pink-bg);
   color: var(--wc-accent-dark);
   padding: 15px 15px;
-  border-radius: 5px;
+  margin: 25px;
+  border-radius: 8px;
   font-size: 13.5px;
   font-weight: 600;
 }
@@ -93,7 +95,11 @@ a {
 }
 
 .add-field {
-  padding-bottom: 50px;
+  padding: 25px 0 25px;
+}
+
+.add-field:first-of-type {
+  padding-top: 30px;
 }
 
 .add-field label{
@@ -108,7 +114,7 @@ a {
 .add-field label .req{ color: var(--wc-accent); margin-left:2px; }
 
 .add-field select {
-  width: 291.25px;
+  width: 95%;
   height: 50px;
   font-family: inherit;
   font-size: 16px;
@@ -188,6 +194,7 @@ a {
   align-content: center;
   cursor: pointer;
   transition: border-color .15s ease, background .15s ease;
+  display: block;
 }
 
 .add-file-drop:hover, .add-file-drop.dragover{
@@ -214,6 +221,8 @@ a {
 }
 .add-file-list{
     margin-top: 12px;
+    margin-left: 25px;
+    width: 95%;
     display: flex;
     flex-direction: column;
     gap: 8px;
@@ -239,10 +248,17 @@ a {
 }
 .add-file-item .add-file-remove:hover{ color: var(--wc-accent); }
 
+.add-file-thumb {
+    width: 44px;
+    height: 44px;
+    object-fit: cover;
+    border-radius: 8px;
+    flex-shrink: 0;
+}
+
 .add-actions{
   display:flex;
   gap: 10px;
-  padding-top: 10px;
   padding: 25px;
 }
 .add-btn{
@@ -261,7 +277,7 @@ a {
 }
 .add-btn-prev{
   background: #ffffff;
-  border: 1px solid #ff4a4a;
+  border: 1px solid var(--wc-accent);
   color: var(--wc-text-soft);
 }
 .add-btn-submit{
@@ -270,4 +286,24 @@ a {
 }
 .add-btn-submit:hover{
   background: rgb(155, 0, 0);
+}
+
+.add-field input[type="number"] {
+  width: 95%;
+  height: 50px;
+  padding: 10px 15px;
+  font-size: 16px;
+  border: 1.5px solid var(--wc-border);
+  border-radius: 12px;
+  margin-left: 25px;
+  outline: none;
+}
+
+.add-field input[type="number"]:focus {
+  border-color: var(--wc-accent);
+  background: #fff;
+}
+
+.add-field-error {
+  margin-left: 25px;
 }

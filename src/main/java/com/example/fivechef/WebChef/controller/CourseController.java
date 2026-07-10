@@ -1,5 +1,6 @@
 package com.example.fivechef.WebChef.controller;
 
+import com.example.fivechef.WebChef.dto.CourseCommentResponse;
 import com.example.fivechef.WebChef.dto.CourseCreateRequest;
 import com.example.fivechef.WebChef.dto.CourseResponse;
 import com.example.fivechef.WebChef.dto.CourseUpdateRequest;
@@ -7,13 +8,16 @@ import com.example.fivechef.WebChef.entity.CourseCategory;
 import com.example.fivechef.WebChef.entity.CourseStatus;
 import com.example.fivechef.WebChef.entity.Difficulty;
 import com.example.fivechef.WebChef.service.CourseAccessService;
+import com.example.fivechef.WebChef.service.CourseCommentService;
 import com.example.fivechef.WebChef.service.CourseService;
+import com.example.fivechef.WebChef.service.CourseSessionService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.security.Principal;
 
@@ -22,7 +26,8 @@ import java.security.Principal;
 public class CourseController {
 
     private final CourseService courseService;
-
+    private final CourseSessionService courseSessionService;
+    private final CourseCommentService courseCommentService;
     private final CourseAccessService courseAccessService;
 
     @GetMapping("/course/list")
@@ -31,32 +36,36 @@ public class CourseController {
             @RequestParam(value = "page", defaultValue = "0") int page,
             @RequestParam(value = "keyword", required = false) String keyword,
             @RequestParam(value = "category", required = false) CourseCategory category,
+            @RequestParam(value = "sort", required = false) String sort,
             Principal principal
     ) {
         Page<CourseResponse> paging = courseService.getCourses(
                 page,
                 keyword,
                 category,
-                principal == null ? null : principal.getName()
+                principal == null ? null : principal.getName(),
+                sort
         );
 
         model.addAttribute("paging", paging);
         model.addAttribute("keyword", keyword);
         model.addAttribute("selectedCategory", category);
         model.addAttribute("categories", CourseCategory.values());
+        model.addAttribute("sort", sort);
 
         return "course/list";
     }
 
-    @GetMapping("/course/detail/{id}")
-    public String detail(
+    @GetMapping("/course/view/{id}")
+    public String view(
             @PathVariable("id") Long id,
+            @RequestParam(value = "page", defaultValue = "0") int page,
             Model model,
             Principal principal
     ) {
-        CourseResponse course = courseService.getCourseResponse(id);
-
+        CourseResponse course = courseService.getCourseDetailResponse(id);
         model.addAttribute("course", course);
+
         model.addAttribute(
                 "courseAccess",
                 courseAccessService.getCourseAccess(
@@ -65,7 +74,13 @@ public class CourseController {
                 )
         );
 
-        return "course/detail";
+        model.addAttribute("sessions", courseSessionService.getSessions(id));
+
+        Page<CourseCommentResponse> comments = courseCommentService.getComments(id, page);
+        model.addAttribute("comments", comments);
+        model.addAttribute("commentPage", page);
+
+        return "course/view";
     }
 
     @PreAuthorize("hasAnyRole('INSTRUCTOR', 'ADMIN')")
@@ -83,11 +98,13 @@ public class CourseController {
     @PostMapping("/course/create")
     public String createCourse(
             @ModelAttribute("request") CourseCreateRequest request,
+            @RequestParam(value = "img", required = false) MultipartFile img,
+            @RequestParam(value = "video", required = false) MultipartFile video,
             Model model,
             Principal principal
     ) {
         try {
-            courseService.createCourse(request, principal.getName());
+            courseService.createCourse(request, principal.getName(), img, video);
         } catch (Exception e) {
             model.addAttribute("errorMessage", e.getMessage());
             model.addAttribute("categories", CourseCategory.values());
@@ -147,7 +164,7 @@ public class CourseController {
             return "course/update";
         }
 
-        return "redirect:/course/detail/" + id;
+        return "redirect:/course/view/" + id;
     }
 
     @PreAuthorize("hasAnyRole('INSTRUCTOR', 'ADMIN')")
