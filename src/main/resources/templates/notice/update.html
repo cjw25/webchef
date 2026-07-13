@@ -1,10 +1,99 @@
 <!DOCTYPE html>
-<html lang="en">
+<html xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <title>Title</title>
+    <title>공지사항 작성</title>
+
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <link rel="stylesheet" th:href="@{/css/header.css}">
+    <link rel="stylesheet" th:href="@{/css/footer.css}">
+    <link rel="stylesheet" th:href="@{/css/notice-create.css}">
+    <link rel="stylesheet" th:href="@{/css/notice-view.css}">
 </head>
 <body>
+
+<div th:replace="~{fragments/header :: header}"></div>
+
+<main class="notice-wrap">
+
+    <div class="notice-crumb">
+        <a th:href="@{/notice/list}" style="color:inherit;text-decoration:none;">고객센터</a>
+        &nbsp;›&nbsp; <span>공지사항 수정</span>
+    </div>
+
+    <div class="notice-subtitle">공지사항</div>
+
+    <div class="notice-card">
+        <div class="box-header"></div>
+        <div class="notice-error-box" th:if="${errorMessage}" th:text="${errorMessage}"></div>
+
+        <form th:action="@{/notice/update/{id}(id=${notice.id})}" th:object="${request}" method="post" enctype="multipart/form-data">
+
+            <input type="hidden" th:if="${_csrf}" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+
+            <div class="notice-field">
+                <label>제목<span class="req">*</span></label>
+                <input type="text" th:field="*{subject}" placeholder="공지사항 제목을 입력하세요">
+            </div>
+
+            <div class="notice-field">
+                <label>내용<span class="req">*</span></label>
+                <textarea th:field="*{content}" id="notice-content" placeholder="공지사항 내용을 입력하세요"></textarea>
+                <div class="notice-char-count"><span id="notice-char-current">0</span> / 2000</div>
+            </div>
+
+            <!-- 기존 사진 -->
+            <div class="notice-field" th:if="${notice.imageDetails != null and !notice.imageDetails.isEmpty()}">
+                <label>현재 등록된 사진</label>
+                <div class="notice-file-list">
+                    <div class="notice-file-item existing-image-item" th:each="img : ${notice.imageDetails}">
+                        <img th:src="@{${img.fileUrl}}" class="notice-file-thumb" alt="기존 사진">
+                        <label class="notice-file-main">
+                            <input type="radio" th:field="*{mainSelect}" th:value="'existing-' + ${img.id}">
+                            대표사진
+                        </label>
+                        <input type="checkbox" th:field="*{deleteImageIds}" th:value="${img.id}" class="existing-delete-checkbox" style="display:none;">
+                        <button type="button" class="notice-file-remove existing-remove-btn">✕</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 공지사항에 새로운 사진 첨부 -->
+            <div class="notice-field">
+                <label>사진 추가</label>
+                <p class="notice-file-drop-sub" style="margin-bottom:10px;">
+                    기존 사진을 삭제하지 않고 새로운 사진을 추가로 첨부할 수 있습니다. (전체 최대 5장)
+                </p>
+
+                <label class="notice-file-drop" for="notice-file-input" id="notice-file-drop">
+                    <div class="notice-file-drop-icon">📎</div>
+                    <div class="notice-file-drop-text">클릭하거나 파일을 선택하세요</div>
+                    <div class="notice-file-drop-sub">JPG, JPEG, PNG, GIF, WEBP / 최대 10MB</div>
+                </label>
+
+                <input type="file"
+                       name="img"
+                       id="notice-file-input"
+                       multiple
+                       accept="image/jpeg,image/png,image/gif,image/webp"
+                       style="display: none;">
+
+                <div class="notice-file-list" id="notice-file-list"></div>
+            </div>
+
+            <div class="notice-actions">
+                <a th:href="@{/notice/view/{id}(id=${notice.id})}" class="notice-btn notice-btn-prev">취소</a>
+                <button type="submit" class="notice-btn notice-btn-submit">공지사항 수정 완료</button>
+            </div>
+
+        </form>
+
+    </div>
+
+</main>
+
+<div th:replace="~{fragments/footer :: footer}"></div>
 
 </body>
 </html>
