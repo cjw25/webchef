@@ -105,10 +105,6 @@ public class CourseService {
     public CourseResponse getCourseDetailResponse(Long id) {
         Course course = getCourseEntity(id);
 
-        if (course.getViewCount() == null) {
-            course.setViewCount(0);
-        }
-
         course.setViewCount(course.getViewCount() + 1);
 
         return new CourseResponse(course);
