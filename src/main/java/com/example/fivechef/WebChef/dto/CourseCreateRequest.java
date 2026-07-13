@@ -23,4 +23,8 @@ public class CourseCreateRequest {
     private Difficulty difficulty;
 
     private CourseStatus status;
+
+    private String cookTime;
+
+    private String videoUrl;
 }
