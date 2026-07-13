@@ -16,7 +16,7 @@ public class RoomManager : MonoBehaviour
         DontDestroyOnLoad(gameObject);
     }
 
-<<<<<<< HEAD
+
     public void RequestChangeRoom(string sceneName, string targetDoorName)
     {
         if (isTransferring) return;
@@ -37,7 +37,7 @@ public class RoomManager : MonoBehaviour
         yield break;
     }
 
-=======
+
     private void Start()
     {
         isTransferring = false;
@@ -97,7 +97,7 @@ public class RoomManager : MonoBehaviour
         SetAllPlayersPhysicsState(true);
     }
 
->>>>>>> edc6820196073a4098899b2e5bc0e7ec88c42f62
+
     public void ClearTransferLock()
     {
         isTransferring = false;
@@ -107,7 +107,7 @@ public class RoomManager : MonoBehaviour
     // ★ [수정된 함수] 내 캐릭터(LocalClient)만 챙기던 것에서, 접속된 '모든 캐릭터'를 제어하도록 변경
     private void SetAllPlayersPhysicsState(bool isActive)
     {
-<<<<<<< HEAD
+
         var player = NetworkManager.Singleton?.LocalClient?.PlayerObject?.gameObject;
         if (player == null) return;
 
@@ -116,44 +116,44 @@ public class RoomManager : MonoBehaviour
         {
             rb.bodyType = isActive ? RigidbodyType2D.Dynamic : RigidbodyType2D.Kinematic;
             rb.velocity = Vector2.zero;
-=======
-        if (NetworkManager.Singleton == null) return;
 
-        // 현재 씬에 태어나 있는 모든 PlayerMove(캐릭터들) 오브젝트를 싹 다 긁어모읍니다.
-        PlayerMove[] allPlayers = FindObjectsByType<PlayerMove>(FindObjectsSortMode.None);
+            if (NetworkManager.Singleton == null) return;
 
-        foreach (PlayerMove player in allPlayers)
-        {
-            // 내가 소유한 캐릭터가 아니더라도, 일단 독립 서버/클라이언트 물리 공간에서 꼬이지 않도록 일괄 제어합니다.
-            Rigidbody2D rb = player.GetComponent<Rigidbody2D>();
-            Collider2D col = player.GetComponent<Collider2D>();
+            // 현재 씬에 태어나 있는 모든 PlayerMove(캐릭터들) 오브젝트를 싹 다 긁어모읍니다.
+            PlayerMove[] allPlayers = FindObjectsByType<PlayerMove>(FindObjectsSortMode.None);
 
-            if (rb != null)
+            foreach (PlayerMove player in allPlayers)
             {
-                if (!isActive)
+                // 내가 소유한 캐릭터가 아니더라도, 일단 독립 서버/클라이언트 물리 공간에서 꼬이지 않도록 일괄 제어합니다.
+                Rigidbody2D rb = player.GetComponent<Rigidbody2D>();
+                Collider2D col = player.GetComponent<Collider2D>();
+
+                if (rb != null)
                 {
-                    rb.velocity = Vector2.zero;
-                    rb.angularVelocity = 0f;
-                    rb.bodyType = RigidbodyType2D.Kinematic;
-                }
-                else
-                {
-                    // 활성화할 때, 내 캐릭터가 아니라면(타인) 물리를 Kinematic으로 유지하여 Netcode의 좌표 동기화를 방해하지 않게 합니다.
-                    if (player.IsOwner)
+                    if (!isActive)
                     {
-                        rb.bodyType = RigidbodyType2D.Dynamic;
+                        rb.velocity = Vector2.zero;
+                        rb.angularVelocity = 0f;
+                        rb.bodyType = RigidbodyType2D.Kinematic;
                     }
                     else
                     {
-                        rb.bodyType = RigidbodyType2D.Kinematic;
+                        // 활성화할 때, 내 캐릭터가 아니라면(타인) 물리를 Kinematic으로 유지하여 Netcode의 좌표 동기화를 방해하지 않게 합니다.
+                        if (player.IsOwner)
+                        {
+                            rb.bodyType = RigidbodyType2D.Dynamic;
+                        }
+                        else
+                        {
+                            rb.bodyType = RigidbodyType2D.Kinematic;
+                        }
+                        rb.velocity = Vector2.zero;
                     }
-                    rb.velocity = Vector2.zero;
                 }
-            }
 
-            if (col != null) col.enabled = isActive;
->>>>>>> edc6820196073a4098899b2e5bc0e7ec88c42f62
+                if (col != null) col.enabled = isActive;
+            }
+            if (player.TryGetComponent<Collider2D>(out var col)) col.enabled = isActive;
         }
-        if (player.TryGetComponent<Collider2D>(out var col)) col.enabled = isActive;
     }
 }
