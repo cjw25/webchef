@@ -1,10 +1,274 @@
 <!DOCTYPE html>
-<html lang="en">
+<html xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <title>Title</title>
+    <title>강의 수정 | WebChef</title>
+
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <link rel="stylesheet" th:href="@{/css/header.css}">
+    <link rel="stylesheet" th:href="@{/css/course-create.css}">
 </head>
+
 <body>
+
+<div class="page">
+
+    <div th:replace="~{fragments/header :: header}"></div>
+
+    <main class="add-wrap">
+
+        <div class="add-crumb">
+            <a th:href="@{'/course/view/' + ${course.id}}">요리 강의</a>
+            &nbsp;›&nbsp;
+            <span>강의 수정</span>
+        </div>
+
+        <div class="add-subtitle">
+            <strong>강의 정보</strong>를 수정하세요
+        </div>
+
+        <div class="add-card">
+
+            <div class="add-error-box"
+                 th:if="${errorMessage}"
+                 th:text="${errorMessage}">
+            </div>
+
+            <form th:action="@{'/course/update/' + ${course.id}}"
+                  th:object="${request}"
+                  method="post"
+                  enctype="multipart/form-data">
+
+                <input type="hidden"
+                       th:if="${_csrf}"
+                       th:name="${_csrf.parameterName}"
+                       th:value="${_csrf.token}">
+
+                <!-- 카테고리 -->
+                <div class="add-field">
+                    <label for="category">
+                        카테고리
+                        <span class="req">*</span>
+                    </label>
+
+                    <select id="category" th:field="*{category}">
+                        <option value="">분류를 선택하세요</option>
+                        <option value="KOREAN">한식</option>
+                        <option value="CHINESE">중식</option>
+                        <option value="JAPANESE">일식</option>
+                        <option value="WESTERN">양식</option>
+                        <option value="DESSERT">간식 / 디저트</option>
+                        <option value="ETC">기타</option>
+                    </select>
+                </div>
+
+                <!-- 난이도 -->
+                <div class="add-field">
+                    <label for="difficulty">
+                        난이도
+                        <span class="req">*</span>
+                    </label>
+
+                    <select id="difficulty" th:field="*{difficulty}">
+                        <option value="">난이도를 선택하세요</option>
+                        <option value="EASY">쉬움</option>
+                        <option value="NORMAL">보통</option>
+                        <option value="HARD">어려움</option>
+                    </select>
+                </div>
+
+                <!-- 상태 -->
+                <div class="add-field">
+                    <label for="status">
+                        공개 상태
+                        <span class="req">*</span>
+                    </label>
+
+                    <select id="status" th:field="*{status}">
+                        <option th:each="s : ${statuses}"
+                                th:value="${s}"
+                                th:text="${s}">상태</option>
+                    </select>
+                </div>
+
+                <!-- 제목 -->
+                <div class="add-field">
+                    <label for="title">
+                        요리 이름
+                        <span class="req">*</span>
+                    </label>
+
+                    <input type="text"
+                           id="title"
+                           th:field="*{title}"
+                           maxlength="100"
+                           placeholder="요리 이름을 입력하세요">
+                </div>
+
+                <!-- 설명 -->
+                <div class="add-field">
+                    <label for="description">
+                        레시피
+                        <span class="req">*</span>
+                    </label>
+
+                    <textarea id="description"
+                              th:field="*{description}"
+                              maxlength="2000"
+                              placeholder="재료와 조리 방법 등 레시피를 입력하세요"></textarea>
+                </div>
+
+                <!-- 가격 -->
+                <div class="add-field">
+                    <label for="price">
+                        가격
+                        <span class="req">*</span>
+                    </label>
+
+                    <input type="number"
+                           id="price"
+                           th:field="*{price}"
+                           min="0"
+                           step="100"
+                           placeholder="가격을 입력하세요">
+                </div>
+
+                <!-- 대표 이미지 -->
+                <div class="add-field">
+                    <label for="img">
+                        대표 이미지
+                    </label>
+
+                    <div th:if="${course.hasFile()}" class="thumbnail-preview">
+                        <img th:src="@{${course.thumbnailUrl}}" alt="현재 대표 이미지">
+                        <p class="thumbnail-preview-hint">현재 등록된 이미지예요. 새 이미지를 올리면 교체돼요.</p>
+                    </div>
+
+                    <label class="add-file-drop" id="fileDrop" for="img">
+
+                        <input type="file"
+                               id="img"
+                               name="img"
+                               accept="image/jpeg,image/png,image/gif,image/webp">
+
+                        <div class="add-file-drop-icon">
+                            ＋
+                        </div>
+
+                        <div class="add-file-drop-text">
+                            이미지를 클릭하거나 드래그해서 등록하세요
+                        </div>
+
+                        <div class="add-file-drop-sub">
+                            JPG, PNG, GIF, WEBP 파일을 등록할 수 있습니다 (비워두면 기존 이미지 유지)
+                        </div>
+                    </label>
+
+                    <div class="add-file-list"
+                         id="fileList"
+                         style="display:none;">
+
+                        <div class="add-file-item">
+                            <div class="add-file-name">
+                                <span>📎</span>
+                                <span id="fileName"></span>
+                            </div>
+
+                            <button type="button"
+                                    class="add-file-remove"
+                                    id="fileRemove">
+                                ✕
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 강의 영상 -->
+                <div class="add-field">
+                    <label for="video">
+                        강의 영상
+                    </label>
+
+                    <div th:if="${course.hasVideo()}" class="thumbnail-preview">
+                        <p class="thumbnail-preview-hint">현재 영상이 등록돼 있어요. 새 영상을 올리면 교체돼요.</p>
+                    </div>
+
+                    <label class="add-file-drop" id="videoDrop" for="video">
+
+                        <input type="file"
+                               id="video"
+                               name="video"
+                               accept="video/mp4,video/webm,video/quicktime">
+
+                        <div class="add-file-drop-icon">
+                            ＋
+                        </div>
+
+                        <div class="add-file-drop-text">
+                            영상을 클릭하거나 드래그해서 등록하세요
+                        </div>
+
+                        <div class="add-file-drop-sub">
+                            MP4, WEBM, MOV 파일을 등록할 수 있습니다 (비워두면 기존 영상 유지)
+                        </div>
+                    </label>
+
+                    <div class="add-file-list"
+                         id="videoFileList"
+                         style="display:none;">
+
+                        <div class="add-file-item">
+                            <div class="add-file-name">
+                                <span>🎬</span>
+                                <span id="videoFileName"></span>
+                            </div>
+
+                            <button type="button"
+                                    class="add-file-remove"
+                                    id="videoFileRemove">
+                                ✕
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="video-url-divider">또는 링크로 바로 등록</div>
+
+                    <input type="text"
+                           id="videoUrl"
+                           th:field="*{videoUrl}"
+                           class="video-url-input"
+                           placeholder="https://youtube.com/watch?v=... 또는 영상 링크">
+
+                    <p class="video-url-hint">파일을 새로 올리면 이 링크는 무시되고 업로드한 파일이 우선 적용돼요.</p>
+                </div>
+
+                <!-- 버튼 -->
+                <div class="add-actions">
+
+                    <a th:href="@{'/course/view/' + ${course.id}}"
+                       class="add-btn add-btn-prev">
+                        취소
+                    </a>
+
+                    <button type="submit"
+                            class="add-btn add-btn-submit">
+                        수정 완료
+                    </button>
+
+                </div>
+
+            </form>
+
+        </div>
+
+    </main>
+
+    <div th:replace="~{fragments/footer :: footer}"></div>
+
+</div>
+
+<script src="/js/course-create.js"></script>
 
 </body>
 </html>

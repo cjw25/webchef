@@ -58,6 +58,10 @@
   margin-bottom: 18px;
 }
 
+.view-back-actions {
+    margin-top: 12px;
+}
+
 .badge {
   padding: 6px 12px;
   border-radius: 999px;
@@ -254,14 +258,19 @@
   white-space: pre-line;
 }
 
-.comment-images { display: flex; gap: 8px; margin-bottom: 8px; }
+.comment-images {
+    display: flex;
+    gap: 8px;
+    margin-top: 10px;
+    flex-wrap: wrap;
+}
 
 .comment-images img {
-  width: 90px;
-  height: 90px;
-  object-fit: cover;
-  border-radius: 8px;
-  border: 1px solid var(--wc-border);
+    width: 100px;
+    height: 100px;
+    object-fit: cover;
+    border-radius: 8px;
+    background: #f0f0f0;
 }
 
 .btn-comment-delete {
@@ -438,6 +447,15 @@
 }
 
 .btn-session-delete:hover { color: var(--wc-accent); }
+
+.quiz-registered-badge {
+  padding: 5px 10px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 700;
+  background: #f0fdf4;
+  color: #15803d;
+}
 
 .session-empty {
   font-size: 13px;

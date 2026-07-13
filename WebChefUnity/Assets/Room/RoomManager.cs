@@ -6,26 +6,38 @@ using Unity.Netcode;
 public class RoomManager : MonoBehaviour
 {
     public static RoomManager Instance { get; private set; }
-
-    [Header("다음 방에서 플레이어가 도착할 문 이름")]
     public string targetDoorName;
-
-    // 🔒 무한 와리가리 및 관통 차단용 전역 자물쇠
     public bool isTransferring { get; private set; } = false;
 
     private void Awake()
     {
-        if (transform.parent != null) transform.SetParent(null);
-
-        if (Instance != null && Instance != this)
-        {
-            Destroy(gameObject);
-            return;
-        }
+        if (Instance != null && Instance != this) { Destroy(gameObject); return; }
         Instance = this;
         DontDestroyOnLoad(gameObject);
     }
 
+<<<<<<< HEAD
+    public void RequestChangeRoom(string sceneName, string targetDoorName)
+    {
+        if (isTransferring) return;
+        this.targetDoorName = targetDoorName;
+        StartCoroutine(ChangeRoomRoutine(sceneName));
+    }
+
+    private IEnumerator ChangeRoomRoutine(string sceneName)
+    {
+        isTransferring = true;
+        SetPlayerPhysicsState(false); // 이동 시작 시 물리 정지
+
+        if (NetworkManager.Singleton != null && NetworkManager.Singleton.IsServer)
+            NetworkManager.Singleton.SceneManager.LoadScene(sceneName, LoadSceneMode.Single);
+        else
+            SceneManager.LoadScene(sceneName);
+
+        yield break;
+    }
+
+=======
     private void Start()
     {
         isTransferring = false;
@@ -85,16 +97,26 @@ public class RoomManager : MonoBehaviour
         SetAllPlayersPhysicsState(true);
     }
 
+>>>>>>> edc6820196073a4098899b2e5bc0e7ec88c42f62
     public void ClearTransferLock()
     {
-        this.targetDoorName = "";
         isTransferring = false;
-        Debug.Log("🔓 [자물쇠 완전 해제] 플레이어가 안전지대로 나갔으므로 다음 이동이 가능합니다.");
+        SetPlayerPhysicsState(true); // 문 밖으로 완벽히 나갔을 때 물리 복구
     }
 
     // ★ [수정된 함수] 내 캐릭터(LocalClient)만 챙기던 것에서, 접속된 '모든 캐릭터'를 제어하도록 변경
     private void SetAllPlayersPhysicsState(bool isActive)
     {
+<<<<<<< HEAD
+        var player = NetworkManager.Singleton?.LocalClient?.PlayerObject?.gameObject;
+        if (player == null) return;
+
+        Rigidbody2D rb = player.GetComponent<Rigidbody2D>();
+        if (rb != null)
+        {
+            rb.bodyType = isActive ? RigidbodyType2D.Dynamic : RigidbodyType2D.Kinematic;
+            rb.velocity = Vector2.zero;
+=======
         if (NetworkManager.Singleton == null) return;
 
         // 현재 씬에 태어나 있는 모든 PlayerMove(캐릭터들) 오브젝트를 싹 다 긁어모읍니다.
@@ -130,6 +152,8 @@ public class RoomManager : MonoBehaviour
             }
 
             if (col != null) col.enabled = isActive;
+>>>>>>> edc6820196073a4098899b2e5bc0e7ec88c42f62
         }
+        if (player.TryGetComponent<Collider2D>(out var col)) col.enabled = isActive;
     }
 }

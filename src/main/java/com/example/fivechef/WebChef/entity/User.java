@@ -63,4 +63,7 @@ public class User {
         public void preUpdate() {
                 this.updatedAt = LocalDateTime.now();
         }
+
+        @Column(nullable = false)
+        private int point = 0;
 }

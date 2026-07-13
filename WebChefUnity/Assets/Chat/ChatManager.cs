@@ -1,11 +1,11 @@
-﻿using System.Collections;
+﻿using System; // ★ using 지시문은 함수 내부가 아니라 여기에 있어야 합니다.
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using TMPro;
 using UnityEngine.SceneManagement;
-using Unity.Netcode; // ★ 유니티 넷코드 라이브러리 추가
+using Unity.Netcode;
 
-// ★ 멀티플레이어 통신(RPC)을 위해 NetworkBehaviour를 상속받습니다.
 public class ChatManager : NetworkBehaviour
 {
     [Header("전체 채팅창 UI")]
@@ -35,7 +35,6 @@ public class ChatManager : NetworkBehaviour
 
     public override void OnDestroy()
     {
-        // 넷코드 자체의 내장 OnDestroy 시스템을 먼저 한 번 실행해 주는 안전장치
         base.OnDestroy();
 
         if (Instance == this)
@@ -48,7 +47,6 @@ public class ChatManager : NetworkBehaviour
     {
         if (Instance != this) return;
 
-        // 1. 새 방에 있는 입력창(InputField)을 새로 찾아 완벽하게 연결합니다.
         TMP_InputField newInputField = GameObject.FindObjectOfType<TMP_InputField>(true);
         if (newInputField != null)
         {
@@ -58,7 +56,6 @@ public class ChatManager : NetworkBehaviour
             chatInput.onSubmit.AddListener(OnChatSubmit);
         }
 
-        // 2. 새 방의 대화창(Text)을 자동으로 새로 고칩니다.
         TMP_Text[] allTexts = GameObject.FindObjectsOfType<TMP_Text>(true);
         foreach (TMP_Text t in allTexts)
         {
@@ -89,8 +86,6 @@ public class ChatManager : NetworkBehaviour
     {
         if (Instance != this) return;
 
-        // 💡 [버그 수정 1] 채팅창이 이미 켜져있는 상태라면 Update의 엔터 처리는 완전히 무시합니다.
-        // UI 시스템 내부의 엔터 전송 기능(OnChatSubmit)과 프레임 충돌을 막기 위함입니다.
         if (chatInput != null && chatInput.isFocused)
         {
             if (Input.GetKeyDown(KeyCode.Escape))
@@ -98,10 +93,9 @@ public class ChatManager : NetworkBehaviour
                 chatInput.text = "";
                 ResetFocus();
             }
-            return; // 채팅창이 활성화되어 있을 땐 아래의 "채팅창 켜기" 코드로 절대 안 내려갑니다.
+            return;
         }
 
-        // 💡 [버그 수정 2] 채팅창이 확실하게 꺼져있을 때 '엔터'를 눌러야만 채팅창이 활성화됩니다.
         if (Input.GetKeyDown(KeyCode.Return) || Input.GetKeyDown(KeyCode.KeypadEnter))
         {
             if (chatInput != null)
@@ -113,33 +107,30 @@ public class ChatManager : NetworkBehaviour
 
     IEnumerator ActivateChatInputDeferred()
     {
+        // ★ 함수 내부에 있던 `using System;` 구문을 완전히 삭제했습니다.
         yield return null;
         if (chatInput != null) chatInput.ActivateInputField();
     }
 
     void OnChatSubmit(string text)
     {
-        // 💡 [버그 수정 3] 채팅창 포커스가 없는 상태(백그라운드 움직임 입력 등)에서 호출되면 즉시 차단합니다.
         if (chatInput == null || !chatInput.isFocused) return;
 
         if (string.IsNullOrEmpty(text.Trim())) return;
         chatInput.text = "";
 
-        // ★ [멀티플레이 개조] 내가 쓴 글을 내 화면에 바로 띄우지 않고 서버(RPC)로 전송합니다.
         ulong myClientId = NetworkManager.Singleton.LocalClientId;
         SendChatMessageServerRpc(myClientId, text);
 
         ResetFocus();
     }
 
-    // ★ [멀티플레이 핵심 - ServerRpc] 
     [ServerRpc(RequireOwnership = false)]
     private void SendChatMessageServerRpc(ulong senderClientId, string message)
     {
         ReceiveChatMessageClientRpc(senderClientId, message);
     }
 
-    // ★ [멀티플레이 핵심 - ClientRpc]
     [ClientRpc]
     private void ReceiveChatMessageClientRpc(ulong senderClientId, string message)
     {
@@ -147,25 +138,42 @@ public class ChatManager : NetworkBehaviour
         chatHistory.Add(formattedMessage);
         UpdateChatWindowText(formattedMessage);
 
+        // 맵에 있는 모든 플레이어를 순회하며 채팅을 보낸 대상을 찾습니다.
         foreach (PlayerMove player in GameObject.FindObjectsOfType<PlayerMove>())
         {
             NetworkObject netObj = player.GetComponent<NetworkObject>();
             if (netObj != null && netObj.OwnerClientId == senderClientId)
             {
+                // 플레이어의 자식 캔버스를 검색합니다.
                 Canvas[] canvases = player.GetComponentsInChildren<Canvas>(true);
                 foreach (Canvas canvas in canvases)
                 {
                     if (canvas.name == "SpeechBubbleCanvas")
                     {
-                        GameObject bubbleObj = canvas.gameObject;
+                        // 1. 최상단 부모인 캔버스를 활성화합니다.
+                        canvas.gameObject.SetActive(true);
+
+                        // 2. 플레이어 머리 위에 생성한 말풍선 텍스트(BubbleText)를 직접 찾아 할당합니다.
+                        // 이미지 상 구조상 자식에 바로 BubbleText가 있을 때 안전하게 들고 오기 위함입니다.
                         TMP_Text bText = canvas.GetComponentInChildren<TMP_Text>(true);
 
-                        if (bText != null) bText.text = message;
-                        if (bubbleObj != null)
+                        if (bText != null)
                         {
-                            bubbleObj.SetActive(true);
-                            ChatBubbleTimeout timeoutScript = bubbleObj.GetComponent<ChatBubbleTimeout>();
-                            if (timeoutScript == null) timeoutScript = bubbleObj.AddComponent<ChatBubbleTimeout>();
+                            bText.text = message;
+
+                            // 3. 글자가 든 오브젝트나 부모 패널을 활성화합니다.
+                            bText.gameObject.SetActive(true);
+                            if (bText.transform.parent != null && bText.transform.parent != canvas.transform)
+                            {
+                                bText.transform.parent.gameObject.SetActive(true);
+                            }
+
+                            // 4. 타이머 컴포넌트를 동작시켜 3초 뒤 꺼지게 만듭니다.
+                            GameObject targetTimerObj = bText.transform.parent != null ? bText.transform.parent.gameObject : bText.gameObject;
+
+                            ChatBubbleTimeout timeoutScript = targetTimerObj.GetComponent<ChatBubbleTimeout>();
+                            if (timeoutScript == null) timeoutScript = targetTimerObj.AddComponent<ChatBubbleTimeout>();
+
                             timeoutScript.TriggerHide(3f);
                         }
                         break;
@@ -214,7 +222,6 @@ public class ChatManager : NetworkBehaviour
     }
 }
 
-// ★ 멀티플레이어 말풍선 개별 타이머 소멸 처리를 위한 도우미 클래스
 public class ChatBubbleTimeout : MonoBehaviour
 {
     private Coroutine currentCoroutine;
