@@ -1,0 +1,219 @@
+body {
+    margin: 0;
+    background: #fff7f7;
+    color: #111111;
+    font-family: Arial, "Noto Sans KR", sans-serif;
+}
+
+.payment-course-page {
+    min-height: 100vh;
+    padding: 70px 0 100px;
+
+    background:
+            radial-gradient(circle at 12% 0%, rgba(215, 25, 32, 0.12), transparent 32%),
+            linear-gradient(180deg, #ffffff 0%, #fff7f7 100%);
+}
+
+.payment-course-hero {
+    width: min(1100px, calc(100% - 48px));
+    margin: 0 auto 34px;
+}
+
+.payment-course-hero span {
+    height: 34px;
+    padding: 0 16px;
+
+    border-radius: 999px;
+
+    background: #ffe1e5;
+    color: #d71920;
+
+    display: inline-flex;
+    align-items: center;
+
+    font-size: 13px;
+    font-weight: 900;
+}
+
+.payment-course-hero h1 {
+    margin: 20px 0 10px;
+
+    font-size: 46px;
+    font-weight: 900;
+    letter-spacing: -1.4px;
+}
+
+.course-title {
+    margin: 0 0 8px;
+
+    color: #111111;
+
+    font-size: 20px;
+    font-weight: 900;
+}
+
+.course-price {
+    display: inline-flex;
+    margin: 10px 0;
+    padding: 10px 14px;
+
+    border-radius: 999px;
+
+    background: #ffffff;
+    color: #d71920;
+
+    font-size: 14px;
+    font-weight: 900;
+}
+
+.guide-message {
+    margin-top: 12px;
+
+    color: #666666;
+
+    font-size: 15px;
+    font-weight: 800;
+    line-height: 1.6;
+}
+
+.payment-plan-grid {
+    width: min(1100px, calc(100% - 48px));
+    margin: 0 auto;
+
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 24px;
+}
+
+.payment-plan-card {
+    position: relative;
+
+    padding: 34px;
+
+    border: 1px solid #eeeeee;
+    border-radius: 30px;
+
+    background: #ffffff;
+
+    box-shadow: 0 24px 64px rgba(0, 0, 0, 0.08);
+}
+
+.payment-plan-card.recommended {
+    border-color: #d71920;
+    box-shadow: 0 28px 70px rgba(215, 25, 32, 0.18);
+}
+
+.plan-top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.plan-top span {
+    color: #d71920;
+
+    font-size: 14px;
+    font-weight: 900;
+}
+
+.plan-top strong {
+    height: 28px;
+    padding: 0 12px;
+
+    border-radius: 999px;
+
+    background: #d71920;
+    color: #ffffff;
+
+    display: inline-flex;
+    align-items: center;
+
+    font-size: 12px;
+    font-weight: 900;
+}
+
+.payment-plan-card h2 {
+    margin: 16px 0 10px;
+
+    font-size: 30px;
+    font-weight: 900;
+}
+
+.payment-plan-card p {
+    margin: 0;
+
+    color: #666666;
+
+    font-size: 15px;
+    font-weight: 700;
+    line-height: 1.6;
+}
+
+.price {
+    margin: 28px 0;
+
+    display: flex;
+    align-items: flex-end;
+    gap: 8px;
+}
+
+.price strong {
+    font-size: 42px;
+    font-weight: 900;
+}
+
+.price span {
+    margin-bottom: 8px;
+
+    color: #666666;
+
+    font-size: 15px;
+    font-weight: 800;
+}
+
+.payment-plan-card ul {
+    margin: 0 0 24px;
+    padding: 0;
+
+    list-style: none;
+}
+
+.payment-plan-card li {
+    padding: 10px 0;
+
+    border-bottom: 1px solid #eeeeee;
+
+    font-size: 15px;
+    font-weight: 800;
+}
+
+.subscription-pay-btn {
+    width: 100%;
+    height: 54px;
+
+    border: none;
+    border-radius: 16px;
+
+    background: #d71920;
+    color: #ffffff;
+
+    font-size: 16px;
+    font-weight: 900;
+
+    cursor: pointer;
+}
+
+.subscription-pay-btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+@media (max-width: 800px) {
+    .payment-plan-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .payment-course-hero h1 {
+        font-size: 36px;
+    }
+}
