@@ -69,6 +69,7 @@
 
     <!-- 답변(댓글) 영역 -->
     <div class="inquiry-card answer-card">
+        <div class="box-header"></div>
         <div class="answer-title">답변 <span th:text="${inquiry.answers != null ? inquiry.answers.size() : 0}">0</span></div>
 
         <form th:action="@{/answer/create}" th:object="${answerRequest}" method="post" class="answer-form"
@@ -84,6 +85,17 @@
                 <div class="answer-item-header">
                     <span class="answer-author" th:text="${answer.authorName}">관리자</span>
                     <span class="answer-date" th:text="${#temporals.format(answer.createDate, 'yyyy.MM.dd HH:mm')}">0000.00.00</span>
+
+                    <div class="view-bottom-actions">
+                        <div class="view-actions" sec:authorize="isAuthenticated()" th:if="${inquiry.answers}">
+                            <a th:href="@{/inquiry/update/{id}(id=${answer.id})}" class="answer-update-btn answer-btn-prev">수정</a>
+                            <form th:action="@{/inquiry/delete/{id}(id=${answer.id})}" method="post" class="answer-delete-form"
+                                  onsubmit="return confirm('답변을 삭제하시겠습니까?');">
+                                <input type="hidden" th:if="${_csrf}" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+                                <button type="submit" class="answer-delete-btn answer-btn-danger">삭제</button>
+                            </form>
+                        </div>
+                    </div>
                 </div>
                 <p class="answer-content" th:text="${answer.content}">답변 내용</p>
             </div>
