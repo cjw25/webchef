@@ -146,6 +146,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   nextSceneName: Room2
   targetDoorName: Door_To_Room1
+  spawnDirection: 3
+  spawnDistance: 1
 --- !u!1001 &705441831851707163
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -202,7 +204,8 @@ PrefabInstance:
       propertyPath: m_Name
       value: RoomManager
       objectReference: {fileID: 0}
-    m_RemovedComponents: []
+    m_RemovedComponents:
+    - {fileID: 6950055427594977392, guid: 7ce6dc481aad4884d903058f82664a88, type: 3}
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
     m_AddedComponents: []
