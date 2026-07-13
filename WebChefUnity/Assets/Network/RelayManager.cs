@@ -1,160 +1,144 @@
+ï»¿using System.Collections.Generic;
+using System.Threading.Tasks;
 using Unity.Netcode;
 using Unity.Netcode.Transports.UTP;
-using Unity.Services.Core;
+using Unity.Networking.Transport.Relay;
 using Unity.Services.Authentication;
+using Unity.Services.Core;
+using Unity.Services.Lobbies;
+using Unity.Services.Lobbies.Models;
 using Unity.Services.Relay;
 using Unity.Services.Relay.Models;
 using UnityEngine;
-using System.Threading.Tasks;
-using System.IO;
 
-[RequireComponent(typeof(UnityTransport))]
 public class RelayManager : MonoBehaviour
 {
+    // â­ï¸ ì‹±ê¸€í†¤ íƒ€ì…ì„ RelayManagerë¡œ ì˜¬ë°”ë¥´ê²Œ ìˆ˜ì •í–ˆìŠµë‹ˆë‹¤.
     public static RelayManager Instance { get; private set; }
-    private UnityTransport transport;
+
+    private Lobby _hostLobby;
+    private Lobby _joinedLobby;
+    private float _heartbeatTimer;
+    private const string RELAY_KEY = "RelayJoinCode";
 
     private void Awake()
     {
-        if (Instance == null)
-        {
-            Instance = this;
-            DontDestroyOnLoad(gameObject);
-            transport = GetComponent<UnityTransport>();
-        }
-        else
-        {
-            Destroy(gameObject);
-        }
+        if (Instance != null && Instance != this) Destroy(gameObject);
+        else Instance = this;
     }
 
     private async void Start()
     {
-        // Àü¿ë ¼­¹ö ºôµå¶ó¸é È­¸éÀÌ ÄÑÁöÀÚ¸¶ÀÚ ÀÚµ¿À¸·Î °¡µ¿ ÇÁ·Î¼¼½º¸¦ ½ÃÀÛÇÕ´Ï´Ù.
-#if UNITY_SERVER
-        Debug.Log("[Àü¿ë ¼­¹ö °¨Áö] ÀÚµ¿À¸·Î °ËÁõ ¼­¹ö °¡µ¿ ÇÁ·Î¼¼½º¸¦ ½ÃÀÛÇÕ´Ï´Ù.");
-        await AutoStartServer();
-#else
-        Debug.Log("[Å¬¶óÀÌ¾ğÆ® ¸ğµå] ÇÃ·¹ÀÌ¾î°¡ Á÷Á¢ ¹öÆ°À» ´­·¯ Á¢¼ÓÇÒ ¶§±îÁö ´ë±âÇÕ´Ï´Ù.");
-#endif
+        await UnityServices.InitializeAsync();
+        if (!AuthenticationService.Instance.IsSignedIn)
+        {
+            await AuthenticationService.Instance.SignInAnonymouslyAsync();
+            Debug.Log($"ë¡œê·¸ì¸ ì™„ë£Œ (ìœ ì € ID: {AuthenticationService.Instance.PlayerId})");
+        }
+    }
+
+    private void Update()
+    {
+        HandleLobbyHeartbeat();
+    }
+
+    private async void HandleLobbyHeartbeat()
+    {
+        if (_hostLobby == null) return;
+
+        _heartbeatTimer -= Time.deltaTime;
+        if (_heartbeatTimer <= 0f)
+        {
+            _heartbeatTimer = 15f;
+            await LobbyService.Instance.SendHeartbeatPingAsync(_hostLobby.Id);
+        }
     }
 
     /// <summary>
-    /// Àü¿ë ¼­¹ö¿ë ÀÚµ¿ ÃÊ±âÈ­ ¹× ¹æ »ı¼º ÇÁ·Î¼¼½º
+    /// ë°© ë§Œë“¤ê¸° (Relay ìƒì„± í›„ -> ê·¸ ì½”ë“œë¥¼ Lobbyì— ì‹¬ì–´ì„œ ë°© ê°œì„¤)
     /// </summary>
-    private async Task AutoStartServer()
+    public async Task CreateLobby(string lobbyName, int maxPlayers)
     {
         try
         {
-            // 1. À¯´ÏÆ¼ ÄÚ¾î ¼­ºñ½º ÃÊ±âÈ­
-            if (UnityServices.State != ServicesInitializationState.Initialized)
-            {
-                Debug.Log("[¼­¹ö ÃÊ±âÈ­] 1/3 À¯´ÏÆ¼ ¼­ºñ½º ÃÊ±âÈ­ Áß...");
-                await UnityServices.InitializeAsync();
-            }
+            Allocation allocation = await RelayService.Instance.CreateAllocationAsync(maxPlayers - 1);
+            string relayJoinCode = await RelayService.Instance.GetJoinCodeAsync(allocation.AllocationId);
 
-            // 2. ÀÍ¸í ÀÎÁõ ·Î±×ÀÎ
-            if (!AuthenticationService.Instance.IsSignedIn)
-            {
-                Debug.Log("[¼­¹ö ÃÊ±âÈ­] 2/3 À¯´ÏÆ¼ ÀÍ¸í ÀÎÁõ ·Î±×ÀÎ Áß...");
-                await AuthenticationService.Instance.SignInAnonymouslyAsync();
-            }
-            Debug.Log($"[¼­¹ö ÃÊ±âÈ­] ÀÎÁõ ¼º°ø! °íÀ¯ ¼­¹ö ID: {AuthenticationService.Instance.PlayerId}");
+            var unityTransport = NetworkManager.Singleton.GetComponent<UnityTransport>();
+            unityTransport.SetRelayServerData(new RelayServerData(allocation, "udp"));
 
-            // 3. Relay »ı¼º ¹× ¼­¹ö °¡µ¿
-            Debug.Log("[¼­¹ö ÃÊ±âÈ­] 3/3 Relay ¹æ »ı¼º ¹× °¡µ¿ ½ÃÀÛ...");
-            string code = await CreateGame(4);
+            CreateLobbyOptions options = new CreateLobbyOptions
+            {
+                IsPrivate = false,
+                Data = new Dictionary<string, DataObject>
+                {
+                    {
+                        RELAY_KEY, new DataObject(DataObject.VisibilityOptions.Member, relayJoinCode)
+                    }
+                }
+            };
 
-            if (!string.IsNullOrEmpty(code))
-            {
-                Debug.Log($"[¼­¹ö ÃÊ±âÈ­ ¿Ï·á] ¡Ú ¼­¹ö°¡ ¼º°øÀûÀ¸·Î ÀÛµ¿ ÁßÀÔ´Ï´Ù! ÄÚµå: {code}");
-            }
-            else
-            {
-                Debug.LogError("[¼­¹ö ÃÊ±âÈ­ ½ÇÆĞ] CreateGameÀÌ ºó ÄÚµå¸¦ ¹İÈ¯Çß½À´Ï´Ù.");
-            }
+            Lobby lobby = await LobbyService.Instance.CreateLobbyAsync(lobbyName, maxPlayers, options);
+            _hostLobby = lobby;
+            _joinedLobby = lobby;
+
+            Debug.Log($"ë¡œë¹„ ìƒì„± ì™„ë£Œ: {lobby.Name} (ì½”ë“œ: {relayJoinCode})");
+
+            NetworkManager.Singleton.StartHost();
         }
-        catch (System.Exception e)
+        catch (LobbyServiceException e)
         {
-            Debug.LogError($"[¼­¹ö ÀÚµ¿ ½ÃÀÛ Áß Ä¡¸íÀû ¿¡·¯] {e.Message}\n{e.StackTrace}");
+            Debug.LogError($"ë¡œë¹„ ìƒì„± ì‹¤íŒ¨: {e.Message}");
         }
     }
 
-    public async Task<string> CreateGame(int maxPlayers)
+    /// <summary>
+    /// ë°© ëª©ë¡ ì¡°íšŒí•˜ê¸°
+    /// </summary>
+    public async Task<List<Lobby>> QueryLobbies()
     {
         try
         {
-            // 1. ¸±·¹ÀÌ ÇÒ´ç »ı¼º (¹«·á ¼­¹ö ¾È¿¡¼­ ¸±·¹ÀÌ Åë·Î¸¦ °³¼³)
-            Allocation allocation = await RelayService.Instance.CreateAllocationAsync(maxPlayers);
-            var relayServerData = new Unity.Networking.Transport.Relay.RelayServerData(allocation, "dtls");
-            transport.SetRelayServerData(relayServerData);
-
-#if UNITY_SERVER
-            // 2. [¹«·á ¼­¹ö ºôµå] È­¸é ¾øÀÌ ¹é±×¶ó¿îµå¿¡¼­ °ËÁõ ·ÎÁ÷¸¸ ¼öÇàÇÏ´Â ¼­¹ö ½ÃÀÛ
-            if (NetworkManager.Singleton.StartServer())
+            QueryLobbiesOptions options = new QueryLobbiesOptions
             {
-                string joinCode = await RelayService.Instance.GetJoinCodeAsync(allocation.AllocationId);
+                Filters = new List<QueryFilter>
+                {
+                    new QueryFilter(QueryFilter.FieldOptions.AvailableSlots, "0", QueryFilter.OpOptions.GT)
+                }
+            };
 
-                // ¿À¶óÅ¬ÀÌ³ª À¯´ÏÆ¼ È£½ºÆÃ °°Àº ¸®´ª½º/À©µµ¿ì ¼­¹ö È¯°æ¿¡¼­ ¾ÈÀüÇÏ°Ô °æ·Î È®º¸
-                string filePath = Path.Combine(System.AppDomain.CurrentDomain.BaseDirectory, "server_join_code.txt");
-                await File.WriteAllTextAsync(filePath, joinCode);
-
-                Debug.Log($"[Àü¿ë ¼­¹ö °¡µ¿ ¼º°ø] °ËÁõ ¼­¹ö°¡ ½ÃÀÛµÇ¾ú½À´Ï´Ù. ÄÚµå: {joinCode}");
-                RelayHeartbeatManager heartbeat = gameObject.AddComponent<RelayHeartbeatManager>();
-            heartbeat.StartHeartbeat(allocation.AllocationId.ToString());
-                return joinCode;
-            }
-            else
-            {
-                Debug.LogError("[Àü¿ë ¼­¹ö] NetworkManager.Singleton.StartServer() ½ÇÆĞ");
-                return null;
-            }
-#else
-            // 3. [ÀÏ¹İ À¯Àú ºôµå] ¿¡µğÅÍ ¹× Å¬¶óÀÌ¾ğÆ® È¯°æ¿¡¼­´Â ÀÌ ÇÔ¼ö°¡ Á÷Á¢ ±¸µ¿µÇÁö ¾ÊÀ¸¹Ç·Î °¡ÀÌµå ·Î±×¸¸ Ãâ·Â
-            Debug.Log("[Å¬¶óÀÌ¾ğÆ® ¸ğµå] Å¬¶óÀÌ¾ğÆ®´Â CreateGameÀ» Á÷Á¢ È£ÃâÇÏÁö ¾Ê½À´Ï´Ù. Á¶ÀÎ ÄÚµå¸¦ ÀÌ¿ëÇØ Á¢¼ÓÇÏ¼¼¿ä.");
-            return null;
-#endif
+            QueryResponse response = await LobbyService.Instance.QueryLobbiesAsync(options);
+            return response.Results;
         }
-        catch (System.Exception e)
+        catch (LobbyServiceException e)
         {
-            Debug.LogError($"[¼­¹ö »ı¼º ½ÇÆĞ] {e.Message}");
+            Debug.LogError($"ë¡œë¹„ ì¡°íšŒ ì‹¤íŒ¨: {e.Message}");
             return null;
         }
     }
 
-    public async Task JoinGame(string joinCode)
+    /// <summary>
+    /// ë°© ì…ì¥í•˜ê¸° (Lobby ì…ì¥ -> ìˆ¨ê²¨ì§„ Relay ì½”ë“œë¥¼ êº¼ë‚´ì„œ NGO ì ‘ì†)
+    /// </summary>
+    public async Task JoinLobby(Lobby lobby)
     {
         try
         {
-            // [¡Ú ¼öÁ¤ ¾ÈÀüÀåÄ¡] ÀÔ·Â¹ŞÀº ¹®ÀÚ¿­ÀÇ ¾ÕµÚ °ø¹éÀ» ÀÚ¸£°í °­Á¦·Î ´ë¹®ÀÚ·Î Ä¡È¯ÇØ ¿À·ù ¹æÁö
-            string cleanJoinCode = joinCode.Trim().ToUpper();
+            _joinedLobby = await LobbyService.Instance.JoinLobbyByIdAsync(lobby.Id);
 
-            if (string.IsNullOrEmpty(cleanJoinCode))
-            {
-                Debug.LogError("[Å¬¶óÀÌ¾ğÆ® Á¢¼Ó ½ÇÆĞ] ÀÔ·ÂµÈ Á¶ÀÎ ÄÚµå°¡ ºñ¾îÀÖ½À´Ï´Ù.");
-                return;
-            }
+            string relayJoinCode = _joinedLobby.Data[RELAY_KEY].Value;
+            Debug.Log($"ë¡œë¹„ ì…ì¥ ì„±ê³µ. ë¦´ë ˆì´ ì½”ë“œë¡œ ì ‘ì† ì‹œë„: {relayJoinCode}");
 
-            Debug.Log($"[¸±·¹ÀÌ Á¢¼Ó] ÀÔ·ÂµÈ ÄÚµå °ËÁõ ¿Ï·á: '{cleanJoinCode}'·Î ¸±·¹ÀÌ ¹æ Á¢¼Ó ½Ãµµ...");
-            JoinAllocation joinAllocation = await RelayService.Instance.JoinAllocationAsync(cleanJoinCode);
-            var relayServerData = new Unity.Networking.Transport.Relay.RelayServerData(joinAllocation, "dtls");
-            transport.SetRelayServerData(relayServerData);
+            JoinAllocation joinAllocation = await RelayService.Instance.JoinAllocationAsync(relayJoinCode);
 
-            Debug.Log($"ÇöÀç NetworkManager ÀÛµ¿ »óÅÂ: {NetworkManager.Singleton.IsListening}");
-            Debug.Log($"µî·ÏµÈ ÇÃ·¹ÀÌ¾î ÇÁ¸®·¦ Á¸Àç ¿©ºÎ: {NetworkManager.Singleton.NetworkConfig.PlayerPrefab != null}");
+            var unityTransport = NetworkManager.Singleton.GetComponent<UnityTransport>();
+            unityTransport.SetRelayServerData(new RelayServerData(joinAllocation, "udp"));
 
-            if (NetworkManager.Singleton.StartClient())
-            {
-                Debug.Log("[Å¬¶óÀÌ¾ğÆ®] NGO ¿£Áø ½ÃÀÛ ¼º°ø! ¼­¹ö¿¡ ÃÖÁ¾ ¿¬°á Áß...");
-            }
-            else
-            {
-                Debug.LogError("[Å¬¶óÀÌ¾ğÆ®] NGO ¿£Áø ½ÃÀÛ ½ÇÆĞ (NetworkManager°¡ ÀÌ¹Ì °¡µ¿ ÁßÀÌ°Å³ª ¼³Á¤ ¿À·ù)");
-            }
+            NetworkManager.Singleton.StartClient();
         }
-        catch (System.Exception e)
+        catch (LobbyServiceException e)
         {
-            Debug.LogError($"[Å¬¶óÀÌ¾ğÆ® Á¢¼Ó ¿¹¿Ü] {e.Message}");
+            Debug.LogError($"ë¡œë¹„ ì…ì¥ ì‹¤íŒ¨: {e.Message}");
         }
     }
 }
