@@ -1,0 +1,139 @@
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    background: #f7f8fc;
+    color: #111111;
+    font-family: Arial, "Noto Sans KR", sans-serif;
+}
+
+.payment-result-page {
+    min-height: calc(100vh - 180px);
+    padding: 110px 24px 120px;
+
+    background:
+            radial-gradient(circle at 20% 0%, rgba(189, 29, 29, 0.09), transparent 30%),
+            linear-gradient(180deg, #ffffff 0%, #f7f8fc 100%);
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.payment-result-card {
+    width: min(520px, 100%);
+    padding: 46px 38px;
+
+    border: 1px solid #eeeeee;
+    border-radius: 30px;
+
+    background: #ffffff;
+
+    text-align: center;
+
+    box-shadow: 0 24px 70px rgba(0, 0, 0, 0.09);
+}
+
+.payment-result-icon {
+    width: 72px;
+    height: 72px;
+    margin: 0 auto 22px;
+
+    border-radius: 50%;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    font-size: 36px;
+    font-weight: 900;
+}
+
+.payment-result-card.success .payment-result-icon {
+    background: #e8f8ee;
+    color: #16823a;
+}
+
+.payment-result-card.fail .payment-result-icon {
+    background: #fff0f0;
+    color: #bd1d1d;
+}
+
+.payment-result-card h1 {
+    margin: 0 0 14px;
+
+    font-size: 34px;
+    font-weight: 900;
+    letter-spacing: -0.8px;
+}
+
+.payment-result-card p {
+    margin: 0;
+
+    color: #555555;
+
+    font-size: 16px;
+    font-weight: 800;
+    line-height: 1.6;
+}
+
+.payment-error-code {
+    margin-top: 12px !important;
+
+    color: #bd1d1d !important;
+
+    font-size: 14px !important;
+}
+
+.payment-result-actions {
+    margin-top: 28px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+}
+
+.payment-result-actions a {
+    height: 46px;
+    padding: 0 20px;
+
+    border-radius: 999px;
+
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    font-size: 14px;
+    font-weight: 900;
+
+    text-decoration: none;
+}
+
+.primary-btn {
+    background: #bd1d1d;
+    color: #ffffff;
+}
+
+.secondary-btn {
+    border: 1px solid #eeeeee;
+
+    background: #ffffff;
+    color: #333333;
+}
+
+@media (max-width: 520px) {
+    .payment-result-card {
+        padding: 38px 24px;
+    }
+
+    .payment-result-actions {
+        flex-direction: column;
+    }
+
+    .payment-result-actions a {
+        width: 100%;
+    }
+}

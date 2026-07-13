@@ -4,19 +4,39 @@
     <meta charset="UTF-8">
     <title>결제 완료 | WebChef</title>
 
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
     <link rel="stylesheet" th:href="@{/css/header.css}">
     <link rel="stylesheet" th:href="@{/css/footer.css}">
+    <link rel="stylesheet" th:href="@{/css/chatbot-widget.css}">
+    <link rel="stylesheet" th:href="@{/css/payment-result.css}">
 </head>
 <body>
 
 <div th:replace="~{fragments/header :: header}"></div>
 
-<main style="min-height:500px; display:flex; align-items:center; justify-content:center;">
-    <div style="text-align:center;">
+<main class="payment-result-page">
+    <section class="payment-result-card success">
+
+        <div class="payment-result-icon">✓</div>
+
         <h1>결제 완료</h1>
-        <p th:text="${message}">결제가 완료되었습니다.</p>
-        <a href="/course/list">강의 목록으로 이동</a>
-    </div>
+
+        <p th:text="${message != null ? message : '결제가 완료되었습니다.'}">
+            결제가 완료되었습니다.
+        </p>
+
+        <div class="payment-result-actions">
+            <a th:href="@{/course/list}" class="primary-btn">
+                강의 목록으로 이동
+            </a>
+
+            <a th:href="@{/mypage}" class="secondary-btn">
+                마이페이지로 이동
+            </a>
+        </div>
+
+    </section>
 </main>
 
 <div th:replace="~{fragments/footer :: footer}"></div>

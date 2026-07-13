@@ -16,7 +16,6 @@ public class RoomManager : MonoBehaviour
         DontDestroyOnLoad(gameObject);
     }
 
-
     public void RequestChangeRoom(string sceneName, string targetDoorName)
     {
         if (isTransferring) return;
@@ -152,8 +151,11 @@ public class RoomManager : MonoBehaviour
                 }
 
                 if (col != null) col.enabled = isActive;
+
             }
             if (player.TryGetComponent<Collider2D>(out var col)) col.enabled = isActive;
         }
+
     }
+
 }

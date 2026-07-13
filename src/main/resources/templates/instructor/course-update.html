@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <title>강의 수정 | WebChef</title>
+
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <link rel="stylesheet" th:href="@{/css/header.css}">
+  <link rel="stylesheet" th:href="@{/css/footer.css}">
+  <link rel="stylesheet" th:href="@{/css/chatbot-widget.css}">
+  <link rel="stylesheet" th:href="@{/css/instructor.css}">
+</head>
+<body>
+
+<div th:replace="~{fragments/header :: header}"></div>
+
+<main class="instructor-page">
+
+  <section class="instructor-hero">
+    <span>UPDATE COURSE</span>
+    <h1>강의 수정</h1>
+    <p>강의를 수정하면 관리자 재승인 후 다시 공개됩니다.</p>
+  </section>
+
+  <section class="instructor-card">
+
+    <div class="guide-box">
+      수정 후에는 상태가 “수정 승인 대기”로 변경되며, 관리자가 승인해야 유저 목록에 다시 공개됩니다.
+    </div>
+
+    <div class="add-error-box" th:if="${errorMessage != null}" th:text="${errorMessage}">
+      오류 메시지
+    </div>
+
+    <form th:action="@{|/instructor/courses/update/${course.id}|}"
+          th:object="${courseUpdateRequest}"
+          method="post"
+          enctype="multipart/form-data"
+          class="add-card">
+
+      <div class="add-field">
+        <label for="title">강의 제목 <span class="req">*</span></label>
+        <input type="text"
+               id="title"
+               th:field="*{title}">
+      </div>
+
+      <div class="add-field">
+        <label for="description">강의 설명 <span class="req">*</span></label>
+        <textarea id="description"
+                  th:field="*{description}"></textarea>
+      </div>
+
+      <div class="add-field">
+        <label for="img">썸네일 이미지 변경</label>
+
+        <div class="thumbnail-preview"
+             th:if="${course.thumbnailUrl != null and !#strings.isEmpty(course.thumbnailUrl)}">
+          <img th:src="${course.thumbnailUrl}" alt="현재 썸네일">
+          <p class="thumbnail-preview-hint">새 이미지를 선택하지 않으면 기존 이미지가 유지됩니다.</p>
+        </div>
+
+        <label class="add-file-drop" for="img">
+          <input type="file"
+                 id="img"
+                 name="img"
+                 accept="image/jpeg,image/png,image/gif,image/webp">
+          <div class="add-file-drop-icon">📷</div>
+          <div class="add-file-drop-text">새 썸네일 이미지를 업로드하세요.</div>
+          <div class="add-file-drop-sub">jpg, jpeg, png, gif, webp / 최대 10MB</div>
+        </label>
+      </div>
+
+      <div class="add-field">
+        <label for="videoUrl">유튜브 영상 URL <span class="req">*</span></label>
+        <input type="text"
+               id="videoUrl"
+               th:field="*{videoUrl}"
+               class="video-url-input">
+        <p class="video-url-hint">
+          유튜브 공유하기 URL을 붙여넣으세요.
+        </p>
+      </div>
+
+      <div class="add-field">
+        <label for="price">강의 가격 <span class="req">*</span></label>
+        <input type="number"
+               id="price"
+               th:field="*{price}"
+               min="0">
+      </div>
+
+      <div class="add-field">
+        <label for="category">카테고리 <span class="req">*</span></label>
+        <select id="category" th:field="*{category}">
+          <option th:each="category : ${categories}"
+                  th:value="${category}"
+                  th:text="${category}">
+            KOREAN
+          </option>
+        </select>
+      </div>
+
+      <div class="add-field">
+        <label for="difficulty">난이도 <span class="req">*</span></label>
+        <select id="difficulty" th:field="*{difficulty}">
+          <option th:each="difficulty : ${difficulties}"
+                  th:value="${difficulty}"
+                  th:text="${difficulty}">
+            EASY
+          </option>
+        </select>
+      </div>
+
+      <div class="add-field">
+        <label for="cookTime">조리 시간 <span class="req">*</span></label>
+        <input type="text"
+               id="cookTime"
+               th:field="*{cookTime}">
+      </div>
+
+      <div class="add-actions">
+        <a th:href="@{/instructor/courses}" class="add-btn add-btn-prev">
+          취소
+        </a>
+
+        <button type="submit" class="add-btn add-btn-submit">
+          수정 후 재승인 요청
+        </button>
+      </div>
+
+    </form>
+
+  </section>
+
+</main>
+
+<div th:replace="~{fragments/footer :: footer}"></div>
+
+</body>
+</html>

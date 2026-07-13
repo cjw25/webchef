@@ -24,8 +24,11 @@ public class CourseResponse {
     private final CourseCategory category;
     private final Difficulty difficulty;
     private final CourseStatus status;
+    private final String statusLabel;
+
     private final String cookTime;
     private final String videoUrl;
+    private final String youtubeEmbedUrl;
 
     private final Long instructorId;
     private final String instructorName;
@@ -42,7 +45,7 @@ public class CourseResponse {
     public CourseResponse(Course course) {
         this(
                 course,
-                "/course/detail/" + course.getId(),
+                "/course/view/" + course.getId(),
                 "강의 상세 보기",
                 true
         );
@@ -66,9 +69,13 @@ public class CourseResponse {
         this.category = course.getCategory();
         this.difficulty = course.getDifficulty();
         this.status = course.getStatus();
+        this.statusLabel = convertStatusLabel(course.getStatus());
+
         this.cookTime = course.getCookTime();
-        this.difficultyLabel = toDifficultyLabel(course.getDifficulty());
         this.videoUrl = course.getVideoUrl();
+        this.youtubeEmbedUrl = convertYoutubeEmbedUrl(course.getVideoUrl());
+
+        this.difficultyLabel = toDifficultyLabel(course.getDifficulty());
 
         if (course.getInstructor() != null) {
             this.instructorId = course.getInstructor().getId();
@@ -104,6 +111,70 @@ public class CourseResponse {
         return "-";
     }
 
+    private String convertStatusLabel(CourseStatus status) {
+        if (status == null) {
+            return "-";
+        }
+
+        return switch (status) {
+            case PENDING -> "승인 대기";
+            case OPEN -> "승인 완료";
+            case REJECTED -> "반려";
+            case UPDATE_PENDING -> "수정 승인 대기";
+            case CLOSED -> "비공개";
+        };
+    }
+
+    private static String toDifficultyLabel(Difficulty difficulty) {
+        if (difficulty == null) {
+            return "";
+        }
+
+        return switch (difficulty) {
+            case EASY -> "쉬움";
+            case NORMAL -> "보통";
+            case HARD -> "어려움";
+        };
+    }
+
+    private String convertYoutubeEmbedUrl(String url) {
+        if (url == null || url.isBlank()) {
+            return null;
+        }
+
+        if (url.contains("youtube.com/embed/")) {
+            return url;
+        }
+
+        String videoId = null;
+
+        if (url.contains("youtu.be/")) {
+            videoId = url.substring(url.indexOf("youtu.be/") + "youtu.be/".length());
+        } else if (url.contains("watch?v=")) {
+            videoId = url.substring(url.indexOf("watch?v=") + "watch?v=".length());
+        } else if (url.contains("youtube.com/shorts/")) {
+            videoId = url.substring(url.indexOf("youtube.com/shorts/") + "youtube.com/shorts/".length());
+        }
+
+        if (videoId == null || videoId.isBlank()) {
+            return url;
+        }
+
+        if (videoId.contains("?")) {
+            videoId = videoId.substring(0, videoId.indexOf("?"));
+        }
+
+        if (videoId.contains("&")) {
+            videoId = videoId.substring(0, videoId.indexOf("&"));
+        }
+
+        if (videoId.contains("/")) {
+            videoId = videoId.substring(0, videoId.indexOf("/"));
+        }
+
+        return "https://www.youtube.com/embed/" + videoId;
+    }
+
     public boolean isFree() {
         return this.requiredPlanType == null;
     }
@@ -120,49 +191,7 @@ public class CourseResponse {
         return this.thumbnailUrl != null && !this.thumbnailUrl.isBlank();
     }
 
-    private static String toDifficultyLabel(Difficulty difficulty) {
-        if (difficulty == null) {
-            return "";
-        }
-
-        return switch (difficulty) {
-            case EASY -> "쉬움";
-            case NORMAL -> "보통";
-            case HARD -> "어려움";
-        };
-    }
-
     public boolean hasVideo() {
         return this.videoUrl != null && !this.videoUrl.isBlank();
     }
-
-    public String getYoutubeEmbedUrl() {
-        if (this.videoUrl == null) {
-            return null;
-        }
-
-        String videoId = null;
-
-        if (this.videoUrl.contains("youtu.be/")) {
-            videoId = this.videoUrl.substring(this.videoUrl.indexOf("youtu.be/") + 9);
-        } else if (this.videoUrl.contains("watch?v=")) {
-            videoId = this.videoUrl.substring(this.videoUrl.indexOf("watch?v=") + 8);
-        }
-
-        if (videoId == null) {
-            return null;
-        }
-
-        int paramIdx = videoId.indexOf("?");
-        if (paramIdx != -1) {
-            videoId = videoId.substring(0, paramIdx);
-        }
-        int ampIdx = videoId.indexOf("&");
-        if (ampIdx != -1) {
-            videoId = videoId.substring(0, ampIdx);
-        }
-
-        return "https://www.youtube.com/embed/" + videoId;
-    }
-
 }
