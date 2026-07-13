@@ -252,6 +252,33 @@ a{
 
 }
 
+/* ===========================
+   THUMBNAIL
+   =========================== */
+
+.community-thumb-link{
+    display:block;
+}
+
+.community-thumb{
+
+    margin-top:16px;
+    max-height:220px;
+    display:block;
+}
+
+.community-thumb img{
+
+    width:33%;
+    max-height:220px;
+    display:block;
+
+}
+
+/* ===========================
+   INFO
+   =========================== */
+
 .community-info{
     display:flex;
     align-items:center;

@@ -23,4 +23,6 @@ public class CourseUpdateRequest {
     private Difficulty difficulty;
 
     private CourseStatus status;
+
+    private String videoUrl;
 }

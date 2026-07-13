@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <title th:text="${notice.subject} + ' | WebChef'">공지사항 상세보기 | WebChef</title>
+
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <link rel="stylesheet" th:href="@{/css/header.css}">
+    <link rel="stylesheet" th:href="@{/css/footer.css}">
+    <link rel="stylesheet" th:href="@{/css/community-view.css}">
+</head>
+<body>
+
+<div th:replace="~{fragments/header :: header}"></div>
+
+<main class="notice-wrap">
+
+    <div class="notice-crumb">
+        <a th:href="@{/notice/list}" style="color:inherit;text-decoration:none;">고객센터</a>
+        &nbsp;›&nbsp; <span th:text="${notice.subject}">문의 제목</span>
+    </div>
+
+</main>
+</body>
+</html>

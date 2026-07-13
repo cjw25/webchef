@@ -2,11 +2,13 @@ document.addEventListener("DOMContentLoaded", function () {
     const writeFileInput = document.getElementById("write-file-input");
     const writeFileDrop = document.getElementById("write-file-drop");
     const writeFileList = document.getElementById("write-file-list");
+    const writeMainIndexInput = document.getElementById("write-main-index");
 
     const writeContentArea = document.getElementById("write-content");
     const writeCharCurrent = document.getElementById("write-char-current");
 
     const MAX_FILE_SIZE = 10 * 1024 * 1024;
+    const MAX_FILE_COUNT = 5;
     const ALLOWED_TYPES = [
         "image/jpeg",
         "image/png",
@@ -14,7 +16,7 @@ document.addEventListener("DOMContentLoaded", function () {
         "image/webp"
     ];
 
-    let selectedFile = null;
+    let selectedFiles = [];
 
     function renderFile() {
         if (!writeFileList) {
@@ -23,33 +25,65 @@ document.addEventListener("DOMContentLoaded", function () {
 
         writeFileList.innerHTML = "";
 
-        if (!selectedFile) {
+        if (selectedFiles.length === 0) {
+            if (writeMainIndexInput){
+                writeMainIndexInput.value = "0";
+            }
             return;
         }
 
-        const item = document.createElement("div");
-        item.className = "write-file-item";
+        const currentMainIndex = writeMainIndexInput
+            ? Number(writeMainIndexInput.value)
+            : 0;
 
-        const sizeKb = Math.ceil(selectedFile.size / 1024);
+        selectedFiles.forEach(function (file, index){
+            const item = document.createElement("div");
+            item.className = "write-file-item";
 
-        item.innerHTML =
-            '<span class="write-file-name">🖼️ ' +
-            selectedFile.name +
-            ' (' +
-            sizeKb +
-            'KB)</span>' +
-            '<button type="button" class="write-file-remove">✕</button>';
+            const sizeKb = Math.ceil(file.size / 1024);
+            const checkedAttr = index === currentMainIndex ? "checked" : "";
+
+            item.innerHTML =
+                '<img class="write-file-thumb" alt="미리보기">'+
+                '<span class="write-file-name"> ' +
+                file.name +
+                ' (' +
+                sizeKb +
+                'KB)</span>' +
+                '<label class="write-file-main">' +
+                '<input type="radio" name="writeMainRadio" value="' + index + '" ' + checkedAttr + '> 대표사진' +
+                '</label>' +
+                '<button type="button" class="write-file-remove">✕</button>';
 
         writeFileList.appendChild(item);
 
-        const removeButton = item.querySelector(".write-file-remove");
+        const thumbImg = item.querySelector(".write-file-thumb");
+        const reader = new FileReader();
+        reader.onload = function (e) {
+            thumbImg.src = e.target.result;
+        };
+        reader.readAsDataURL(file);
 
+        const radio = item.querySelector('input[type="radio"]');
+                        radio.addEventListener("change", function () {
+                            if (writeMainIndexInput) {
+                                writeMainIndexInput.value = String(index);
+                            }
+                        });
+
+        const removeButton = item.querySelector(".write-file-remove");
         removeButton.addEventListener("click", function () {
-            selectedFile = null;
-            clearInputFile();
+            selectedFiles.splice(index, 1);
+
+            if (writeMainIndexInput && Number(writeMainIndexInput.value) >= selectedFiles.length){
+                writeMainIndexInput.value = "0";
+            }
+
+            syncInputFile();
             renderFile();
         });
-    }
+    });
+}
 
     function clearInputFile() {
         if (!writeFileInput) {
@@ -60,12 +94,14 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
     function syncInputFile() {
-        if (!writeFileInput || !selectedFile) {
+        if (!writeFileInput) {
             return;
         }
 
         const dataTransfer = new DataTransfer();
-        dataTransfer.items.add(selectedFile);
+        selectedFiles.forEach(function (file) {
+            dataTransfer.items.add(file);
+        });
         writeFileInput.files = dataTransfer.files;
     }
 
@@ -87,13 +123,22 @@ document.addEventListener("DOMContentLoaded", function () {
         return true;
     }
 
-    function setSelectedFile(file) {
-        if (!validateFile(file)) {
-            clearInputFile();
-            return;
+    function addSelectedFiles(files) {
+        for (let i = 0; i < files.length; i++) {
+            const file = files[i];
+
+            if (!validateFile(file)) {
+                continue;
+            }
+
+            if (selectedFiles.length >= MAX_FILE_COUNT) {
+                alert("사진은 최대 " + MAX_FILE_COUNT + "개까지 첨부할 수 있습니다.");
+                break;
+            }
+
+            selectedFiles.push(file);
         }
 
-        selectedFile = file;
         syncInputFile();
         renderFile();
     }
@@ -103,12 +148,10 @@ document.addEventListener("DOMContentLoaded", function () {
             const files = event.target.files;
 
             if (!files || files.length === 0) {
-                selectedFile = null;
-                renderFile();
                 return;
             }
 
-            setSelectedFile(files[0]);
+            addSelectedFiles(files);
         });
     }
 
@@ -134,7 +177,7 @@ document.addEventListener("DOMContentLoaded", function () {
                 return;
             }
 
-            setSelectedFile(files[0]);
+            addSelectedFiles(files);
         });
     }
 
@@ -150,4 +193,33 @@ document.addEventListener("DOMContentLoaded", function () {
         writeContentArea.addEventListener("input", updateWriteCharCount);
         updateWriteCharCount();
     }
+
+   const writeForm = document.querySelector(".write-card form");
+       const writeSubjectInput = document.querySelector('input[name="subject"]');
+       const writeCategorySelect = document.querySelector('select[name="category"]');
+
+       if (writeForm) {
+           writeForm.addEventListener("submit", function (event) {
+               if (writeCategorySelect && writeCategorySelect.value.trim() === "") {
+                   event.preventDefault();
+                   alert("카테고리를 선택해주세요.");
+                   writeCategorySelect.focus();
+                   return;
+               }
+
+               if (writeSubjectInput && writeSubjectInput.value.trim() === "") {
+                   event.preventDefault();
+                   alert("제목을 입력해주세요.");
+                   writeSubjectInput.focus();
+                   return;
+               }
+
+               if (writeContentArea && writeContentArea.value.trim() === "") {
+                   event.preventDefault();
+                   alert("내용을 입력해주세요.");
+                   writeContentArea.focus();
+                   return;
+               }
+           });
+       }
 });

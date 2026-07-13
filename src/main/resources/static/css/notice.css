@@ -39,7 +39,7 @@ a {
 
 .notice {
   padding: 10px 200px;
-  padding-bottom: 200px;
+  padding-bottom: 50px;
 }
 
 .notice-banner {
@@ -170,4 +170,24 @@ a {
   width: 250px;
   padding-bottom: 5px;
   border-bottom: 3px solid rgb(219, 219, 219);
+}
+
+.add-box {
+  display: flex;
+  justify-content: end;
+  padding: 0 200px;
+}
+
+.add-btn {
+  background-color: #C70000;
+  color: #ffffff;
+  padding: 10px;
+  font-weight: bolder;
+  border-radius: 10px;
+  transition: all 0.3s;
+}
+
+.add-btn:hover {
+  background-color: #FFC3C3;
+  transform:translateY(-3px);
 }
