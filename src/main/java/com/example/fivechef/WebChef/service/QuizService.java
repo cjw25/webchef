@@ -12,6 +12,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
@@ -148,5 +149,37 @@ public class QuizService {
 
     private boolean isBlank(String value) {
         return value == null || value.trim().isEmpty();
+    }
+
+    public boolean hasPassedCourseQuiz(Long studentId, Long courseId) {
+
+        List<CourseSession> sessions = courseSessionService.getSessionEntitiesByCourseId(courseId);
+
+        for (CourseSession session : sessions) {
+
+            Optional<Quiz> quiz = quizRepository.findBySessionId(session.getId());
+
+            if (quiz.isEmpty()) {
+                continue;
+            }
+
+            Optional<QuizAttempt> attempt =
+                    quizAttemptRepository.findTopByQuizIdAndStudentIdOrderByCreateDateDesc(
+                            quiz.get().getId(),
+                            studentId
+                    );
+
+            if (attempt.isEmpty()) {
+                continue;
+            }
+
+            QuizAttempt result = attempt.get();
+
+            if ((double) result.getScore() / result.getTotalCount() >= 0.6) {
+                return true;
+            }
+        }
+
+        return false;
     }
 }

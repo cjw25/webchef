@@ -14,8 +14,6 @@ public class CourseUpdateRequest {
 
     private String description;
 
-    private String thumbnailUrl;
-
     private Integer price;
 
     private CourseCategory category;

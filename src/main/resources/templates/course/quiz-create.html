@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <title>퀴즈 만들기 | WebChef</title>
+
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <link rel="stylesheet" th:href="@{/css/header.css}">
+  <link rel="stylesheet" th:href="@{/css/quiz.css}">
+</head>
+
+<body>
+
+<div class="page">
+
+  <div th:replace="~{fragments/header :: header}"></div>
+
+  <main class="quiz-wrap">
+
+    <div class="quiz-crumb">
+      <a th:href="@{'/course/view/' + ${courseId}}">강의 상세</a>
+      &nbsp;›&nbsp;
+      <span>퀴즈 만들기</span>
+    </div>
+
+    <h1 class="quiz-page-title">퀴즈 만들기</h1>
+
+    <div th:if="${errorMessage}" class="quiz-error-box" th:text="${errorMessage}"></div>
+
+    <form th:action="@{'/course/quiz/create'(courseId=${courseId})}"
+          method="post"
+          id="quizCreateForm"
+          class="quiz-create-card">
+
+      <input type="hidden" name="sessionId" th:value="${sessionId}">
+
+      <div class="quiz-field">
+        <label for="title">퀴즈 제목 <span class="req">*</span></label>
+        <input type="text" id="title" name="title" maxlength="200"
+               placeholder="예: 1차시 확인 퀴즈" required>
+      </div>
+
+      <div id="questionList" class="question-list">
+
+        <!-- 문제 1 -->
+        <div class="quiz-question">
+          <div class="quiz-question-head">
+            <span class="quiz-question-index">문제 1</span>
+            <button type="button" class="btn-remove-question">문제 삭제</button>
+          </div>
+
+          <textarea class="question-content" name="questions[0].content"
+                    placeholder="문제 내용을 입력하세요" required></textarea>
+
+          <div class="choice-list">
+            <div class="quiz-choice">
+              <input type="checkbox" class="choice-correct" name="questions[0].choices[0].correct" value="true">
+              <input type="text" class="choice-content" name="questions[0].choices[0].content"
+                     placeholder="보기 1" required>
+              <button type="button" class="btn-remove-choice">삭제</button>
+            </div>
+            <div class="quiz-choice">
+              <input type="checkbox" class="choice-correct" name="questions[0].choices[1].correct" value="true">
+              <input type="text" class="choice-content" name="questions[0].choices[1].content"
+                     placeholder="보기 2" required>
+              <button type="button" class="btn-remove-choice">삭제</button>
+            </div>
+          </div>
+
+          <button type="button" class="btn-add-choice">+ 보기 추가</button>
+        </div>
+
+        <!-- 문제 2 -->
+        <div class="quiz-question">
+          <div class="quiz-question-head">
+            <span class="quiz-question-index">문제 2</span>
+            <button type="button" class="btn-remove-question">문제 삭제</button>
+          </div>
+
+          <textarea class="question-content" name="questions[1].content"
+                    placeholder="문제 내용을 입력하세요" required></textarea>
+
+          <div class="choice-list">
+            <div class="quiz-choice">
+              <input type="checkbox" class="choice-correct" name="questions[1].choices[0].correct" value="true">
+              <input type="text" class="choice-content" name="questions[1].choices[0].content"
+                     placeholder="보기 1" required>
+              <button type="button" class="btn-remove-choice">삭제</button>
+            </div>
+            <div class="quiz-choice">
+              <input type="checkbox" class="choice-correct" name="questions[1].choices[1].correct" value="true">
+              <input type="text" class="choice-content" name="questions[1].choices[1].content"
+                     placeholder="보기 2" required>
+              <button type="button" class="btn-remove-choice">삭제</button>
+            </div>
+          </div>
+
+          <button type="button" class="btn-add-choice">+ 보기 추가</button>
+        </div>
+
+        <!-- 문제 3 -->
+        <div class="quiz-question">
+          <div class="quiz-question-head">
+            <span class="quiz-question-index">문제 3</span>
+            <button type="button" class="btn-remove-question">문제 삭제</button>
+          </div>
+
+          <textarea class="question-content" name="questions[2].content"
+                    placeholder="문제 내용을 입력하세요" required></textarea>
+
+          <div class="choice-list">
+            <div class="quiz-choice">
+              <input type="checkbox" class="choice-correct" name="questions[2].choices[0].correct" value="true">
+              <input type="text" class="choice-content" name="questions[2].choices[0].content"
+                     placeholder="보기 1" required>
+              <button type="button" class="btn-remove-choice">삭제</button>
+            </div>
+            <div class="quiz-choice">
+              <input type="checkbox" class="choice-correct" name="questions[2].choices[1].correct" value="true">
+              <input type="text" class="choice-content" name="questions[2].choices[1].content"
+                     placeholder="보기 2" required>
+              <button type="button" class="btn-remove-choice">삭제</button>
+            </div>
+          </div>
+
+          <button type="button" class="btn-add-choice">+ 보기 추가</button>
+        </div>
+
+      </div>
+
+      <button type="button" id="addQuestionBtn" class="btn-add-question">+ 문제 추가</button>
+
+      <div class="quiz-form-actions">
+        <a th:href="@{'/course/view/' + ${courseId}}" class="btn-outline">취소</a>
+        <button type="submit" class="btn-submit-quiz">퀴즈 등록</button>
+      </div>
+
+    </form>
+
+  </main>
+
+  <div th:replace="~{fragments/footer :: footer}"></div>
+
+</div>
+
+<template id="questionTemplate">
+  <div class="quiz-question">
+    <div class="quiz-question-head">
+      <span class="quiz-question-index">문제</span>
+      <button type="button" class="btn-remove-question">문제 삭제</button>
+    </div>
+
+    <textarea class="question-content" placeholder="문제 내용을 입력하세요" required></textarea>
+
+    <div class="choice-list">
+      <div class="quiz-choice">
+        <input type="checkbox" class="choice-correct" value="true">
+        <input type="text" class="choice-content" placeholder="보기 1" required>
+        <button type="button" class="btn-remove-choice">삭제</button>
+      </div>
+      <div class="quiz-choice">
+        <input type="checkbox" class="choice-correct" value="true">
+        <input type="text" class="choice-content" placeholder="보기 2" required>
+        <button type="button" class="btn-remove-choice">삭제</button>
+      </div>
+    </div>
+
+    <button type="button" class="btn-add-choice">+ 보기 추가</button>
+  </div>
+</template>
+
+<template id="choiceTemplate">
+  <div class="quiz-choice">
+    <input type="checkbox" class="choice-correct" value="true">
+    <input type="text" class="choice-content" placeholder="보기" required>
+    <button type="button" class="btn-remove-choice">삭제</button>
+  </div>
+</template>
+
+<script src="/js/quiz-create.js"></script>
+
+</body>
+</html>

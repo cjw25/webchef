@@ -84,4 +84,9 @@ public class CourseSessionService {
     private boolean isBlank(String value) {
         return value == null || value.trim().isEmpty();
     }
+
+    @Transactional(readOnly = true)
+    public List<CourseSession> getSessionEntitiesByCourseId(Long courseId) {
+        return courseSessionRepository.findByCourseIdOrderBySortOrderAsc(courseId);
+    }
 }
