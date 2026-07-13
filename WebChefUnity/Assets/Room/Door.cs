@@ -1,5 +1,4 @@
 ﻿using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using Unity.Netcode;
 using Unity.Netcode.Components;
@@ -12,15 +11,12 @@ public class Door : MonoBehaviour
     public SpawnDirection spawnDirection = SpawnDirection.Right;
     public float spawnDistance = 3.5f;
 
-    private Collider2D doorCollider;
-    private bool isSpawnedHere = false;
-
-    private void Awake() => doorCollider = GetComponent<Collider2D>();
-
     private void Start()
     {
         if (NetworkManager.Singleton?.SceneManager != null)
             NetworkManager.Singleton.SceneManager.OnSceneEvent += OnNetworkSceneEvent;
+
+        // 시작할 때도 체크 (첫 씬 로딩 등을 위해)
         TriggerRepositionCheck();
     }
 
@@ -32,44 +28,22 @@ public class Door : MonoBehaviour
 
     private void OnNetworkSceneEvent(SceneEvent sceneEvent)
     {
-        if (sceneEvent.SceneEventType == SceneEventType.LoadEventCompleted) TriggerRepositionCheck();
+        if (sceneEvent.SceneEventType == SceneEventType.LoadEventCompleted)
+            TriggerRepositionCheck();
     }
 
     private void TriggerRepositionCheck()
     {
-        if (RoomManager.Instance != null && !string.IsNullOrEmpty(RoomManager.Instance.targetDoorName))
+        if (RoomManager.Instance != null && RoomManager.Instance.targetDoorName == gameObject.name)
         {
-            if (gameObject.name == RoomManager.Instance.targetDoorName)
-            {
-                StopAllCoroutines();
-                StartCoroutine(CheckAndRepositionLocalPlayer());
-            }
+            StartCoroutine(TeleportLocalPlayer());
         }
     }
 
-    private void OnTriggerEnter2D(Collider2D collision)
+    private IEnumerator TeleportLocalPlayer()
     {
-        if (RoomManager.Instance == null || RoomManager.Instance.isTransferring || isSpawnedHere) return;
-        if (collision.CompareTag("Player") && collision.GetComponent<NetworkObject>()?.IsOwner == true)
-        {
-            RoomManager.Instance.RequestChangeRoom(nextSceneName, targetDoorName);
-        }
-    }
-
-    private void OnTriggerExit2D(Collider2D collision)
-    {
-        if (isSpawnedHere && collision.CompareTag("Player") && collision.GetComponent<NetworkObject>()?.IsOwner == true)
-        {
-            isSpawnedHere = false;
-            RoomManager.Instance?.ClearTransferLock();
-        }
-    }
-
-    private IEnumerator CheckAndRepositionLocalPlayer()
-    {
-        isSpawnedHere = true;
-        if (doorCollider != null) doorCollider.enabled = true;
-        yield return null;
+        // 서버 동기화가 완료될 때까지 충분히 대기
+        yield return new WaitForSeconds(0.6f);
 
         var localPlayer = NetworkManager.Singleton?.LocalClient?.PlayerObject?.gameObject;
         if (localPlayer != null)
@@ -83,18 +57,26 @@ public class Door : MonoBehaviour
             };
 
             Vector3 finalPos = transform.position + offset;
-            var rb = localPlayer.GetComponent<Rigidbody2D>();
 
-            // 💡 물리 초기화: Teleport 전후로 물리 엔진을 잠시 재우는 방식 적용
-            if (rb != null) { rb.Sleep(); rb.velocity = Vector2.zero; }
-
+            // 텔레포트 수행
             if (localPlayer.TryGetComponent<NetworkTransform>(out var netTransform))
                 netTransform.Teleport(finalPos, localPlayer.transform.rotation, localPlayer.transform.localScale);
             else
                 localPlayer.transform.position = finalPos;
 
-            if (rb != null) rb.WakeUp();
-            if (RoomManager.Instance != null) RoomManager.Instance.targetDoorName = "";
+            // 위치 이동 완료 후 RoomManager 정보 초기화
+            RoomManager.Instance.targetDoorName = "";
+            Debug.Log($"[Door] {gameObject.name}로 플레이어 이동 완료");
+            PlayerManager.OnBoxCollider2D();
+        }
+    }
+
+    private void OnTriggerEnter2D(Collider2D collision)
+    {
+        if (RoomManager.Instance.isTransferring) return;
+        if (collision.CompareTag("Player") && collision.GetComponent<NetworkObject>()?.IsOwner == true)
+        {
+            RoomManager.Instance.RequestChangeRoom(nextSceneName, targetDoorName);
         }
     }
 }
