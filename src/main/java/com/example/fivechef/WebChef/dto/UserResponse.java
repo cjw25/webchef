@@ -25,6 +25,8 @@ public class UserResponse {
 
     private final LocalDateTime updatedAt;
 
+    private final int point;
+
     public UserResponse(User user) {
         this.id = user.getId();
         this.username = user.getUsername();
@@ -34,5 +36,6 @@ public class UserResponse {
         this.active = user.getActive();
         this.createdAt = user.getCreatedAt();
         this.updatedAt = user.getUpdatedAt();
+        this.point = user.getPoint();
     }
 }

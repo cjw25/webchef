@@ -152,13 +152,18 @@ public class CourseService {
         course.setInstructor(instructor);
 
         saveThumbnail(course, img);
-        saveVideo(course, video);
+
+        if (video != null && !video.isEmpty()){
+            saveVideo(course, video);
+        } else if (!isBlank(request.getVideoUrl())) {
+            course.setVideoUrl(request.getVideoUrl().trim());
+        }
 
         courseRepository.save(course);
     }
 
     @Transactional
-    public void updateCourse(Long id, CourseUpdateRequest request) {
+    public void updateCourse(Long id, CourseUpdateRequest request, MultipartFile img, MultipartFile video) {
         validateUpdateRequest(request);
 
         Course course = getCourseEntity(id);
@@ -168,12 +173,21 @@ public class CourseService {
 
         course.setTitle(request.getTitle().trim());
         course.setDescription(request.getDescription().trim());
-        course.setThumbnailUrl(trimOrNull(request.getThumbnailUrl()));
         course.setPrice(price);
         course.setRequiredPlanType(requiredPlanType);
         course.setCategory(request.getCategory());
         course.setDifficulty(request.getDifficulty());
         course.setStatus(request.getStatus() == null ? CourseStatus.DRAFT : request.getStatus());
+
+        if (img !=null && !img.isEmpty()){
+            saveThumbnail(course, img);
+        }
+
+        if (video != null && !video.isEmpty()){
+            saveVideo(course, video);
+        } else if (!isBlank(request.getVideoUrl())){
+            course.setVideoUrl(request.getVideoUrl().trim());
+        }
 
         courseRepository.save(course);
     }

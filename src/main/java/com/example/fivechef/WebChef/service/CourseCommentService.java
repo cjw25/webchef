@@ -37,6 +37,8 @@ public class CourseCommentService {
     private final CourseService courseService;
     private final UserService userService;
 
+    private final QuizService quizService;
+
     @Value("${file.course-comment-upload-dir:uploads/course-comment}")
     private String uploadDir;
 
@@ -69,6 +71,10 @@ public class CourseCommentService {
         courseCommentRepository.save(comment);
 
         saveImages(comment, img);
+
+        if(quizService.hasPassedCourseQuiz(author.getId(), course.getId())) {
+            author.setPoint(author.getPoint() + 100);
+        }
     }
 
     @Transactional

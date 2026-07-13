@@ -136,5 +136,33 @@ public class CourseResponse {
         return this.videoUrl != null && !this.videoUrl.isBlank();
     }
 
+    public String getYoutubeEmbedUrl() {
+        if (this.videoUrl == null) {
+            return null;
+        }
+
+        String videoId = null;
+
+        if (this.videoUrl.contains("youtu.be/")) {
+            videoId = this.videoUrl.substring(this.videoUrl.indexOf("youtu.be/") + 9);
+        } else if (this.videoUrl.contains("watch?v=")) {
+            videoId = this.videoUrl.substring(this.videoUrl.indexOf("watch?v=") + 8);
+        }
+
+        if (videoId == null) {
+            return null;
+        }
+
+        int paramIdx = videoId.indexOf("?");
+        if (paramIdx != -1) {
+            videoId = videoId.substring(0, paramIdx);
+        }
+        int ampIdx = videoId.indexOf("&");
+        if (ampIdx != -1) {
+            videoId = videoId.substring(0, ampIdx);
+        }
+
+        return "https://www.youtube.com/embed/" + videoId;
+    }
 
 }
