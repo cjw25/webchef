@@ -1,10 +1,11 @@
-﻿using System; // ★ using 지시문은 함수 내부가 아니라 여기에 있어야 합니다.
+﻿using System;
 using System.Collections;
 using System.Collections.Generic;
-using UnityEngine;
+using System.Globalization;
 using TMPro;
-using UnityEngine.SceneManagement;
 using Unity.Netcode;
+using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class ChatManager : NetworkBehaviour
 {
@@ -43,6 +44,32 @@ public class ChatManager : NetworkBehaviour
         }
     }
 
+    // ⭐️ [방법 1 핵심 적용] NGO가 이 오브젝트를 안전하게 스폰 완료했을 때 호출됩니다.
+    public override void OnNetworkSpawn()
+    {
+        base.OnNetworkSpawn();
+
+        // 켜진 상태로 프리팹이 스폰되었으므로, 네트워크 연결 확인이 끝난 지금 바로 안전하게 꺼줍니다.
+        // 이 스크립트가 붙은 오브젝트 자체 혹은 필요한 자식 오브젝트를 초기 비활성화합니다.
+        HideChatUIOnSpawn();
+    }
+
+    private void HideChatUIOnSpawn()
+    {
+        // 씬 시작 시 말풍선용 Canvas가 강제로 켜져서 방해되지 않도록 즉시 찾아 꺼주는 로직
+        foreach (PlayerMove player in GameObject.FindObjectsOfType<PlayerMove>())
+        {
+            Canvas[] canvases = player.GetComponentsInChildren<Canvas>(true);
+            foreach (Canvas canvas in canvases)
+            {
+                if (canvas.name == "SpeechBubbleCanvas")
+                {
+                    canvas.gameObject.SetActive(false); // 스폰 확인 후 바로 끄기
+                }
+            }
+        }
+    }
+
     private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
     {
         if (Instance != this) return;
@@ -67,6 +94,9 @@ public class ChatManager : NetworkBehaviour
         }
 
         ResetFocus();
+
+        // 씬이 새로 로드되었을 때도 혹시 켜져 있을지 모를 말풍선을 다시 숨깁니다.
+        HideChatUIOnSpawn();
     }
 
     void Start()
@@ -107,7 +137,6 @@ public class ChatManager : NetworkBehaviour
 
     IEnumerator ActivateChatInputDeferred()
     {
-        // ★ 함수 내부에 있던 `using System;` 구문을 완전히 삭제했습니다.
         yield return null;
         if (chatInput != null) chatInput.ActivateInputField();
     }
@@ -138,37 +167,30 @@ public class ChatManager : NetworkBehaviour
         chatHistory.Add(formattedMessage);
         UpdateChatWindowText(formattedMessage);
 
-        // 맵에 있는 모든 플레이어를 순회하며 채팅을 보낸 대상을 찾습니다.
         foreach (PlayerMove player in GameObject.FindObjectsOfType<PlayerMove>())
         {
             NetworkObject netObj = player.GetComponent<NetworkObject>();
             if (netObj != null && netObj.OwnerClientId == senderClientId)
             {
-                // 플레이어의 자식 캔버스를 검색합니다.
                 Canvas[] canvases = player.GetComponentsInChildren<Canvas>(true);
                 foreach (Canvas canvas in canvases)
                 {
                     if (canvas.name == "SpeechBubbleCanvas")
                     {
-                        // 1. 최상단 부모인 캔버스를 활성화합니다.
+                        // 채팅이 수신되었을 때만 필요한 말풍선 창을 dynamic하게 활성화합니다.
                         canvas.gameObject.SetActive(true);
 
-                        // 2. 플레이어 머리 위에 생성한 말풍선 텍스트(BubbleText)를 직접 찾아 할당합니다.
-                        // 이미지 상 구조상 자식에 바로 BubbleText가 있을 때 안전하게 들고 오기 위함입니다.
                         TMP_Text bText = canvas.GetComponentInChildren<TMP_Text>(true);
 
                         if (bText != null)
                         {
                             bText.text = message;
-
-                            // 3. 글자가 든 오브젝트나 부모 패널을 활성화합니다.
                             bText.gameObject.SetActive(true);
                             if (bText.transform.parent != null && bText.transform.parent != canvas.transform)
                             {
                                 bText.transform.parent.gameObject.SetActive(true);
                             }
 
-                            // 4. 타이머 컴포넌트를 동작시켜 3초 뒤 꺼지게 만듭니다.
                             GameObject targetTimerObj = bText.transform.parent != null ? bText.transform.parent.gameObject : bText.gameObject;
 
                             ChatBubbleTimeout timeoutScript = targetTimerObj.GetComponent<ChatBubbleTimeout>();
