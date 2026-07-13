@@ -34,14 +34,14 @@
                 <span class="view-views">👁 <span th:text="${notice.viewCount}">0</span></span>
 
                 <div class="view-bottom-actions">
-                    <a th:href="@{/community/list}" class="write-btn write-btn-prev write-btn-sm">목록으로</a>
+                    <a th:href="@{/notice/list}" class="notice-btn notice-btn-prev notice-btn-sm">목록으로</a>
 
-                    <div class="view-actions" sec:authorize="isAuthenticated()" th:if="${community.mine}">
-                        <a th:href="@{/community/update/{id}(id=${community.id})}" class="write-btn write-btn-prev">수정</a>
-                        <form th:action="@{/community/delete/{id}(id=${community.id})}" method="post" class="view-delete-form"
+                    <div class="view-actions" sec:authorize="isAuthenticated()" th:if="${notice.mine}">
+                        <a th:href="@{/notice/update/{id}(id=${notice.id})}" class="notice-btn notice-btn-prev">수정</a>
+                        <form th:action="@{/notice/delete/{id}(id=${notice.id})}" method="post" class="view-delete-form"
                               onsubmit="return confirm('정말 삭제하시겠어요?');">
                             <input type="hidden" th:if="${_csrf}" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
-                            <button type="submit" class="write-btn write-btn-danger">삭제</button>
+                            <button type="submit" class="notice-btn notice-btn-danger">삭제</button>
                         </form>
                     </div>
                 </div>
