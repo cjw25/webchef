@@ -8,4 +8,6 @@ import java.util.Optional;
 public interface QuizAttemptRepository extends JpaRepository<QuizAttempt, Long> {
 
     Optional<QuizAttempt> findTopByQuizIdAndStudentIdOrderByCreateDateDesc(Long quizId, Long studentId);
+
+
 }

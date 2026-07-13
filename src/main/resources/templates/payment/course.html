@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>구독권 결제 | WebChef</title>
+
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <link rel="stylesheet" th:href="@{/css/header.css}">
+    <link rel="stylesheet" th:href="@{/css/footer.css}">
+    <link rel="stylesheet" th:href="@{/css/chatbot-widget.css}">
+    <link rel="stylesheet" th:href="@{/css/payment-course.css}">
+
+    <script src="https://js.tosspayments.com/v1/payment"></script>
+</head>
+<body>
+
+<div th:replace="~{fragments/header :: header}"></div>
+
+<main class="payment-course-page">
+
+    <section class="payment-course-hero">
+        <span>SUBSCRIPTION PAYMENT</span>
+        <h1>구독권 결제</h1>
+
+        <p class="course-title"
+           th:text="${paymentPage.courseTitle}">
+            강의명
+        </p>
+
+        <strong class="course-price"
+                th:text="'강의 가격: ' + ${#numbers.formatInteger(paymentPage.coursePrice, 3, 'COMMA')} + '원'">
+            강의 가격
+        </strong>
+
+        <p class="guide-message"
+           th:text="${paymentPage.guideMessage}">
+            안내 문구
+        </p>
+    </section>
+
+    <section class="payment-plan-grid">
+
+        <article class="payment-plan-card"
+                 th:each="plan : ${paymentPage.plans}"
+                 th:classappend="${plan.planType == paymentPage.requiredPlanType} ? ' recommended' : ''">
+
+            <div class="plan-top">
+                <span th:text="${plan.planType}">BASIC</span>
+                <strong th:if="${plan.planType == paymentPage.requiredPlanType}">
+                    필요 구독권
+                </strong>
+            </div>
+
+            <h2 th:text="${plan.name}">
+                베이직 구독권
+            </h2>
+
+            <p th:text="${plan.description}">
+                설명
+            </p>
+
+            <div class="price">
+                <strong th:text="${#numbers.formatInteger(plan.price, 3, 'COMMA')}">
+                    9,900
+                </strong>
+                <span>원 / 월</span>
+            </div>
+
+            <ul>
+                <li th:each="feature : ${#strings.arraySplit(plan.features, ',')}"
+                    th:text="${#strings.trim(feature)}">
+                    기능
+                </li>
+            </ul>
+
+            <button type="button"
+                    class="subscription-pay-btn"
+                    th:data-plan="${plan.planType}"
+                    th:data-course-id="${paymentPage.courseId}">
+                이 구독권으로 결제
+            </button>
+
+        </article>
+
+    </section>
+
+</main>
+
+<div th:replace="~{fragments/footer :: footer}"></div>
+
+<script th:src="@{/js/course-subscription-payment.js}"></script>
+
+</body>
+</html>

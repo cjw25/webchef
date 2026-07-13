@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <title>결제 실패 | WebChef</title>
+
+  <link rel="stylesheet" th:href="@{/css/header.css}">
+  <link rel="stylesheet" th:href="@{/css/footer.css}">
+</head>
+<body>
+
+<div th:replace="~{fragments/header :: header}"></div>
+
+<main style="min-height:500px; display:flex; align-items:center; justify-content:center;">
+  <div style="text-align:center;">
+    <h1>결제 실패</h1>
+    <p th:text="${message}">결제에 실패했습니다.</p>
+    <a href="/course/list">강의 목록으로 돌아가기</a>
+  </div>
+</main>
+
+<div th:replace="~{fragments/footer :: footer}"></div>
+
+</body>
+</html>

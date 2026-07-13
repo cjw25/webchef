@@ -128,11 +128,11 @@ public class CourseController {
         CourseUpdateRequest request = new CourseUpdateRequest();
         request.setTitle(course.getTitle());
         request.setDescription(course.getDescription());
-        request.setThumbnailUrl(course.getThumbnailUrl());
         request.setPrice(course.getPrice());
         request.setCategory(course.getCategory());
         request.setDifficulty(course.getDifficulty());
         request.setStatus(course.getStatus());
+        request.setVideoUrl(course.getVideoUrl());
 
         model.addAttribute("course", course);
         model.addAttribute("request", request);
@@ -148,10 +148,12 @@ public class CourseController {
     public String updateCourse(
             @PathVariable("id") Long id,
             @ModelAttribute("request") CourseUpdateRequest request,
+            @RequestParam(value = "img", required = false) MultipartFile img,
+            @RequestParam(value = "video", required = false) MultipartFile video,
             Model model
     ) {
         try {
-            courseService.updateCourse(id, request);
+            courseService.updateCourse(id, request, img, video);
         } catch (Exception e) {
             CourseResponse course = courseService.getCourseResponse(id);
 
