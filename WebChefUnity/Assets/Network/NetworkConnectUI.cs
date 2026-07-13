@@ -7,49 +7,92 @@ using TMPro;
 public class NetworkConnectUI : MonoBehaviour
 {
     [SerializeField] private Button createButton;
-    [SerializeField] private Button joinButton; // 👈 이제 이 버튼은 '방 목록 새로고침' 또는 '빠른 입장' 등으로 쓸 수 있습니다.
-    [SerializeField] private TMP_InputField joinCodeInputField; // 👈 방 이름을 입력하는 칸으로 활용합니다.
-    [SerializeField] private TMP_Text codeText; // 👈 상태 메시지를 출력하는 텍스트로 활용합니다.
+    [SerializeField] private Button joinButton;
+    [SerializeField] private TMP_InputField joinCodeInputField;
+    [SerializeField] private TMP_Text codeText;
 
     private void Start()
     {
+        // 💡 예외 대응: 매니저가 완전히 초기화될 때까지 버튼 비활성화
+        if (RelayManager.Instance != null && !RelayManager.Instance.IsAuthInitialized)
+        {
+            createButton.interactable = false;
+            joinButton.interactable = false;
+            codeText.text = "네트워크 서비스 초기화 중...";
+            RelayManager.Instance.OnAuthenticationComplete += EnableUIButtons;
+        }
+        else
+        {
+            EnableUIButtons();
+        }
+
         // 1. 방 만들기 버튼 이벤트
         createButton.onClick.AddListener(async () => {
             string roomName = joinCodeInputField.text.Trim();
             if (string.IsNullOrEmpty(roomName)) roomName = "즐거운 멀티방";
 
             codeText.text = "로비 및 릴레이 생성 중...";
-            createButton.interactable = false;
+            SetUIInteractable(false);
 
-            // ⭐️ 핵심 수정: CreateRelay 대신 로비와 연동되는 CreateLobby를 호출합니다.
-            await RelayManager.Instance.CreateLobby(roomName, 4);
+            bool success = await RelayManager.Instance.CreateLobby(roomName, 4);
 
-            codeText.text = "방 생성 성공! 게임 시작.";
-            gameObject.SetActive(false); // 접속 성공 시 UI 창 닫기
+            if (success)
+            {
+                codeText.text = "방 생성 성공! 게임 시작.";
+                gameObject.SetActive(false);
+            }
+            else
+            {
+                codeText.text = "<color=red>방 생성 실패. 다시 시도하세요.</color>";
+                SetUIInteractable(true); // 에러 발생 시 UI 다시 조작 가능하게 롤백
+            }
         });
 
-        // 2. 방 입장 버튼 이벤트 (가장 먼저 개설된 방에 자동으로 찾아 들어가는 '빠른 입장' 로직으로 수정)
+        // 2. 빠른 입장 버튼 이벤트
         joinButton.onClick.AddListener(async () => {
             codeText.text = "열려있는 방 찾는 중...";
-            joinButton.interactable = false;
+            SetUIInteractable(false);
 
-            // 현재 열려있는 모든 로비 목록을 가져옵니다.
             List<Lobby> lobbies = await RelayManager.Instance.QueryLobbies();
 
             if (lobbies != null && lobbies.Count > 0)
             {
                 codeText.text = $"방 발견! [{lobbies[0].Name}] 입장 중...";
 
-                // ⭐️ 핵심 수정: 가장 첫 번째로 검색된 방에 JoinLobby로 입장합니다.
-                await RelayManager.Instance.JoinLobby(lobbies[0]);
+                bool success = await RelayManager.Instance.JoinLobby(lobbies[0]);
 
-                gameObject.SetActive(false);
+                if (success)
+                {
+                    gameObject.SetActive(false);
+                }
+                else
+                {
+                    codeText.text = "<color=red>방 입장에 실패했습니다.</color>";
+                    SetUIInteractable(true); // 롤백
+                }
             }
             else
             {
                 codeText.text = "현재 열려있는 방이 없습니다.";
-                joinButton.interactable = true;
+                SetUIInteractable(true); // 롤백
             }
         });
+    }
+
+    private void EnableUIButtons()
+    {
+        if (RelayManager.Instance != null)
+            RelayManager.Instance.OnAuthenticationComplete -= EnableUIButtons; // 메모리 누수 방지 해제
+
+        createButton.interactable = true;
+        joinButton.interactable = true;
+        codeText.text = "접속 대기 중...";
+    }
+
+    private void SetUIInteractable(bool state)
+    {
+        createButton.interactable = state;
+        joinButton.interactable = state;
+        joinCodeInputField.interactable = state;
     }
 }
