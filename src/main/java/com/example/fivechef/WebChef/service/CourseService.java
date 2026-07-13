@@ -11,6 +11,7 @@ import com.example.fivechef.WebChef.entity.User;
 import com.example.fivechef.WebChef.repository.CourseRepository;
 import jakarta.persistence.criteria.Predicate;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -33,18 +34,29 @@ public class CourseService {
 
     private static final List<String> ALLOWED_EXTENSIONS = List.of("jpg", "jpeg", "png", "gif", "webp");
     private static final long MAX_FILE_SIZE = 10 * 1024 * 1024;
-    @org.springframework.beans.factory.annotation.Value("${file.course-upload-dir:uploads/course}")
+
+    @Value("${file.course-upload-dir:uploads/course}")
     private String uploadDir;
 
     private static final List<String> ALLOWED_VIDEO_EXTENSIONS = List.of("mp4", "webm", "mov");
-    private static final long MAX_VIDEO_SIZE = 500 * 1024 * 1024; // 500MB
-    @org.springframework.beans.factory.annotation.Value("${file.course-video-dir:uploads/course/video}")
+    private static final long MAX_VIDEO_SIZE = 500 * 1024 * 1024;
+
+    @Value("${file.course-video-dir:uploads/course/video}")
     private String videoUploadDir;
 
-    // 예전 컨트롤러가 getCourses(page, keyword) 2개짜리 시그니처로 호출해도 에러 안 나게 유지
     @Transactional(readOnly = true)
     public Page<CourseResponse> getCourses(int page, String keyword) {
         return getCourses(page, keyword, null, null, null);
+    }
+
+    @Transactional(readOnly = true)
+    public Page<CourseResponse> getCourses(
+            int page,
+            String keyword,
+            CourseCategory category,
+            String username
+    ) {
+        return getCourses(page, keyword, category, username, null);
     }
 
     @Transactional(readOnly = true)
@@ -78,6 +90,7 @@ public class CourseService {
 
             if (keyword != null && !keyword.trim().isEmpty()) {
                 String likeKeyword = "%" + keyword.trim() + "%";
+
                 predicates.add(criteriaBuilder.or(
                         criteriaBuilder.like(root.get("title"), likeKeyword),
                         criteriaBuilder.like(root.get("description"), likeKeyword)
@@ -91,7 +104,13 @@ public class CourseService {
     @Transactional
     public CourseResponse getCourseDetailResponse(Long id) {
         Course course = getCourseEntity(id);
+
+        if (course.getViewCount() == null) {
+            course.setViewCount(0);
+        }
+
         course.setViewCount(course.getViewCount() + 1);
+
         return new CourseResponse(course);
     }
 
@@ -177,7 +196,6 @@ public class CourseService {
     private CourseResponse toListResponse(Course course, String username, SubscriptionPlanType userPlan) {
         SubscriptionPlanType requiredPlan = course.getRequiredPlanType();
 
-        // 비로그인 사용자는 무료/유료 상관없이 로그인 페이지로 이동
         if (isBlank(username)) {
             return new CourseResponse(
                     course,
@@ -187,7 +205,6 @@ public class CourseService {
             );
         }
 
-        // 로그인 사용자 + 무료 강의
         if (requiredPlan == null) {
             return new CourseResponse(
                     course,
@@ -287,14 +304,17 @@ public class CourseService {
         }
 
         String originalFileName = file.getOriginalFilename();
+
         if (originalFileName == null || originalFileName.isBlank()) {
             throw new IllegalArgumentException("잘못된 파일입니다.");
         }
 
         int dotIdx = originalFileName.lastIndexOf(".");
+
         if (dotIdx == -1 || dotIdx == originalFileName.length() - 1) {
             throw new IllegalArgumentException("확장자가 없는 파일은 업로드할 수 없습니다.");
         }
+
         String extension = originalFileName.substring(dotIdx + 1).toLowerCase();
 
         if (!ALLOWED_EXTENSIONS.contains(extension)) {
@@ -302,7 +322,9 @@ public class CourseService {
         }
 
         try {
-            java.nio.file.Path uploadPath = java.nio.file.Paths.get(uploadDir).toAbsolutePath().normalize();
+            java.nio.file.Path uploadPath = java.nio.file.Paths.get(uploadDir)
+                    .toAbsolutePath()
+                    .normalize();
 
             if (!java.nio.file.Files.exists(uploadPath)) {
                 java.nio.file.Files.createDirectories(uploadPath);
@@ -314,6 +336,7 @@ public class CourseService {
             file.transferTo(filePath.toFile());
 
             course.setThumbnailUrl("/uploads/course/" + storedFileName);
+
         } catch (Exception e) {
             throw new IllegalArgumentException("파일 저장 중 오류가 발생했습니다.");
         }
@@ -329,14 +352,17 @@ public class CourseService {
         }
 
         String originalFileName = file.getOriginalFilename();
+
         if (originalFileName == null || originalFileName.isBlank()) {
             throw new IllegalArgumentException("잘못된 파일입니다.");
         }
 
         int dotIdx = originalFileName.lastIndexOf(".");
+
         if (dotIdx == -1 || dotIdx == originalFileName.length() - 1) {
             throw new IllegalArgumentException("확장자가 없는 파일은 업로드할 수 없습니다.");
         }
+
         String extension = originalFileName.substring(dotIdx + 1).toLowerCase();
 
         if (!ALLOWED_VIDEO_EXTENSIONS.contains(extension)) {
@@ -344,7 +370,9 @@ public class CourseService {
         }
 
         try {
-            java.nio.file.Path uploadPath = java.nio.file.Paths.get(videoUploadDir).toAbsolutePath().normalize();
+            java.nio.file.Path uploadPath = java.nio.file.Paths.get(videoUploadDir)
+                    .toAbsolutePath()
+                    .normalize();
 
             if (!java.nio.file.Files.exists(uploadPath)) {
                 java.nio.file.Files.createDirectories(uploadPath);
@@ -356,6 +384,7 @@ public class CourseService {
             file.transferTo(filePath.toFile());
 
             course.setVideoUrl("/uploads/course/video/" + storedFileName);
+
         } catch (Exception e) {
             throw new IllegalArgumentException("영상 저장 중 오류가 발생했습니다.");
         }
