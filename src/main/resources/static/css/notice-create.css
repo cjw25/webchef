@@ -179,7 +179,7 @@ a {
   margin-bottom: 4px;
 }
 .notice-file-drop-sub{
-  font-size: 12px;
+  font-size: 15px;
   color: var(--wc-text-soft);
   padding-bottom: 10px;
 }
@@ -212,15 +212,16 @@ a {
   color: var(--wc-accent);
 }
 
-.notice-actions{
+.notice-actions {
   display:flex;
   /* gap: 10px; */
   padding-top: 6px;
+  margin-top: 50px;
 }
 .notice-btn{
   flex:1;
-  padding: 14px 0;
-  font-size: 14.5px;
+  padding: 20px 0;
+  font-size: 19px;
   font-weight: 700;
   border: none;
   cursor: pointer;
