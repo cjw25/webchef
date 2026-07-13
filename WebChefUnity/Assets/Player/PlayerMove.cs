@@ -12,15 +12,12 @@ public class PlayerMove : NetworkBehaviour
     private Rigidbody2D rb;
     private Collider2D playerCollider;
     private Vector2 moveInput;
-<<<<<<< HEAD
     private Animator animator; // 애니메이터 컴포넌트 변수
-=======
-    public static PlayerMove Instance;
->>>>>>> edc6820196073a4098899b2e5bc0e7ec88c42f62
 
     private bool isFrozen = false;
 
-    private float clientPingTimer = 0f;
+    public static PlayerMove Instance;
+
     public override void OnNetworkSpawn()
     {
         rb = GetComponent<Rigidbody2D>();
@@ -167,16 +164,7 @@ public class PlayerMove : NetworkBehaviour
         // 멀티플레이 중인데 내가 조종하는 캐릭터가 아니라면 조작 무시
         if (NetworkManager.Singleton != null && NetworkManager.Singleton.IsListening && !IsOwner) return;
 
-<<<<<<< HEAD
         // 대화 중이거나 채팅 중일 때 멈춤 처리
-=======
-        clientPingTimer += Time.deltaTime;
-        if (clientPingTimer >= 20f)
-        {
-            clientPingTimer = 0f;
-            KeepAliveServerRpc();
-        }
->>>>>>> edc6820196073a4098899b2e5bc0e7ec88c42f62
         if (isFrozen || (ChatManager.Instance != null && ChatManager.Instance.IsTyping()))
         {
             if (moveInput != Vector2.zero)
@@ -294,11 +282,5 @@ public class PlayerMove : NetworkBehaviour
         {
             UpdateAnimation(inputDirection);
         }
-    }
-
-    [ServerRpc]
-    private void KeepAliveServerRpc()
-    {
-        Debug.Log($"[서버 수신] 클라이언트 {OwnerClientId}번의 신호 송신 중...");
     }
 }
