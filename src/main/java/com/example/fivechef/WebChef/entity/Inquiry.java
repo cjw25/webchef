@@ -5,6 +5,8 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Getter
 @Setter
@@ -42,6 +44,13 @@ public class Inquiry {
     private LocalDateTime modifyDate;
 
     private LocalDateTime answerDate;
+
+    @Column(nullable = false)
+    private int viewCount = 0;
+
+    @OneToMany(mappedBy = "inquiry", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OrderBy("sortOrder asc")
+    private List<InquiryImage> images = new ArrayList<>();
 
     @PrePersist
     public void prePersist() {

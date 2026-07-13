@@ -1,4 +1,5 @@
 ﻿using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using Unity.Netcode;
@@ -11,37 +12,20 @@ public class RoomManager : MonoBehaviour
 
     private void Awake()
     {
-        if (Instance != null && Instance != this) { Destroy(gameObject); return; }
+        if (Instance != null && Instance != this)
+        {
+            Destroy(gameObject);
+            return;
+        }
         Instance = this;
         DontDestroyOnLoad(gameObject);
     }
-
-    public void RequestChangeRoom(string sceneName, string targetDoorName)
-    {
-        if (isTransferring) return;
-        this.targetDoorName = targetDoorName;
-        StartCoroutine(ChangeRoomRoutine(sceneName));
-    }
-
-    private IEnumerator ChangeRoomRoutine(string sceneName)
-    {
-        isTransferring = true;
-        SetPlayerPhysicsState(false); // 이동 시작 시 물리 정지
-
-        if (NetworkManager.Singleton != null && NetworkManager.Singleton.IsServer)
-            NetworkManager.Singleton.SceneManager.LoadScene(sceneName, LoadSceneMode.Single);
-        else
-            SceneManager.LoadScene(sceneName);
-
-        yield break;
-    }
-
 
     private void Start()
     {
         isTransferring = false;
 
-        // ★ [멀티플레이 핵심] 서버가 씬 로드를 완벽히 마쳤을 때 실행할 이벤트 연결
+        // ★ 서버가 씬 로드를 완벽히 마쳤을 때 실행할 이벤트 연결
         if (NetworkManager.Singleton != null && NetworkManager.Singleton.SceneManager != null)
         {
             NetworkManager.Singleton.SceneManager.OnLoadComplete += HandleAllClientsSceneLoaded;
@@ -57,6 +41,9 @@ public class RoomManager : MonoBehaviour
         }
     }
 
+    /// <summary>
+    /// 방 이동 요청 (중복 정의된 메서드를 하나로 깔끔하게 통합)
+    /// </summary>
     public void RequestChangeRoom(string sceneName, string targetDoorName)
     {
         if (isTransferring) return;
@@ -64,7 +51,7 @@ public class RoomManager : MonoBehaviour
         isTransferring = true;
         this.targetDoorName = targetDoorName;
 
-        // 씬 이동 직전, '모든' 플레이어의 물리를 안전하게 꺼줍니다.
+        // 씬 이동 직전, 모든 플레이어의 물리를 안전하게 꺼줍니다.
         SetAllPlayersPhysicsState(false);
 
         if (NetworkManager.Singleton != null && NetworkManager.Singleton.IsServer)
@@ -79,16 +66,15 @@ public class RoomManager : MonoBehaviour
         }
     }
 
-    // ★ [새로운 핵심 함수] Netcode가 "자, 모든 유저가 새 씬에 완전히 도착했어!"라고 알려주는 시점입니다.
+    // ★ Netcode가 "모든 유저가 새 씬에 완전히 도착했어!"라고 알려주는 신호 처리
     private void HandleAllClientsSceneLoaded(ulong clientId, string sceneName, LoadSceneMode loadSceneMode)
     {
-        // 0.4초 동안 불안하게 기다리는 대신, 유니티 네트워크 시스템의 공식 완료 신호를 받아 처리합니다.
         StartCoroutine(AllPlayersPhysicsActiveRoutine());
     }
 
     private IEnumerator AllPlayersPhysicsActiveRoutine()
     {
-        // 새 씬에서 캐릭터들의 OnNetworkSpawn()과 좌표 이동(텔레포트)이 안전하게 끝날 때까지 아주 잠깐 대기
+        // 새 씬에서 캐릭터들의 온네트워크 스폰 및 좌표 이동이 끝날 때까지 대기
         yield return new WaitForSecondsRealtime(0.05f);
         yield return new WaitForFixedUpdate();
 
@@ -96,66 +82,67 @@ public class RoomManager : MonoBehaviour
         SetAllPlayersPhysicsState(true);
     }
 
-
     public void ClearTransferLock()
     {
         isTransferring = false;
-        SetPlayerPhysicsState(true); // 문 밖으로 완벽히 나갔을 때 물리 복구
+        SetAllPlayersPhysicsState(true); // 문 밖으로 완벽히 나갔을 때 물리 복구
     }
 
-    // ★ [수정된 함수] 내 캐릭터(LocalClient)만 챙기던 것에서, 접속된 '모든 캐릭터'를 제어하도록 변경
+    /// <summary>
+    /// 로컬 및 모든 원격 플레이어의 물리/콜라이더 컴포넌트를 일괄 제어하는 함수 (오타 완벽 수정)
+    /// </summary>
     private void SetAllPlayersPhysicsState(bool isActive)
     {
-
-        var player = NetworkManager.Singleton?.LocalClient?.PlayerObject?.gameObject;
-        if (player == null) return;
-
-        Rigidbody2D rb = player.GetComponent<Rigidbody2D>();
-        if (rb != null)
+        if (NetworkManager.Singleton == null)
         {
-            rb.bodyType = isActive ? RigidbodyType2D.Dynamic : RigidbodyType2D.Kinematic;
-            rb.velocity = Vector2.zero;
-
-            if (NetworkManager.Singleton == null) return;
-
-            // 현재 씬에 태어나 있는 모든 PlayerMove(캐릭터들) 오브젝트를 싹 다 긁어모읍니다.
-            PlayerMove[] allPlayers = FindObjectsByType<PlayerMove>(FindObjectsSortMode.None);
-
-            foreach (PlayerMove player in allPlayers)
+            // 싱글플레이 예외 처리 로직
+            PlayerMove singlePlayer = FindFirstObjectByType<PlayerMove>();
+            if (singlePlayer != null)
             {
-                // 내가 소유한 캐릭터가 아니더라도, 일단 독립 서버/클라이언트 물리 공간에서 꼬이지 않도록 일괄 제어합니다.
-                Rigidbody2D rb = player.GetComponent<Rigidbody2D>();
-                Collider2D col = player.GetComponent<Collider2D>();
+                Rigidbody2D rb = singlePlayer.GetComponent<Rigidbody2D>();
+                Collider2D col = singlePlayer.GetComponent<Collider2D>();
+                if (rb != null) rb.bodyType = isActive ? RigidbodyType2D.Dynamic : RigidbodyType2D.Kinematic;
+                if (col != null) col.enabled = isActive;
+            }
+            return;
+        }
 
-                if (rb != null)
+        // 현재 씬에 배치된 모든 PlayerMove 오브젝트를 싹 긁어모읍니다.
+        PlayerMove[] allPlayers = FindObjectsByType<PlayerMove>(FindObjectsSortMode.None);
+
+        foreach (PlayerMove pMove in allPlayers)
+        {
+            Rigidbody2D rb = pMove.GetComponent<Rigidbody2D>();
+            Collider2D col = pMove.GetComponent<Collider2D>();
+
+            if (rb != null)
+            {
+                if (!isActive)
                 {
-                    if (!isActive)
+                    rb.velocity = Vector2.zero;
+                    rb.angularVelocity = 0f;
+                    rb.bodyType = RigidbodyType2D.Kinematic;
+                }
+                else
+                {
+                    // 활성화할 때, 내 캐릭터가 아니라면(타인) 물리를 Kinematic으로 유지하여 
+                    // Netcode의 좌표 동기화(네트워크 패킷)를 물리 연산이 방해하지 않게 보호합니다.
+                    if (pMove.IsOwner)
                     {
-                        rb.velocity = Vector2.zero;
-                        rb.angularVelocity = 0f;
-                        rb.bodyType = RigidbodyType2D.Kinematic;
+                        rb.bodyType = RigidbodyType2D.Dynamic;
                     }
                     else
                     {
-                        // 활성화할 때, 내 캐릭터가 아니라면(타인) 물리를 Kinematic으로 유지하여 Netcode의 좌표 동기화를 방해하지 않게 합니다.
-                        if (player.IsOwner)
-                        {
-                            rb.bodyType = RigidbodyType2D.Dynamic;
-                        }
-                        else
-                        {
-                            rb.bodyType = RigidbodyType2D.Kinematic;
-                        }
-                        rb.velocity = Vector2.zero;
+                        rb.bodyType = RigidbodyType2D.Kinematic;
                     }
+                    rb.velocity = Vector2.zero;
                 }
-
-                if (col != null) col.enabled = isActive;
-
             }
-            if (player.TryGetComponent<Collider2D>(out var col)) col.enabled = isActive;
+
+            if (col != null)
+            {
+                col.enabled = isActive;
+            }
         }
-
     }
-
 }

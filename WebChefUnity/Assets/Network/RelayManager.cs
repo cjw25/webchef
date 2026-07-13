@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using Unity.Netcode;
 using Unity.Netcode.Transports.UTP;
@@ -13,8 +14,11 @@ using UnityEngine;
 
 public class RelayManager : MonoBehaviour
 {
-    // ⭐️ 싱글톤 타입을 RelayManager로 올바르게 수정했습니다.
     public static RelayManager Instance { get; private set; }
+
+    // UI에서 초기화 완료 타이밍을 캐치할 수 있도록 이벤트 제공
+    public event Action OnAuthenticationComplete;
+    public bool IsAuthInitialized { get; private set; } = false;
 
     private Lobby _hostLobby;
     private Lobby _joinedLobby;
@@ -29,11 +33,20 @@ public class RelayManager : MonoBehaviour
 
     private async void Start()
     {
-        await UnityServices.InitializeAsync();
-        if (!AuthenticationService.Instance.IsSignedIn)
+        try
         {
-            await AuthenticationService.Instance.SignInAnonymouslyAsync();
-            Debug.Log($"로그인 완료 (유저 ID: {AuthenticationService.Instance.PlayerId})");
+            await UnityServices.InitializeAsync();
+            if (!AuthenticationService.Instance.IsSignedIn)
+            {
+                await AuthenticationService.Instance.SignInAnonymouslyAsync();
+                Debug.Log($"로그인 완료 (유저 ID: {AuthenticationService.Instance.PlayerId})");
+            }
+            IsAuthInitialized = true;
+            OnAuthenticationComplete?.Invoke(); // UI 버튼들을 깨워주는 신호 발송
+        }
+        catch (Exception e)
+        {
+            Debug.LogError($"UGS 서비스 초기화 실패: {e.Message}");
         }
     }
 
@@ -50,14 +63,21 @@ public class RelayManager : MonoBehaviour
         if (_heartbeatTimer <= 0f)
         {
             _heartbeatTimer = 15f;
-            await LobbyService.Instance.SendHeartbeatPingAsync(_hostLobby.Id);
+            try
+            {
+                await LobbyService.Instance.SendHeartbeatPingAsync(_hostLobby.Id);
+            }
+            catch (LobbyServiceException e)
+            {
+                Debug.LogWarning($"로비 하트비트 실패 (방이 터졌을 수 있음): {e.Message}");
+            }
         }
     }
 
     /// <summary>
-    /// 방 만들기 (Relay 생성 후 -> 그 코드를 Lobby에 심어서 방 개설)
+    /// UI 롤백을 위해 성공 여부를 bool 타입으로 반환하도록 개선
     /// </summary>
-    public async Task CreateLobby(string lobbyName, int maxPlayers)
+    public async Task<bool> CreateLobby(string lobbyName, int maxPlayers)
     {
         try
         {
@@ -72,9 +92,7 @@ public class RelayManager : MonoBehaviour
                 IsPrivate = false,
                 Data = new Dictionary<string, DataObject>
                 {
-                    {
-                        RELAY_KEY, new DataObject(DataObject.VisibilityOptions.Member, relayJoinCode)
-                    }
+                    { RELAY_KEY, new DataObject(DataObject.VisibilityOptions.Member, relayJoinCode) }
                 }
             };
 
@@ -85,16 +103,15 @@ public class RelayManager : MonoBehaviour
             Debug.Log($"로비 생성 완료: {lobby.Name} (코드: {relayJoinCode})");
 
             NetworkManager.Singleton.StartHost();
+            return true;
         }
-        catch (LobbyServiceException e)
+        catch (Exception e)
         {
-            Debug.LogError($"로비 생성 실패: {e.Message}");
+            Debug.LogError($"로비 생성 단계 실패: {e.Message}");
+            return false;
         }
     }
 
-    /// <summary>
-    /// 방 목록 조회하기
-    /// </summary>
     public async Task<List<Lobby>> QueryLobbies()
     {
         try
@@ -118,13 +135,19 @@ public class RelayManager : MonoBehaviour
     }
 
     /// <summary>
-    /// 방 입장하기 (Lobby 입장 -> 숨겨진 Relay 코드를 꺼내서 NGO 접속)
+    /// UI 롤백을 위해 성공 여부를 bool 타입으로 반환하도록 개선
     /// </summary>
-    public async Task JoinLobby(Lobby lobby)
+    public async Task<bool> JoinLobby(Lobby lobby)
     {
         try
         {
             _joinedLobby = await LobbyService.Instance.JoinLobbyByIdAsync(lobby.Id);
+
+            if (_joinedLobby.Data == null || !_joinedLobby.Data.ContainsKey(RELAY_KEY))
+            {
+                Debug.LogError("로비 데이터에 Relay 정보가 유실되었습니다.");
+                return false;
+            }
 
             string relayJoinCode = _joinedLobby.Data[RELAY_KEY].Value;
             Debug.Log($"로비 입장 성공. 릴레이 코드로 접속 시도: {relayJoinCode}");
@@ -135,10 +158,12 @@ public class RelayManager : MonoBehaviour
             unityTransport.SetRelayServerData(new RelayServerData(joinAllocation, "udp"));
 
             NetworkManager.Singleton.StartClient();
+            return true;
         }
-        catch (LobbyServiceException e)
+        catch (Exception e)
         {
-            Debug.LogError($"로비 입장 실패: {e.Message}");
+            Debug.LogError($"로비 입장 단계 실패: {e.Message}");
+            return false;
         }
     }
 }

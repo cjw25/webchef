@@ -10,6 +10,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.security.Principal;
 
@@ -63,11 +64,12 @@ public class InquiryController {
     @PostMapping("/inquiry/create")
     public String createInquiry(
             @ModelAttribute("request") InquiryCreateRequest request,
+            @RequestParam(value = "img", required = false) MultipartFile[] img,
             Model model,
             Principal principal
     ) {
         try {
-            inquiryService.createInquiry(request, principal.getName());
+            inquiryService.createInquiry(request, principal.getName(), img);
         } catch (Exception e) {
             model.addAttribute("errorMessage", e.getMessage());
             return "inquiry/create";

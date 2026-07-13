@@ -6,26 +6,24 @@ using UnityEngine.SceneManagement;
 
 public class PlayerMove : NetworkBehaviour
 {
-    [Header("ï¿½Ìµï¿½ ï¿½ï¿½ï¿½ï¿½")]
+    [Header("ÀÌµ¿ ¼³Á¤")]
     public float moveSpeed = 5f;
 
     private Rigidbody2D rb;
     private Collider2D playerCollider;
     private Vector2 moveInput;
-
-    private Animator animator; // ï¿½Ö´Ï¸ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Æ® ï¿½ï¿½ï¿½ï¿½
-
+    private Animator animator;
     public static PlayerMove Instance;
 
-
     private bool isFrozen = false;
-
     private float clientPingTimer = 0f;
+    private string lastAnimation = "Player_Down"; // ¾Ö´Ï¸ÞÀÌ¼Ç Á÷Àü ¹æÇâ ±â¾ï »óÀÚ
+
     public override void OnNetworkSpawn()
     {
         rb = GetComponent<Rigidbody2D>();
         playerCollider = GetComponent<Collider2D>();
-        animator = GetComponent<Animator>(); // ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Æ®ï¿½ï¿½ Animator ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+        animator = GetComponent<Animator>();
 
         if (rb != null)
         {
@@ -45,8 +43,7 @@ public class PlayerMove : NetworkBehaviour
         }
         else
         {
-            // ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½Ìµï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ Å¸ï¿½ï¿½ ï¿½ï¿½Ç»ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½(Rigidbody)ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Ø¾ï¿½ ï¿½Ï¹Ç·ï¿½,
-            // È£ï¿½ï¿½Æ®/ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Æ´ï¿½ 'ï¿½ï¿½ï¿½ï¿½ Å¬ï¿½ï¿½ï¿½Ì¾ï¿½Æ®' È­ï¿½é¿¡ï¿½ï¿½ï¿½ï¿½ Å¸ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½Ý´Ï´ï¿½.
+            // È£½ºÆ®/¼­¹ö°¡ ¾Æ´Ñ '¼ø¼ö Å¬¶óÀÌ¾ðÆ®' È­¸é¿¡¼­¸¸ Å¸ÀÎÀÇ ¹°¸®¸¦ °íÁ¤½ÃÅµ´Ï´Ù.
             if (rb != null)
             {
                 rb.bodyType = RigidbodyType2D.Kinematic;
@@ -55,10 +52,9 @@ public class PlayerMove : NetworkBehaviour
         }
     }
 
-    // [ï¿½Ì±ï¿½ï¿½Ã·ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½] ï¿½ï¿½ï¿½Úµï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ È¥ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½(ï¿½Ì±ï¿½ ï¿½Ã·ï¿½ï¿½ï¿½)ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ä¡
     private void Start()
     {
-        // ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½Æ¼ï¿½Ã·ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½Æ´ï¿½ ï¿½ï¿½ï¿½ï¿½(NetworkManagerï¿½ï¿½ ï¿½Ûµï¿½ ï¿½ï¿½ ï¿½ï¿½)ï¿½ï¿½ï¿½ ï¿½Ï¹ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½Ý´Ï´ï¿½.
+        // [½Ì±ÛÇÃ·¹ÀÌ ´ëÀÀ] ³ÝÄÚµå ¼­¹ö ¾øÀÌ È¥ÀÚ ½ÃÀÛÇßÀ» ¶§¸¦ À§ÇÑ ¾ÈÀüÀåÄ¡
         if (NetworkManager.Singleton == null || !NetworkManager.Singleton.IsListening)
         {
             rb = GetComponent<Rigidbody2D>();
@@ -85,17 +81,16 @@ public class PlayerMove : NetworkBehaviour
 
     public void FreezeMovement()
     {
-        // ï¿½ï¿½Æ¼ï¿½Ã·ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ IsOwner Ã¼Å©ï¿½ï¿½ ï¿½Ï°ï¿½, ï¿½Ì±ï¿½ï¿½Ã·ï¿½ï¿½Ì¸ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Åµï¿½Ï´ï¿½.
         if (NetworkManager.Singleton != null && NetworkManager.Singleton.IsListening && !IsOwner) return;
 
         isFrozen = true;
         moveInput = Vector2.zero;
 
-        UpdateAnimation(Vector2.zero); // ï¿½Ö´Ï¸ï¿½ï¿½Ì¼ï¿½ ï¿½ï¿½ï¿½ï¿½(ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½)
+        UpdateAnimation(Vector2.zero);
 
         if (NetworkManager.Singleton != null && NetworkManager.Singleton.IsListening)
         {
-            MoveServerRpc(Vector2.zero); // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ôµï¿½ ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ß¶ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
+            MoveServerRpc(Vector2.zero);
         }
         else
         {
@@ -144,7 +139,6 @@ public class PlayerMove : NetworkBehaviour
         if (targetDoor != null)
         {
             Vector3 spawnPosition = targetDoor.transform.position + (Vector3.down * 1.5f);
-
             transform.position = spawnPosition;
 
             if (NetworkManager.Singleton != null && NetworkManager.Singleton.IsListening)
@@ -164,11 +158,7 @@ public class PlayerMove : NetworkBehaviour
 
     void Update()
     {
-        // ï¿½ï¿½Æ¼ï¿½Ã·ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½Îµï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Ï´ï¿½ Ä³ï¿½ï¿½ï¿½Í°ï¿½ ï¿½Æ´Ï¶ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
         if (NetworkManager.Singleton != null && NetworkManager.Singleton.IsListening && !IsOwner) return;
-
-
-        // ï¿½ï¿½È­ ï¿½ï¿½ï¿½Ì°Å³ï¿½ Ã¤ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ Ã³ï¿½ï¿½
 
         clientPingTimer += Time.deltaTime;
         if (clientPingTimer >= 20f)
@@ -205,71 +195,47 @@ public class PlayerMove : NetworkBehaviour
             moveInput.Normalize();
         }
 
-        // [ï¿½ï¿½ È­ï¿½ï¿½ ï¿½Ö´Ï¸ï¿½ï¿½Ì¼ï¿½ ï¿½ï¿½ï¿½ï¿½] Å°ï¿½ï¿½ï¿½å¸¦ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ ï¿½ï¿½ È­ï¿½ï¿½ Ä³ï¿½ï¿½ï¿½Í¸ï¿½ ï¿½ï¿½ï¿½Ì·ï¿½Æ®ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Åµï¿½Ï´ï¿½.
         UpdateAnimation(moveInput);
 
-        // ï¿½Ô·Â°ï¿½ï¿½ï¿½ ï¿½ï¿½È­ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ Ã³ï¿½ï¿½
         if (moveInput != prevInput)
         {
             if (NetworkManager.Singleton != null && NetworkManager.Singleton.IsListening)
             {
-                // ï¿½ï¿½Æ¼ï¿½Ã·ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½Â¸ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½Å¶ ï¿½ï¿½ï¿½ï¿½
                 MoveServerRpc(moveInput);
             }
         }
     }
+
     void FixedUpdate()
     {
-        // 1. ï¿½ï¿½ Ä³ï¿½ï¿½ï¿½ï¿½ï¿½Ì°Å³ï¿½, ï¿½Ì±ï¿½ï¿½Ã·ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ì¿¡ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½Ìµï¿½ Ã³ï¿½ï¿½
         if (rb != null && !isFrozen && (IsOwner || NetworkManager.Singleton == null || !NetworkManager.Singleton.IsListening))
         {
-            // [ï¿½Ù½ï¿½ ï¿½ï¿½ï¿½ï¿½] MovePosition ï¿½ï¿½ï¿½ velocityï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½Ï¿ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ 
-            // ï¿½æµ¹(Collision)ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½Ï°ï¿½ ï¿½Õ´Ï´ï¿½. 
-            // ï¿½Ì·ï¿½ï¿½ï¿½ ï¿½Ï¸ï¿½ ï¿½ï¿½(Collider)ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Úµï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Óµï¿½ï¿½ï¿½ 0ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Ï´ï¿½.
-
             Vector2 targetVelocity = moveInput * moveSpeed;
-
-            // ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½æµ¹ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ ï¿½Öµï¿½ï¿½ï¿½ ï¿½Óµï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Õ´Ï´ï¿½.
             rb.velocity = targetVelocity;
-
-            // ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½Õ´ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ÓµÈ´Ù¸ï¿½, ï¿½Æ·ï¿½ ï¿½Ö¼ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Ï¿ï¿½ 
-            // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½Ä¡ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ß°ï¿½ï¿½ï¿½ ï¿½ï¿½ ï¿½Ö½ï¿½ï¿½Ï´ï¿½. (ï¿½ï¿½Æ®ï¿½ï¿½Å© ï¿½ï¿½Ä¡ï¿½ï¿½ ï¿½æµ¹ ï¿½ï¿½)
-            // rb.MovePosition(rb.position + targetVelocity * Time.fixedDeltaTime);
         }
     }
 
-    // ï¿½ï¿½ [ï¿½Ö´Ï¸ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½Ì·ï¿½Æ® ï¿½ï¿½ï¿½ï¿½ ï¿½Ô¼ï¿½] ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½Úµå°¡ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½Â¸ï¿½ ï¿½Ã·ï¿½ï¿½ï¿½ï¿½Õ´Ï´ï¿½.
-    // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Ù¶óº¸´ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Ö´Ï¸ï¿½ï¿½Ì¼ï¿½ ï¿½Ì¸ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½Ï´ï¿½ ï¿½ï¿½ï¿½ï¿½ (ï¿½Ô¼ï¿½ ï¿½Û¿ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Øµï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Ï°ï¿½ staticï¿½Ì³ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Î°Å³ï¿½, ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Î°ï¿½ È°ï¿½ï¿½ï¿½Õ´Ï´ï¿½)
-    private string lastAnimation = "Player_Down";
-
-    // ï¿½ï¿½ [ï¿½ï¿½ï¿½ï¿½ï¿½Â¿ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½] ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Ù¶óº¸¸ï¿½ ï¿½ï¿½ï¿½ß´ï¿½ ï¿½Ô¼ï¿½
+    /// <summary>
+    /// ¾Ö´Ï¸ÞÀÌÅÍ ´ÙÀÌ·ºÆ® »óÇÏÁÂ¿ì ¹× ¸ØÃã Á¦¾î Á¦¾î ÇÔ¼ö
+    /// </summary>
     private void UpdateAnimation(Vector2 input)
     {
         if (animator == null) return;
 
-        // 1. Å°ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½Å° ï¿½Ô·ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ (ï¿½ï¿½ï¿½ï¿½ï¿½Ì´ï¿½ ï¿½ï¿½)
         if (input != Vector2.zero)
         {
-            // ï¿½Ö´Ï¸ï¿½ï¿½Ì¼ï¿½ ï¿½ï¿½ï¿½ ï¿½Óµï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½(1)ï¿½ï¿½ï¿½ï¿½ ï¿½Ûµï¿½ï¿½ï¿½Åµï¿½Ï´ï¿½.
             animator.speed = 1f;
 
-            // ï¿½ë°¢ï¿½ï¿½ ï¿½Ìµï¿½ ï¿½ï¿½ ï¿½Ï³ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ÃµÇµï¿½ï¿½ï¿½ ï¿½ì¼±ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Ó´Ï´ï¿½.
             if (input.x > 0) lastAnimation = "Player_Right";
             else if (input.x < 0) lastAnimation = "Player_Left";
             else if (input.y > 0) lastAnimation = "Player_Up";
             else if (input.y < 0) lastAnimation = "Player_Down";
 
-            // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Ö´Ï¸ï¿½ï¿½Ì¼ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½Õ´Ï´ï¿½.
             animator.Play(lastAnimation);
         }
-        // 2. Å°ï¿½ï¿½ï¿½å¿¡ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ (ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½)
         else
         {
-            // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½È´ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½Ö´Ï¸ï¿½ï¿½Ì¼ï¿½ï¿½ï¿½ 'Ã¹ ï¿½ï¿½Â° ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½(ï¿½ï¿½ ï¿½Ö´ï¿½ ï¿½ï¿½ï¿½)' ï¿½ï¿½ï¿½Â·ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Õ´Ï´ï¿½.
-            // Play("ï¿½Ö´Ï¸ï¿½ï¿½Ì¼ï¿½ï¿½Ì¸ï¿½", ï¿½ï¿½ï¿½Ì¾ï¿½ï¿½È£, ï¿½ï¿½ï¿½ï¿½ï¿½Ä¡ 0f~1f)
             animator.Play(lastAnimation, 0, 0f);
-
-            // ï¿½ï¿½ï¿½ ï¿½Óµï¿½ï¿½ï¿½ 0ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Ê°ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ï´ï¿½!
             animator.speed = 0f;
         }
     }
@@ -282,14 +248,12 @@ public class PlayerMove : NetworkBehaviour
             rb.velocity = inputDirection * moveSpeed;
         }
 
-        // ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½Ìµï¿½ ï¿½ï¿½ ï¿½Ù¸ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ È­ï¿½é¿¡ï¿½ï¿½ ï¿½ï¿½ ï¿½Ö´Ï¸ï¿½ï¿½Ì¼ï¿½ ï¿½ï¿½ï¿½Â°ï¿½ ï¿½Ù·ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Õ´Ï´ï¿½.
         UpdateAnimationClientRpc(inputDirection);
     }
 
     [ClientRpc]
     private void UpdateAnimationClientRpc(Vector2 inputDirection)
     {
-        // ï¿½ï¿½ Ä³ï¿½ï¿½ï¿½Í°ï¿½ ï¿½Æ´ï¿½ ï¿½Ù¸ï¿½ ï¿½ï¿½ï¿½ È­ï¿½ï¿½ï¿½ï¿½ Ä³ï¿½ï¿½ï¿½Íµï¿½ï¿½ï¿½ ï¿½È´Ù¸ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Ý´Ï´ï¿½.
         if (!IsOwner)
         {
             UpdateAnimation(inputDirection);
@@ -299,6 +263,6 @@ public class PlayerMove : NetworkBehaviour
     [ServerRpc]
     private void KeepAliveServerRpc()
     {
-        Debug.Log($"[ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½] Å¬ï¿½ï¿½ï¿½Ì¾ï¿½Æ® {OwnerClientId}ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½È£ ï¿½Û½ï¿½ ï¿½ï¿½...");
+        Debug.Log($"[¼­¹ö ¼ö½Å] Å¬¶óÀÌ¾ðÆ® {OwnerClientId}¹øÀÇ ½ÅÈ£ ¼Û½Å Áß...");
     }
 }
