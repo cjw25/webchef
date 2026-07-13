@@ -30,7 +30,7 @@
             <div class="view-meta">
                 <span class="view-author" th:text="${notice.authorName}">관리자</span>
                 <span class="view-dot">·</span>
-                <span class="view-date" th:text="${#temporals.format(community.createDate, 'yyyy.MM.dd HH:mm')}">2026.00.00 00:00</span>
+                <span class="view-date" th:text="${#temporals.format(notice.createDate, 'yyyy.MM.dd HH:mm')}">2026.00.00 00:00</span>
                 <span class="view-dot">·</span>
                 <span class="view-views">👁 <span th:text="${notice.viewCount}">0</span></span>
 
