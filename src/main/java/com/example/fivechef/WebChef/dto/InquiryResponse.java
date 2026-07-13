@@ -1,9 +1,11 @@
 package com.example.fivechef.WebChef.dto;
 
 import com.example.fivechef.WebChef.entity.Inquiry;
+import com.example.fivechef.WebChef.entity.InquiryImage;
 import lombok.Getter;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Getter
 public class InquiryResponse {
@@ -22,6 +24,8 @@ public class InquiryResponse {
     private final LocalDateTime createDate;
     private final LocalDateTime modifyDate;
     private final LocalDateTime answerDate;
+    private final int viewCount;
+    private final List<String> imageUrls;
 
     public InquiryResponse(Inquiry inquiry) {
         this.id = inquiry.getId();
@@ -44,5 +48,16 @@ public class InquiryResponse {
         this.createDate = inquiry.getCreateDate();
         this.modifyDate = inquiry.getModifyDate();
         this.answerDate = inquiry.getAnswerDate();
+
+        this.viewCount = inquiry.getViewCount();
+
+        List<InquiryImage> imgList = inquiry.getImages();
+        if (imgList != null && !imgList.isEmpty()) {
+            this.imageUrls = imgList.stream()
+                    .map(InquiryImage::getFileUrl)
+                    .toList();
+        } else {
+            this.imageUrls = List.of();
+        }
     }
 }
