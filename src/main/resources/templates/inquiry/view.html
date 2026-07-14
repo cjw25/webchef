@@ -1,17 +1,20 @@
 <!DOCTYPE html>
-<html lang="ko" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<html lang="ko"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+
 <head>
     <meta charset="UTF-8">
-    <title th:text="${inquiry.subject} + ' | WebChef'">문의하기 상세페이지 | WebChef</title>
+
+    <title th:text="${inquiry.subject} + ' | WebChef'">
+        문의하기 상세페이지 | WebChef
+    </title>
 
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
     <link rel="stylesheet" th:href="@{/css/header.css}">
     <link rel="stylesheet" th:href="@{/css/footer.css}">
-<!--    <link rel="stylesheet" th:href="@{/css/inquiry.css}">-->
-<!--    <link rel="stylesheet" th:href="@{/css/inquiry-create.css}">-->
     <link rel="stylesheet" th:href="@{/css/inquiry-view.css}">
-
 </head>
 
 <body>
@@ -20,90 +23,281 @@
 
 <main class="inquiry-wrap">
 
-    <div class="inquiry-crumb">
-        <a th:href="@{/inquiry/list}" style="color:inherit;text-decoration:none;">고객센터</a>
-        &nbsp;›&nbsp; <span th:text="${inquiry.subject}">문의 제목</span>
+    <!-- 상단 영역 -->
+    <div class="inquiry-hero">
+
+        <div class="inquiry-crumb">
+
+            <a th:href="@{/inquiry/list}"
+               style="color: inherit; text-decoration: none;">
+                고객센터
+            </a>
+
+            <span>&nbsp;›&nbsp;</span>
+
+            <span th:text="${inquiry.subject}">
+                문의 제목
+            </span>
+
+        </div>
+
+        <div class="inquiry-banner">
+            1:1 문의
+        </div>
+
+        <div class="inquiry-subtitle">
+            해당 1:1 문의는 작성자와 관리자만 확인할 수 있습니다.
+        </div>
+
     </div>
 
-    <div class="inquiry-banner">1:1 문의</div>
-    <div class="inquiry-subtitle">해당 1:1 작성 문의는 작성자만 답변 확인이 가능합니다.</div>
-
-    <div class="inquiry-card view-card">
+    <!-- 문의 내용 -->
+    <section class="inquiry-card view-card">
 
         <div class="view-header">
+
             <div class="box-header"></div>
-            <div class="view-subject" th:text="${inquiry.subject}">문의 제목</div>
-            <div class="view-meta">
-                    <span class="view-author" th:text="${inquiry.authorName}">작성자</span>
-                    <span class="view-dot">|</span>
-                    <span class="view-date" th:text="${#temporals.format(inquiry.createDate, 'yyyy.MM.dd HH:mm')}">2026.07.06 12:00</span>
-                    <span class="view-dot">|</span>
-                    <span class="view-views">👁 <span th:text="${inquiry.viewCount}">0</span></span>
 
-                <div class="view-bottom-actions">
-                    <div class="view-actions" sec:authorize="isAuthenticated()" th:if="${inquiry.mine}">
-                        <a th:href="@{/inquiry/update/{id}(id=${inquiry.id})}" class="inquiry-update-btn inquiry-btn-prev">수정</a>
-                        <form th:action="@{/inquiry/delete/{id}(id=${inquiry.id})}" method="post" class="view-delete-form"
-                              onsubmit="return confirm('문의를 삭제하시겠습니까?');">
-                            <input type="hidden" th:if="${_csrf}" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
-                            <button type="submit" class="inquiry-delete-btn inquiry-btn-danger">삭제</button>
-                        </form>
-                    </div>
-                </div>
+            <div class="view-subject"
+                 th:text="${inquiry.subject}">
+                문의 제목
             </div>
-        </div>
 
-        <hr class="view-divider">
+            <div class="view-meta">
+
+                <span class="view-author"
+                      th:text="${inquiry.authorName}">
+                    작성자
+                </span>
+
+                <span class="view-dot">|</span>
+
+                <span class="view-date"
+                      th:if="${inquiry.createDate != null}"
+                      th:text="${#temporals.format(inquiry.createDate, 'yyyy.MM.dd HH:mm')}">
+                    2026.07.06 12:00
+                </span>
+
+                <span class="view-dot">|</span>
+
+                <span class="view-views">
+                    👁
+                    <span th:text="${inquiry.viewCount != null ? inquiry.viewCount : 0}">
+                        0
+                    </span>
+                </span>
+
+            </div>
+
+            <!-- 문의 수정 및 삭제 -->
+            <div class="view-bottom-actions"
+                 sec:authorize="isAuthenticated()"
+                 th:if="${inquiry.mine}">
+
+                <div class="view-actions">
+
+                    <a th:href="@{/inquiry/update/{id}(id=${inquiry.id})}"
+                       class="inquiry-update-btn inquiry-btn-prev">
+                        수정
+                    </a>
+
+                    <form th:action="@{/inquiry/delete/{id}(id=${inquiry.id})}"
+                          method="post"
+                          class="view-delete-form"
+                          onsubmit="return confirm('문의를 삭제하시겠습니까?');">
+
+                        <input type="hidden"
+                               th:if="${_csrf != null}"
+                               th:name="${_csrf.parameterName}"
+                               th:value="${_csrf.token}">
+
+                        <button type="submit"
+                                class="inquiry-delete-btn inquiry-btn-danger">
+                            삭제
+                        </button>
+
+                    </form>
+
+                </div>
+
+            </div>
+
+        </div>
 
         <!-- 첨부 이미지 -->
-        <div class="view-images" th:if="${inquiry.images != null and !inquiry.images.isEmpty()}">
-            <img th:each="img : ${inquiry.images}" th:src="@{${img}}" alt="첨부 이미지" class="view-image">
+        <div class="view-images"
+             th:if="${inquiry.imageUrls != null and !inquiry.imageUrls.isEmpty()}">
+
+            <img th:each="img : ${inquiry.imageUrls}"
+                 th:src="${img}"
+                 alt="문의 첨부 이미지"
+                 class="view-image">
+
         </div>
 
-        <div class="view-content" th:text="${inquiry.content}">
+        <!-- 문의 본문 -->
+        <div class="view-content"
+             th:text="${inquiry.content}">
             문의 내용이 여기에 표시됩니다.
         </div>
 
-    </div>
+    </section>
 
-    <!-- 답변(댓글) 영역 -->
-    <div class="inquiry-card answer-card">
+    <!-- 답변 영역 -->
+    <section class="inquiry-card answer-card">
+
         <div class="box-header"></div>
-        <div class="answer-title">답변 <span th:text="${inquiry.answers != null ? inquiry.answers.size() : 0}">0</span></div>
 
-        <form th:action="@{/answer/create}" th:object="${answerRequest}" method="post" class="answer-form"
-              sec:authorize="isAuthenticated()">
-            <input type="hidden" th:if="${_csrf}" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
-            <input type="hidden" th:field="*{inquiryId}"/>
-            <textarea th:field="*{content}" placeholder="문의에 대한 답변을 남겨주세요." class="answer-input"></textarea>
-            <button type="submit" class="inquiry-btn inquiry-btn-submit">답변 등록</button>
-        </form>
+        <div class="answer-title">
+            답변
 
-        <div class="answer-list">
-            <div class="answer-item" th:each="answer : ${inquiry.answers}">
-                <div class="answer-item-header">
-                    <span class="answer-author" th:text="${answer.authorName}">관리자</span>
-                    <span class="answer-date" th:text="${#temporals.format(answer.createDate, 'yyyy.MM.dd HH:mm')}">0000.00.00</span>
-
-                    <div class="view-bottom-actions">
-                        <div class="view-actions" sec:authorize="isAuthenticated()" th:if="${inquiry.answers}">
-                            <a th:href="@{/inquiry/update/{id}(id=${answer.id})}" class="answer-update-btn answer-btn-prev">수정</a>
-                            <form th:action="@{/inquiry/delete/{id}(id=${answer.id})}" method="post" class="answer-delete-form"
-                                  onsubmit="return confirm('답변을 삭제하시겠습니까?');">
-                                <input type="hidden" th:if="${_csrf}" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
-                                <button type="submit" class="answer-delete-btn answer-btn-danger">삭제</button>
-                            </form>
-                        </div>
-                    </div>
-                </div>
-                <p class="answer-content" th:text="${answer.content}">답변 내용</p>
-            </div>
+            <span th:text="${inquiry.answers != null ? inquiry.answers.size() : 0}">
+                0
+            </span>
         </div>
 
-        <p class="answer-empty" th:if="${community.answers == null or community.answers.isEmpty()}">
+        <!-- 서버 처리 오류 -->
+        <div class="inquiry-error-box"
+             th:if="${errorMessage != null and !#strings.isEmpty(errorMessage)}"
+             th:text="${errorMessage}">
+            답변 처리 중 오류가 발생했습니다.
+        </div>
+
+        <!-- 답변 등록 폼 -->
+        <form th:action="@{/inquiry-answer/create}"
+              th:object="${answerRequest}"
+              method="post"
+              class="answer-form"
+              sec:authorize="isAuthenticated()">
+
+            <input type="hidden"
+                   th:if="${_csrf != null}"
+                   th:name="${_csrf.parameterName}"
+                   th:value="${_csrf.token}">
+
+            <input type="hidden"
+                   th:field="*{inquiryId}">
+
+            <textarea th:field="*{content}"
+                      class="answer-input"
+                      rows="5"
+                      maxlength="1000"
+                      placeholder="문의에 대한 답변을 남겨주세요."></textarea>
+
+            <p class="answer-error"
+               th:if="${#fields.hasErrors('content')}"
+               th:errors="*{content}">
+                답변 내용을 확인해 주세요.
+            </p>
+
+            <button type="submit"
+                    class="inquiry-btn inquiry-btn-submit">
+                답변 등록
+            </button>
+
+        </form>
+
+        <!-- 등록된 답변 목록 -->
+        <div class="answer-list"
+             th:if="${inquiry.answers != null and !inquiry.answers.isEmpty()}">
+
+            <article class="answer-item"
+                     th:each="answer : ${inquiry.answers}"
+                     th:classappend="${answer.companyAnswer} ? ' company-answer' : ' user-answer'">
+
+                <div class="answer-item-header">
+
+                    <div class="answer-author-wrap">
+
+                        <span class="answer-role"
+                              th:text="${answer.companyAnswer} ? '업체 답변' : '작성자 답변'">
+                            업체 답변
+                        </span>
+
+                        <span class="answer-author"
+                              th:text="${answer.authorName}">
+                            작성자
+                        </span>
+
+                    </div>
+
+                    <span class="answer-date"
+                          th:if="${answer.createDate != null}"
+                          th:text="${#temporals.format(answer.createDate, 'yyyy.MM.dd HH:mm')}">
+                        2026.07.14 10:00
+                    </span>
+
+                </div>
+
+                <!-- 답변 내용 -->
+                <p class="answer-content"
+                   th:text="${answer.content}">
+                    답변 내용
+                </p>
+
+                <!-- 답변 수정 -->
+                <form th:action="@{/inquiry-answer/update/{answerId}(answerId=${answer.id})}"
+                      method="post"
+                      class="answer-update-form"
+                      sec:authorize="isAuthenticated()">
+
+                    <input type="hidden"
+                           th:if="${_csrf != null}"
+                           th:name="${_csrf.parameterName}"
+                           th:value="${_csrf.token}">
+
+                    <input type="hidden"
+                           name="inquiryId"
+                           th:value="${inquiry.id}">
+
+                    <textarea name="content"
+                              class="answer-update-input"
+                              rows="4"
+                              maxlength="1000"
+                              required
+                              th:text="${answer.content}"></textarea>
+
+                    <button type="submit"
+                            class="answer-update-btn">
+                        수정
+                    </button>
+
+                </form>
+
+                <!-- 답변 삭제 -->
+                <form th:action="@{/inquiry-answer/delete/{answerId}(answerId=${answer.id})}"
+                      method="post"
+                      class="answer-delete-form"
+                      sec:authorize="isAuthenticated()"
+                      onsubmit="return confirm('답변을 삭제하시겠습니까?');">
+
+                    <input type="hidden"
+                           th:if="${_csrf != null}"
+                           th:name="${_csrf.parameterName}"
+                           th:value="${_csrf.token}">
+
+                    <input type="hidden"
+                           name="inquiryId"
+                           th:value="${inquiry.id}">
+
+                    <button type="submit"
+                            class="answer-delete-btn">
+                        삭제
+                    </button>
+
+                </form>
+
+            </article>
+
+        </div>
+
+        <!-- 답변 없음 -->
+        <p class="answer-empty"
+           th:if="${inquiry.answers == null or inquiry.answers.isEmpty()}">
             답변이 대기 중입니다.
         </p>
-    </div>
+
+    </section>
 
 </main>
 

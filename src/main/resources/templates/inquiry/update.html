@@ -1,10 +1,144 @@
 <!DOCTYPE html>
-<html lang="en">
+<html xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <title>Title</title>
+    <title>문의 수정</title>
+
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <link rel="stylesheet" th:href="@{/css/header.css}">
+    <link rel="stylesheet" th:href="@{/css/inquiry-create.css}">
 </head>
+
 <body>
+
+<div class="page">
+
+    <div th:replace="~{fragments/header :: header}"></div>
+
+    <main class="inquiry-wrap">
+
+        <div class="inquiry-crumb">
+            <a th:href="@{/inquiry/list}">고객센터</a>
+            &nbsp;›&nbsp;
+            <span>문의 수정</span>
+        </div>
+
+        <div class="inquiry-banner">1:1 문의</div>
+
+        <p class="inquiry-subtitle">
+            문의 내용을 수정해주세요.
+        </p>
+
+        <div class="inquiry-card">
+
+            <div class="box-header"></div>
+
+            <div class="inquiry-error-box"
+                 th:if="${errorMessage}"
+                 th:text="${errorMessage}">
+            </div>
+
+            <form th:action="@{/inquiry/update/{id}(id=${inquiry.id})}"
+                  th:object="${request}"
+                  method="post"
+                  enctype="multipart/form-data">
+
+                <input type="hidden"
+                       th:if="${_csrf}"
+                       th:name="${_csrf.parameterName}"
+                       th:value="${_csrf.token}">
+
+                <div class="inquiry-field">
+                    <label for="subject">
+                        제목
+                        <span class="req">*</span>
+                    </label>
+
+                    <input type="text"
+                           id="subject"
+                           th:field="*{subject}"
+                           placeholder="문의 제목을 입력하세요">
+
+                    <div class="inquiry-field-error"
+                         th:if="${#fields.hasErrors('subject')}"
+                         th:errors="*{subject}">
+                    </div>
+                </div>
+
+                <div class="inquiry-field">
+                    <label for="inquiry-content">
+                        내용
+                        <span class="req">*</span>
+                    </label>
+
+                    <textarea id="inquiry-content"
+                              th:field="*{content}"
+                              maxlength="2000"
+                              placeholder="문의 내용을 입력하세요"></textarea>
+
+                    <div class="inquiry-char-count">
+                        <span id="inquiry-char-current" th:text="${#strings.length(request.content)}">0</span> / 2000
+                    </div>
+
+                    <div class="inquiry-field-error"
+                         th:if="${#fields.hasErrors('content')}"
+                         th:errors="*{content}">
+                    </div>
+                </div>
+
+                <!-- 기존 사진 -->
+                <div class="inquiry-field" th:if="${inquiry.imageDetails != null and !inquiry.imageDetails.isEmpty()}">
+                    <label>현재 등록된 사진</label>
+                    <div class="inquiry-file-list">
+                        <div class="inquiry-file-item existing-image-item" th:each="img : ${inquiry.imageDetails}">
+                            <img th:src="@{${img.fileUrl}}" class="inquiry-file-thumb" alt="기존 사진">
+                            <span class="inquiry-file-name">첨부 사진</span>
+                            <input type="checkbox" th:field="*{deleteImageIds}" th:value="${img.id}" class="existing-delete-checkbox" style="display:none;">
+                            <button type="button" class="inquiry-file-remove existing-remove-btn">✕</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 새 사진 첨부 -->
+                <div class="inquiry-field">
+                    <label>사진 추가</label>
+                    <p class="inquiry-file-drop-sub" style="margin-bottom:10px;">
+                        기존 사진은 그대로 두고, 새 사진을 추가로 첨부할 수 있어요. (전체 최대 3장)
+                    </p>
+
+                    <label class="inquiry-file-drop" for="inquiry-file-input" id="inquiry-file-drop">
+                        <div class="inquiry-file-drop-icon">📎</div>
+                        <div class="inquiry-file-drop-text">클릭하거나 파일을 선택하세요</div>
+                        <div class="inquiry-file-drop-sub">JPG, JPEG, PNG, GIF, WEBP / 최대 10MB</div>
+                    </label>
+
+                    <input type="file"
+                           name="img"
+                           id="inquiry-file-input"
+                           accept="image/jpeg,image/png,image/gif,image/webp"
+                           multiple
+                           style="display:none;">
+
+                    <div class="inquiry-file-list" id="inquiry-file-list"></div>
+                </div>
+
+                <div class="inquiry-actions">
+                    <a th:href="@{/inquiry/view/{id}(id=${inquiry.id})}" class="inquiry-btn inquiry-btn-prev">취소</a>
+                    <button type="submit" class="inquiry-btn inquiry-btn-submit">수정 완료</button>
+                </div>
+
+            </form>
+
+        </div>
+
+    </main>
+
+    <div th:replace="~{fragments/footer :: footer}"></div>
+
+</div>
+
+<script src="/js/inquiry-update.js"></script>
 
 </body>
 </html>
