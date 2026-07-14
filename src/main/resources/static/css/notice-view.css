@@ -60,29 +60,28 @@ a {
   padding: 10px 25px;
   font-size: 20px;
   font-weight: bolder;
-  background: #FFD4D4;
-  color: #000000;
-  border: 4px solid rgb(211, 211, 211);
-  border-radius: 10px;
+  background: rgb(179, 0, 0);
+  color: #ffffff;
+  border-radius: 30px;
   margin-bottom: 30px;
 }
 
 .view-card {
   margin-top: 15px;
-  border: 1px solid rgb(255, 133, 133);
+  border: 1px solid rgb(153, 153, 153);
   box-shadow: 0 4px 12px rgba(0,0,0,0.1);
   background: #ffffff;
 }
 
 .box-header {
-  background-color: #ffabab;
+  background-color: rgb(179, 0, 0);
   height: 40px;
   margin-bottom: 30px;
 }
 
 .view-subject {
   display: inline;
-  background: #ffeaea;
+  background: #ffffff;
   font-size: 25px;
   font-weight: bolder;
   padding: 15px;
@@ -133,28 +132,31 @@ a {
 .notice-update-btn {
   align-content: center;
   font-size: 17px;
+  font-weight: bolder;
   background-color: #e2e2e2;
   padding: 5px 10px;
   border-radius: 5px;
 }
 
 .notice-update-btn:hover {
-  background-color: rgb(77, 77, 77);
+  background-color: rgb(150, 150, 150);
   color: #ffffff;
 }
 
 .notice-delete-btn {
   font-size: 17px;
-  background-color: #ffffff;
+  font-weight: bolder;
+  background-color: rgb(182, 0, 0);
+  color: #ffffff;
   padding: 5px 10px;
   border-radius: 5px;
-  border: 3px solid rgb(255, 76, 76);
+  border: 3px solid rgb(182, 0, 0);
 }
 
 .notice-delete-btn:hover {
-  background-color: rgb(255, 76, 76);
+  background-color: rgb(128, 0, 0);
   color: #ffffff;
-  border: 3px solid rgb(255, 76, 76);
+  border: 3px solid rgb(128, 0, 0);
 }
 
 .view-images {
@@ -174,6 +176,11 @@ a {
   font-weight: bolder;
   color: #5e5e5e;
   justify-content: center;
-  background-color: #c4c4c4;
+  background-color: #e9e9e9;
   padding: 20px;
+}
+
+.notice-btn-sm:hover {
+  background-color: rgb(204, 204, 204);
+
 }
