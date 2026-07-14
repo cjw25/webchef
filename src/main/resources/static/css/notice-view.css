@@ -42,33 +42,97 @@ a {
 
 .notice-wrap {
   max-width: 1600px;
-  padding: 50px 258px;
+  padding: 0px 258px;
   margin: 0 auto;
 }
 
-.notice-crumb {
-  margin-bottom: 15px;
+.notice-hero {
+  position: relative;
+  margin: 0 calc(50% - 50vw) 42px;
+  padding: 56px max(20px, calc((100vw - 1085px) / 2)) 48px;
+  overflow: hidden;
+  background:
+            radial-gradient(
+                    circle at 85% 20%,
+                    rgba(229, 57, 47, 0.1),
+                    transparent 28%
+            ),
+            linear-gradient(
+                    135deg,
+                    #ffe6e6 0%,
+                    #fff9f8 50%,
+                    #ffffff 100%
+            );
+  border-bottom: 1px solid #f4dfdc;
 }
 
-.notice-crumb span {
+.notice-hero::after {
+  content: "";
+  position: absolute;
+  right: -60px;
+  bottom: -100px;
+  width: 260px;
+  height: 260px;
+  border: 48px solid rgba(229, 57, 47, 0.035);
+  border-radius: 50%;
+  pointer-events: none;
+}
+
+.notice-crumb {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 5px;
+  margin-bottom: 24px;
+  color: var(--wc-text-sub);
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.notice-crumb a {
+  transition: color 0.2s ease;
+}
+
+.notice-crumb a:hover {
+  color: var(--wc-primary);
+}
+
+.notice-crumb span:last-child {
+  max-width: 600px;
+  overflow: hidden;
   color: #cf0000;
-  font-weight: bolder;
+  font-weight: 600;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .notice-banner {
-  display:inline-block;
-  padding: 10px 25px;
-  font-size: 20px;
-  font-weight: bolder;
-  background: rgb(179, 0, 0);
-  color: #ffffff;
-  border-radius: 30px;
-  margin-bottom: 30px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 42px;
+  margin-bottom: 16px;
+  padding: 0 20px;
+  color: rgb(255, 255, 255);
+  background: rgba(173, 0, 0, 0.9);
+  border: 1px solid rgba(229, 57, 47, 0.14);
+  border-radius: 999px;
+  box-shadow: 0 6px 20px rgba(229, 57, 47, 0.08);
+  font-size: 15px;
+  font-weight: 500;
+  letter-spacing: -0.02em;
+}
+
+.notice-subtitle {
+  color: var(--wc-text-sub);
+  font-size: 15px;
+  font-weight: 500;
+  line-height: 1.7;
+  color: #5e5e5e;
 }
 
 .view-card {
   margin-top: 15px;
-  border: 1px solid rgb(153, 153, 153);
   box-shadow: 0 4px 12px rgba(0,0,0,0.1);
   background: #ffffff;
 }
@@ -167,7 +231,7 @@ a {
 .view-content {
   padding: 15px;
   height: 200px;
-  font-size: 20px;
+  font-size: 17px;
 }
 
 .notice-btn-sm {
