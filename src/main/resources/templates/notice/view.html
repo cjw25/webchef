@@ -16,12 +16,37 @@
 
 <main class="notice-wrap">
 
-    <div class="notice-crumb">
-        <a th:href="@{/notice/list}" style="color:inherit;text-decoration:none;">고객센터</a>
-        &nbsp;›&nbsp; <span th:text="${notice.subject}">공지사항 제목</span>
+    <!-- 상단 영역 -->
+    <div class="notice-hero">
+        <div class="notice-crumb">
+
+            <a th:href="@{/notice/list}"
+               style="color: inherit; text-decoration: none;">
+                고객센터
+            </a>
+
+            <span>&nbsp;›&nbsp;</span>
+
+            <span th:text="${notice.subject}">
+                공지사항 제목
+            </span>
+
+        </div>
+
+        <div class="notice-banner">
+            공지사항
+        </div>
+
+        <div class="notice-subtitle">
+            공지사항 상세 페이지입니다.<br>
+            최신 소식과 업데이트, 이벤트 소식을 확인 할 수 있습니다.
+        </div>
     </div>
 
-    <div class="notice-banner">공지사항</div>
+<!--    <div class="notice-crumb">-->
+<!--        <a th:href="@{/notice/list}" style="color:inherit;text-decoration:none;">고객센터</a>-->
+<!--        &nbsp;›&nbsp; <span th:text="${notice.subject}">공지사항 제목</span>-->
+<!--    </div>-->
 
     <div class="notice-card view-card">
         <div class="view-header">
