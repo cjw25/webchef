@@ -70,6 +70,17 @@ public class TipsService {
         return new TipResponse(tip);
     }
 
+    @Transactional
+    public Long createTip(String title, String content, TipCategory category, String imageUrl) {
+        Tip tip = new Tip();
+        tip.setTitle(title);
+        tip.setContent(content);
+        tip.setCategory(category);
+        tip.setImageUrl(imageUrl);
+
+        return tipRepository.save(tip).getId();
+    }
+
     private TipCategory parseCategory(String category) {
         try {
             return TipCategory.valueOf(category);
