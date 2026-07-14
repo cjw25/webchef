@@ -2,134 +2,90 @@
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <title>notice</title>
+    <title>공지사항</title>
 
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
     <link rel="stylesheet" th:href="@{/css/header.css}">
     <link rel="stylesheet" th:href="@{/css/footer.css}">
-    <link rel="stylesheet" th:href="@{/css/notice.css}"/>
+    <link rel="stylesheet" th:href="@{/css/notice.css}">
 </head>
 <body>
 
-<div th:replace="~{fragments/header :: header}"></div>
+<div class="page">
 
-<main>
-    <div class="page">
-        <div class="title">안내드립니다</div>
-        <div class="notice">
-            <div class="notice-banner">공지사항</div>
-            <div class="notice-container">
-                <div class="notice-header">
-                    <div class="total">총 게시물 <strong>0</strong>건</div>
-                    <!-- 서치 -->
-                    <div class="header-search">
+    <div th:replace="~{fragments/header :: header}"></div>
 
-                        <!-- 열리는 검색창 -->
-                        <form th:action="@{/search}"
-                              method="get"
-                              class="search-form">
+    <main class="notice-wrap">
 
-                            <input type="text" style="border: none;"
-                                   name="kw"
-                                   placeholder="검색어를 입력하세요"
-                                   th:value="${kw}"
-                                   autocomplete="off"
-                                   required>
-
-                            <button class="search-btn" type="submit">검색</button>
-                        </form>
-                    </div>
-                </div>
-                <div class="notice-body">
-                    <div class="notice-list">
-                        <div class="number">번호</div>
-                        <div class="name">제목</div>
-                        <div class="add">첨부</div>
-                        <div class="hits">조회수</div>
-                        <div class="date">등록일</div>
-                    </div>
-                    <div class="notice-text">
-                        <div class="text-number">번호</div>
-                        <div class="text-name">제목</div>
-                        <div class="text-add">첨부</div>
-                        <div class="text-hits">조회수</div>
-                        <div class="text-date">등록일</div>
-                    </div>
-                    <div class="notice-text">
-                        <div class="text-number">번호</div>
-                        <div class="text-name">제목</div>
-                        <div class="text-add">첨부</div>
-                        <div class="text-hits">조회수</div>
-                        <div class="text-date">등록일</div>
-                    </div>
-                    <div class="notice-text">
-                        <div class="text-number">번호</div>
-                        <div class="text-name">제목</div>
-                        <div class="text-add">첨부</div>
-                        <div class="text-hits">조회수</div>
-                        <div class="text-date">등록일</div>
-                    </div>
-                    <div class="notice-text">
-                        <div class="text-number">번호</div>
-                        <div class="text-name">제목</div>
-                        <div class="text-add">첨부</div>
-                        <div class="text-hits">조회수</div>
-                        <div class="text-date">등록일</div>
-                    </div>
-                    <div class="notice-text">
-                        <div class="text-number">번호</div>
-                        <div class="text-name">제목</div>
-                        <div class="text-add">첨부</div>
-                        <div class="text-hits">조회수</div>
-                        <div class="text-date">등록일</div>
-                    </div>
-                    <div class="notice-text">
-                        <div class="text-number">번호</div>
-                        <div class="text-name">제목</div>
-                        <div class="text-add">첨부</div>
-                        <div class="text-hits">조회수</div>
-                        <div class="text-date">등록일</div>
-                    </div>
-                    <div class="notice-text">
-                        <div class="text-number">번호</div>
-                        <div class="text-name">제목</div>
-                        <div class="text-add">첨부</div>
-                        <div class="text-hits">조회수</div>
-                        <div class="text-date">등록일</div>
-                    </div>
-                    <div class="notice-text">
-                        <div class="text-number">번호</div>
-                        <div class="text-name">제목</div>
-                        <div class="text-add">첨부</div>
-                        <div class="text-hits">조회수</div>
-                        <div class="text-date">등록일</div>
-                    </div>
-                    <div class="notice-text">
-                        <div class="text-number">번호</div>
-                        <div class="text-name">제목</div>
-                        <div class="text-add">첨부</div>
-                        <div class="text-hits">조회수</div>
-                        <div class="text-date">등록일</div>
-                    </div>
-                    <div class="notice-text">
-                        <div class="text-number">번호</div>
-                        <div class="text-name">제목</div>
-                        <div class="text-add">첨부</div>
-                        <div class="text-hits">조회수</div>
-                        <div class="text-date">등록일</div>
-                    </div>
-                </div>
-            </div>
+        <div class="notice-card">
+            <p class="notice-title">안내드립니다</p>
+            <p class="notice-body">
+                공지사항 페이지입니다.<br>
+                최신 소식과 업데이트, 이벤트 소식을 확인 할 수 있습니다.
+            </p>
         </div>
 
-        <section class="add-box">
-            <a class="add-btn" th:href="@{/notice/create}">공지사항 추가</a>
+        <div class="notice-top-row">
+            <span class="notice-tab-active">공지사항</span>
+            <a th:href="@{/notice/create}" class="notice-write-btn">공지사항 등록하기</a>
+        </div>
+
+        <form class="notice-search-box" th:action="@{/notice/list}" method="get">
+            <input type="text"
+                   name="kw"
+                   th:value="${kw}"
+                   placeholder="검색어를 입력하세요">
+            <button type="submit">검색</button>
+        </form>
+
+        <p class="notice-count">
+            총 게시물 <strong th:text="${paging.totalElements}">0</strong>건
+        </p>
+
+        <div class="notice-card-list">
+
+            <a class="notice-item-card"
+               th:each="notice : ${paging.content}"
+               th:href="@{|/notice/view/${notice.id}|}">
+
+                <div class="notice-item-left">
+                    <p class="notice-item-subject" th:text="${notice.subject}">제목</p>
+                    <p class="notice-item-meta">
+                        <span th:text="${#temporals.format(notice.createDate, 'yyyy.MM.dd')}">2026.07.10</span>
+                        <span class="dot">·</span>
+                        <span>조회 <span th:text="${notice.viewCount}">0</span></span>
+                        <span class="dot" th:if="${!notice.imageUrls.isEmpty()}">·</span>
+                        <span th:if="${!notice.imageUrls.isEmpty()}">📎 사진 첨부</span>
+                    </p>
+                </div>
+
+            </a>
+
+            <div class="notice-empty" th:if="${paging.content.isEmpty()}">
+                등록된 공지사항이 없습니다.
+            </div>
+
+        </div>
+
+        <section class="notice-pagination" th:if="${paging.totalPages > 1}">
+            <a th:if="${paging.hasPrevious()}"
+               th:href="@{/notice/list(page=${paging.number - 1}, kw=${kw})}">&lt;</a>
+
+            <a th:each="p : ${#numbers.sequence(0, paging.totalPages - 1)}"
+               th:href="@{/notice/list(page=${p}, kw=${kw})}"
+               th:text="${p + 1}"
+               th:classappend="${p == paging.number} ? ' active'">1</a>
+
+            <a th:if="${paging.hasNext()}"
+               th:href="@{/notice/list(page=${paging.number + 1}, kw=${kw})}">&gt;</a>
         </section>
 
-    </div>
-</main>
-<div th:replace="~{fragments/footer :: footer}"></div>
+    </main>
+
+    <div th:replace="~{fragments/footer :: footer}"></div>
+
+</div>
 
 </body>
 </html>
