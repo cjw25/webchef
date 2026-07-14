@@ -50,7 +50,7 @@
                         <img th:src="@{${img.fileUrl}}" class="notice-file-thumb" alt="기존 사진">
                         <label class="notice-file-main">
                             <input type="radio" th:field="*{mainSelect}" th:value="'existing-' + ${img.id}">
-                            대표사진
+                            대표 사진
                         </label>
                         <input type="checkbox" th:field="*{deleteImageIds}" th:value="${img.id}" class="existing-delete-checkbox" style="display:none;">
                         <button type="button" class="notice-file-remove existing-remove-btn">✕</button>
