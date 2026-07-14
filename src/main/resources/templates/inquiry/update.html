@@ -1,13 +1,208 @@
+```html
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html lang="ko"
+      xmlns:th="http://www.thymeleaf.org">
+
 <head>
     <meta charset="UTF-8">
+
     <title>문의 수정</title>
 
-    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1">
 
-    <link rel="stylesheet" th:href="@{/css/header.css}">
-    <link rel="stylesheet" th:href="@{/css/inquiry-create.css}">
+    <link rel="stylesheet"
+          th:href="@{/css/header.css}">
+
+    <link rel="stylesheet"
+          th:href="@{/css/footer.css}">
+
+    <link rel="stylesheet"
+          th:href="@{/css/inquiry-create.css}">
+
+    <style>
+        /*
+         * 기존 등록 이미지 목록
+         */
+        .existing-image-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 14px;
+            margin-top: 12px;
+        }
+
+        /*
+         * 실제 체크박스는 화면에서 숨김
+         */
+        .existing-delete-checkbox {
+            position: absolute;
+            width: 1px;
+            height: 1px;
+            overflow: hidden;
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        /*
+         * 등록된 이미지 한 개
+         */
+        .existing-image-label {
+            position: relative;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            width: 100%;
+            padding: 12px 50px 12px 12px;
+            border: 1px solid #e4e4e4;
+            border-radius: 10px;
+            background: #ffffff;
+            cursor: pointer;
+            transition:
+                    border-color 0.2s ease,
+                    background-color 0.2s ease,
+                    opacity 0.2s ease;
+        }
+
+        .existing-image-label:hover {
+            border-color: #999999;
+        }
+
+        /*
+         * 기존 이미지 썸네일
+         */
+        .existing-image-label .inquiry-file-thumb {
+            flex-shrink: 0;
+            width: 76px;
+            height: 76px;
+            border-radius: 8px;
+            object-fit: cover;
+            background: #f5f5f5;
+            transition:
+                    filter 0.2s ease,
+                    opacity 0.2s ease;
+        }
+
+        /*
+         * 이미지 설명 영역
+         */
+        .existing-image-info {
+            display: flex;
+            flex: 1;
+            min-width: 0;
+            flex-direction: column;
+            gap: 5px;
+        }
+
+        .existing-image-info .inquiry-file-name {
+            overflow: hidden;
+            color: #222222;
+            font-size: 14px;
+            font-weight: 600;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .existing-image-delete-guide {
+            color: #888888;
+            font-size: 12px;
+        }
+
+        /*
+         * 오른쪽 삭제 버튼
+         */
+        .existing-image-remove-icon {
+            position: absolute;
+            top: 50%;
+            right: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 30px;
+            height: 30px;
+            border: 1px solid #dedede;
+            border-radius: 50%;
+            background: #ffffff;
+            color: #777777;
+            font-size: 15px;
+            font-weight: 700;
+            transform: translateY(-50%);
+            transition:
+                    border-color 0.2s ease,
+                    background-color 0.2s ease,
+                    color 0.2s ease;
+        }
+
+        .existing-image-label:hover .existing-image-remove-icon {
+            border-color: #d9534f;
+            color: #d9534f;
+        }
+
+        /*
+         * 기본 상태에서는 삭제 예정 문구 숨김
+         */
+        .existing-image-delete-status {
+            display: none;
+            color: #d9534f;
+            font-size: 12px;
+            font-weight: 700;
+        }
+
+        /*
+         * 체크된 이미지 삭제 예정 스타일
+         */
+        .existing-delete-checkbox:checked + .existing-image-label {
+            border-color: #e9a5a3;
+            background: #fff5f5;
+        }
+
+        .existing-delete-checkbox:checked
+        + .existing-image-label
+        .inquiry-file-thumb {
+            opacity: 0.45;
+            filter: grayscale(100%);
+        }
+
+        .existing-delete-checkbox:checked
+        + .existing-image-label
+        .inquiry-file-name {
+            color: #999999;
+            text-decoration: line-through;
+        }
+
+        .existing-delete-checkbox:checked
+        + .existing-image-label
+        .existing-image-delete-guide {
+            display: none;
+        }
+
+        .existing-delete-checkbox:checked
+        + .existing-image-label
+        .existing-image-delete-status {
+            display: block;
+        }
+
+        .existing-delete-checkbox:checked
+        + .existing-image-label
+        .existing-image-remove-icon {
+            border-color: #d9534f;
+            background: #d9534f;
+            color: #ffffff;
+        }
+
+        /*
+         * 모바일
+         */
+        @media (max-width: 600px) {
+            .existing-image-label {
+                padding: 10px 45px 10px 10px;
+            }
+
+            .existing-image-label .inquiry-file-thumb {
+                width: 65px;
+                height: 65px;
+            }
+        }
+    </style>
 </head>
 
 <body>
@@ -19,12 +214,20 @@
     <main class="inquiry-wrap">
 
         <div class="inquiry-crumb">
-            <a th:href="@{/inquiry/list}">고객센터</a>
+
+            <a th:href="@{/inquiry/list}">
+                고객센터
+            </a>
+
             &nbsp;›&nbsp;
+
             <span>문의 수정</span>
+
         </div>
 
-        <div class="inquiry-banner">1:1 문의</div>
+        <div class="inquiry-banner">
+            1:1 문의
+        </div>
 
         <p class="inquiry-subtitle">
             문의 내용을 수정해주세요.
@@ -44,12 +247,15 @@
                   method="post"
                   enctype="multipart/form-data">
 
+                <!-- CSRF -->
                 <input type="hidden"
                        th:if="${_csrf}"
                        th:name="${_csrf.parameterName}"
                        th:value="${_csrf.token}">
 
+                <!-- 제목 -->
                 <div class="inquiry-field">
+
                     <label for="subject">
                         제목
                         <span class="req">*</span>
@@ -58,15 +264,20 @@
                     <input type="text"
                            id="subject"
                            th:field="*{subject}"
-                           placeholder="문의 제목을 입력하세요">
+                           maxlength="200"
+                           placeholder="문의 제목을 입력하세요"
+                           required>
 
                     <div class="inquiry-field-error"
                          th:if="${#fields.hasErrors('subject')}"
                          th:errors="*{subject}">
                     </div>
+
                 </div>
 
+                <!-- 내용 -->
                 <div class="inquiry-field">
+
                     <label for="inquiry-content">
                         내용
                         <span class="req">*</span>
@@ -75,57 +286,120 @@
                     <textarea id="inquiry-content"
                               th:field="*{content}"
                               maxlength="2000"
-                              placeholder="문의 내용을 입력하세요"></textarea>
+                              placeholder="문의 내용을 입력하세요"
+                              required></textarea>
 
                     <div class="inquiry-char-count">
-                        <span id="inquiry-char-current" th:text="${#strings.length(request.content)}">0</span> / 2000
+
+                        <span id="inquiry-char-current"
+                              th:text="${request.content != null
+                                  ? #strings.length(request.content)
+                                  : 0}">
+                            0
+                        </span>
+
+                        / 2000
+
                     </div>
 
                     <div class="inquiry-field-error"
                          th:if="${#fields.hasErrors('content')}"
                          th:errors="*{content}">
                     </div>
+
                 </div>
 
-                <!-- 기존 사진 -->
-                <div class="inquiry-field" th:if="${inquiry.imageDetails != null and !inquiry.imageDetails.isEmpty()}">
-                    <label>현재 등록된 사진</label>
-                    <div class="inquiry-file-list">
-                        <div class="inquiry-file-item existing-image-item" th:each="img : ${inquiry.imageDetails}">
-                            <img th:src="@{${img.fileUrl}}" class="inquiry-file-thumb" alt="기존 사진">
-                            <span class="inquiry-file-name">첨부 사진</span>
-                            <input type="checkbox" th:field="*{deleteImageIds}" th:value="${img.id}" class="existing-delete-checkbox" style="display:none;">
-                            <button type="button" class="inquiry-file-remove existing-remove-btn">✕</button>
-                        </div>
-                    </div>
-                </div>
+                <!-- 현재 등록된 이미지 -->
+                <div class="inquiry-field"
+                     th:if="${inquiry.imageDetails != null
+                         and !inquiry.imageDetails.isEmpty()}">
 
-                <!-- 새 사진 첨부 -->
-                <div class="inquiry-field">
-                    <label>사진 추가</label>
-                    <p class="inquiry-file-drop-sub" style="margin-bottom:10px;">
-                        기존 사진은 그대로 두고, 새 사진을 추가로 첨부할 수 있어요. (전체 최대 3장)
-                    </p>
-
-                    <label class="inquiry-file-drop" for="inquiry-file-input" id="inquiry-file-drop">
-                        <div class="inquiry-file-drop-icon">📎</div>
-                        <div class="inquiry-file-drop-text">클릭하거나 파일을 선택하세요</div>
-                        <div class="inquiry-file-drop-sub">JPG, JPEG, PNG, GIF, WEBP / 최대 10MB</div>
+                    <label>
+                        현재 등록된 사진
                     </label>
 
-                    <input type="file"
-                           name="img"
-                           id="inquiry-file-input"
-                           accept="image/jpeg,image/png,image/gif,image/webp"
-                           multiple
-                           style="display:none;">
+                    <p class="inquiry-file-drop-sub"
+                       style="margin: 6px 0 10px;">
+                        삭제할 사진의 ✕ 버튼을 선택해주세요.
+                    </p>
 
-                    <div class="inquiry-file-list" id="inquiry-file-list"></div>
+                    <div class="existing-image-list">
+
+                        <div th:each="img : ${inquiry.imageDetails}">
+
+                            <!--
+                                체크된 이미지 ID가
+                                deleteImageIds 목록으로 서버에 전달됨
+                            -->
+                            <input type="checkbox"
+                                   th:field="*{deleteImageIds}"
+                                   th:value="${img.id}"
+                                   th:id="'delete-image-' + ${img.id}"
+                                   class="existing-delete-checkbox">
+
+                            <label th:for="'delete-image-' + ${img.id}"
+                                   class="existing-image-label">
+
+                                <img th:src="@{${img.fileUrl}}"
+                                     class="inquiry-file-thumb"
+                                     alt="기존 첨부 이미지">
+
+                                <span class="existing-image-info">
+
+                                    <span class="inquiry-file-name">
+                                        첨부 사진
+                                    </span>
+
+                                    <span class="existing-image-delete-guide">
+                                        ✕ 버튼을 누르면 삭제됩니다.
+                                    </span>
+
+                                    <span class="existing-image-delete-status">
+                                        삭제 예정
+                                    </span>
+
+                                </span>
+
+                                <span class="existing-image-remove-icon">
+                                    ✕
+                                </span>
+
+                            </label>
+
+                        </div>
+
+                    </div>
+
                 </div>
 
+                <!-- 등록된 이미지가 없는 경우 -->
+                <div class="inquiry-field"
+                     th:if="${inquiry.imageDetails == null
+                         or inquiry.imageDetails.isEmpty()}">
+
+                    <label>
+                        현재 등록된 사진
+                    </label>
+
+                    <p class="inquiry-file-drop-sub">
+                        등록된 사진이 없습니다.
+                    </p>
+
+                </div>
+
+                <!-- 수정 버튼 -->
                 <div class="inquiry-actions">
-                    <a th:href="@{/inquiry/view/{id}(id=${inquiry.id})}" class="inquiry-btn inquiry-btn-prev">취소</a>
-                    <button type="submit" class="inquiry-btn inquiry-btn-submit">수정 완료</button>
+
+                    <a th:href="@{/inquiry/view/{id}(id=${inquiry.id})}"
+                       class="inquiry-btn inquiry-btn-prev">
+                        취소
+                    </a>
+
+                    <button type="submit"
+                            class="inquiry-btn inquiry-btn-submit">
+                        수정 완료
+                    </button>
+
                 </div>
 
             </form>
@@ -138,7 +412,6 @@
 
 </div>
 
-<script src="/js/inquiry-update.js"></script>
-
 </body>
 </html>
+

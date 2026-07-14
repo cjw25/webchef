@@ -3,6 +3,7 @@ package com.example.fivechef.WebChef.dto;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Getter
@@ -15,5 +16,7 @@ public class InquiryUpdateRequest {
 
     private String answerContent;
 
-    private List<Long> deleteImageIds;
+//    private List<Long> deleteImageIds;
+
+    private List<Long> deleteImageIds = new ArrayList<>();
 }
