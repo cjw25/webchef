@@ -20,189 +20,6 @@
     <link rel="stylesheet"
           th:href="@{/css/inquiry-create.css}">
 
-    <style>
-        /*
-         * 기존 등록 이미지 목록
-         */
-        .existing-image-list {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 14px;
-            margin-top: 12px;
-        }
-
-        /*
-         * 실제 체크박스는 화면에서 숨김
-         */
-        .existing-delete-checkbox {
-            position: absolute;
-            width: 1px;
-            height: 1px;
-            overflow: hidden;
-            opacity: 0;
-            pointer-events: none;
-        }
-
-        /*
-         * 등록된 이미지 한 개
-         */
-        .existing-image-label {
-            position: relative;
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            width: 100%;
-            padding: 12px 50px 12px 12px;
-            border: 1px solid #e4e4e4;
-            border-radius: 10px;
-            background: #ffffff;
-            cursor: pointer;
-            transition:
-                    border-color 0.2s ease,
-                    background-color 0.2s ease,
-                    opacity 0.2s ease;
-        }
-
-        .existing-image-label:hover {
-            border-color: #999999;
-        }
-
-        /*
-         * 기존 이미지 썸네일
-         */
-        .existing-image-label .inquiry-file-thumb {
-            flex-shrink: 0;
-            width: 76px;
-            height: 76px;
-            border-radius: 8px;
-            object-fit: cover;
-            background: #f5f5f5;
-            transition:
-                    filter 0.2s ease,
-                    opacity 0.2s ease;
-        }
-
-        /*
-         * 이미지 설명 영역
-         */
-        .existing-image-info {
-            display: flex;
-            flex: 1;
-            min-width: 0;
-            flex-direction: column;
-            gap: 5px;
-        }
-
-        .existing-image-info .inquiry-file-name {
-            overflow: hidden;
-            color: #222222;
-            font-size: 14px;
-            font-weight: 600;
-            text-overflow: ellipsis;
-            white-space: nowrap;
-        }
-
-        .existing-image-delete-guide {
-            color: #888888;
-            font-size: 12px;
-        }
-
-        /*
-         * 오른쪽 삭제 버튼
-         */
-        .existing-image-remove-icon {
-            position: absolute;
-            top: 50%;
-            right: 15px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            width: 30px;
-            height: 30px;
-            border: 1px solid #dedede;
-            border-radius: 50%;
-            background: #ffffff;
-            color: #777777;
-            font-size: 15px;
-            font-weight: 700;
-            transform: translateY(-50%);
-            transition:
-                    border-color 0.2s ease,
-                    background-color 0.2s ease,
-                    color 0.2s ease;
-        }
-
-        .existing-image-label:hover .existing-image-remove-icon {
-            border-color: #d9534f;
-            color: #d9534f;
-        }
-
-        /*
-         * 기본 상태에서는 삭제 예정 문구 숨김
-         */
-        .existing-image-delete-status {
-            display: none;
-            color: #d9534f;
-            font-size: 12px;
-            font-weight: 700;
-        }
-
-        /*
-         * 체크된 이미지 삭제 예정 스타일
-         */
-        .existing-delete-checkbox:checked + .existing-image-label {
-            border-color: #e9a5a3;
-            background: #fff5f5;
-        }
-
-        .existing-delete-checkbox:checked
-        + .existing-image-label
-        .inquiry-file-thumb {
-            opacity: 0.45;
-            filter: grayscale(100%);
-        }
-
-        .existing-delete-checkbox:checked
-        + .existing-image-label
-        .inquiry-file-name {
-            color: #999999;
-            text-decoration: line-through;
-        }
-
-        .existing-delete-checkbox:checked
-        + .existing-image-label
-        .existing-image-delete-guide {
-            display: none;
-        }
-
-        .existing-delete-checkbox:checked
-        + .existing-image-label
-        .existing-image-delete-status {
-            display: block;
-        }
-
-        .existing-delete-checkbox:checked
-        + .existing-image-label
-        .existing-image-remove-icon {
-            border-color: #d9534f;
-            background: #d9534f;
-            color: #ffffff;
-        }
-
-        /*
-         * 모바일
-         */
-        @media (max-width: 600px) {
-            .existing-image-label {
-                padding: 10px 45px 10px 10px;
-            }
-
-            .existing-image-label .inquiry-file-thumb {
-                width: 65px;
-                height: 65px;
-            }
-        }
-    </style>
 </head>
 
 <body>
@@ -372,6 +189,32 @@
 
                 </div>
 
+                <!-- 새 사진 추가 -->
+                <div class="inquiry-field">
+
+                    <label>
+                        새 사진 추가
+                    </label>
+
+                    <label class="inquiry-file-drop" for="inquiry-file-input" id="inquiry-file-drop">
+                        <div class="inquiry-file-drop-icon">📎</div>
+                        <div class="inquiry-file-drop-text">클릭하거나 파일을 선택하세요</div>
+                        <div class="inquiry-file-drop-sub">
+                            JPG, JPEG, PNG, GIF, WEBP / 최대 10MB (기존 사진 포함 최대 3장)
+                        </div>
+                    </label>
+
+                    <input type="file"
+                           name="img"
+                           id="inquiry-file-input"
+                           accept="image/jpeg,image/png,image/gif,image/webp"
+                           multiple
+                           style="display: none;">
+
+                    <div class="inquiry-file-list" id="inquiry-file-list"></div>
+
+                </div>
+
                 <!-- 등록된 이미지가 없는 경우 -->
                 <div class="inquiry-field"
                      th:if="${inquiry.imageDetails == null
@@ -411,6 +254,8 @@
     <div th:replace="~{fragments/footer :: footer}"></div>
 
 </div>
+
+<script src="/js/inquiry-create.js"></script>
 
 </body>
 </html>
