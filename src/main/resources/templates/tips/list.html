@@ -11,6 +11,8 @@
 
     <link rel="stylesheet" th:href="@{/css/header.css}">
     <link rel="stylesheet" th:href="@{/css/tips.css}">
+    <link rel="stylesheet" th:href="@{/css/footer.css}">
+    <link rel="stylesheet" th:href="@{/css/chatbot-widget.css}">
 </head>
 
 <body>
@@ -118,6 +120,8 @@
     </section>
 
 </main>
+
+<div th:replace="~{fragments/footer :: footer}"></div>
 
 </body>
 </html>

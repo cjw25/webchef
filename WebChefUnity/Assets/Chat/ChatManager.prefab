@@ -45,7 +45,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  GlobalObjectIdHash: 0
+  GlobalObjectIdHash: 2491333621
   InScenePlacedSourceGlobalObjectIdHash: 0
   AlwaysReplicateAsRoot: 0
   SynchronizeTransform: 1
@@ -66,6 +66,5 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d22151784e069ac4eaaa286a5002a40c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  chatInput: {fileID: 0}
-  chatWindow: {fileID: 0}
-  chatDisplayTime: 10
+  chatInput: {fileID: 8217440862322762769, guid: a4b03bd2c2aa30949abda3bf8a7f6678, type: 3}
+  chatWindow: {fileID: 4237004279268259128, guid: d39dc5d9f4412d0478556a0287979a19, type: 3}

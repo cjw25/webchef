@@ -53,9 +53,13 @@ public class CourseController {
     @GetMapping("/course/view/{id}")
     public String view(
             @PathVariable("id") Long id,
-            Model model
+            Model model,
+            Principal principal
     ) {
-        CourseResponse course = courseService.getCourseDetailResponse(id);
+        String username = principal == null ? null : principal.getName();
+
+        CourseResponse course = courseService.getCourseDetailResponse(id, username);
+
         model.addAttribute("course", course);
 
         return "course/view";
@@ -67,7 +71,7 @@ public class CourseController {
     }
 
     @GetMapping("/course/update/{id}")
-    public String legacyUpdateRedirect(@PathVariable Long id) {
+    public String legacyUpdateRedirect(@PathVariable("id") Long id) {
         return "redirect:/instructor/courses/update/" + id;
     }
 }
