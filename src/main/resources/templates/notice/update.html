@@ -17,6 +17,97 @@
 
     <link rel="stylesheet"
           th:href="@{/css/notice-create.css}">
+
+    <style>
+        /* 기존 이미지 영역 강제 표시 */
+        .existing-image-item {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            width: 100%;
+        }
+
+        .notice-file-thumb {
+            width: 120px;
+            height: 90px;
+            flex: 0 0 120px;
+            object-fit: cover;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+        }
+
+        .notice-file-main {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .notice-file-delete-label {
+            display: flex !important;
+            align-items: center;
+            gap: 7px;
+            margin: 0 !important;
+            padding: 8px 12px !important;
+            border: 1px solid #d6d6d6;
+            border-radius: 6px;
+            font-size: 14px !important;
+            font-weight: 600 !important;
+            cursor: pointer;
+            white-space: nowrap;
+        }
+
+        .notice-file-delete-label input {
+            width: 16px;
+            height: 16px;
+            cursor: pointer;
+        }
+
+        /* 파일 input이 무조건 보이도록 처리 */
+        .notice-upload-input {
+            display: block !important;
+            width: 100%;
+            padding: 14px;
+            border: 2px solid #c2c2c2;
+            background: #fff;
+            font-size: 14px;
+            cursor: pointer;
+        }
+
+        /* 하단 버튼 무조건 표시 */
+        .notice-actions {
+            display: flex !important;
+            width: 100%;
+            margin-top: 40px;
+            position: relative;
+            visibility: visible !important;
+            opacity: 1 !important;
+        }
+
+        .notice-actions .notice-btn {
+            display: flex !important;
+            visibility: visible !important;
+            opacity: 1 !important;
+        }
+
+        @media (max-width: 600px) {
+            .existing-image-item {
+                flex-wrap: wrap;
+            }
+
+            .notice-file-thumb {
+                width: 100%;
+                height: 180px;
+                flex-basis: 100%;
+            }
+
+            .notice-file-delete-label {
+                margin-left: auto !important;
+            }
+
+            .notice-actions {
+                flex-direction: column;
+            }
+        }
+    </style>
 </head>
 
 <body>
@@ -34,9 +125,7 @@
 
         <span>&nbsp;›&nbsp;</span>
 
-        <span>
-            공지사항 수정
-        </span>
+        <span>공지사항 수정</span>
 
     </div>
 
@@ -63,6 +152,7 @@
                    th:name="${_csrf.parameterName}"
                    th:value="${_csrf.token}">
 
+            <!-- 제목 -->
             <div class="notice-field">
 
                 <label for="notice-subject">
@@ -83,6 +173,7 @@
 
             </div>
 
+            <!-- 내용 -->
             <div class="notice-field">
 
                 <label for="notice-content">
@@ -90,13 +181,18 @@
                     <span class="req">*</span>
                 </label>
 
-                <textarea th:field="*{content}"
-                          id="notice-content"
+                <textarea id="notice-content"
+                          th:field="*{content}"
                           maxlength="2000"
                           placeholder="공지사항 내용을 입력하세요"></textarea>
 
                 <div class="notice-char-count">
-                    <span id="notice-char-current">0</span>
+                    <span id="notice-char-current"
+                          th:text="${request.content != null
+                                   ? #strings.length(request.content)
+                                   : 0}">
+                        0
+                    </span>
                     / 2000
                 </div>
 
@@ -107,7 +203,7 @@
 
             </div>
 
-            <!-- 기존 사진 -->
+            <!-- 기존 이미지 -->
             <div class="notice-field"
                  th:if="${notice.imageDetails != null
                          and !notice.imageDetails.isEmpty()}">
@@ -116,35 +212,32 @@
                     현재 등록된 사진
                 </label>
 
+                <p class="notice-file-drop-sub">
+                    삭제할 사진은 오른쪽의 삭제 체크박스를 선택하세요.
+                </p>
+
                 <div class="notice-file-list">
 
                     <div class="notice-file-item existing-image-item"
                          th:each="img : ${notice.imageDetails}">
 
-                        <img th:src="@{${img.imageUrl}}"
+                        <img th:src="${img.imageUrl}"
                              class="notice-file-thumb"
-                             alt="기존 사진">
+                             alt="기존 공지사항 이미지">
 
                         <div class="notice-file-main">
-
-                            <span th:text="${img.originalFileName != null
-                                           ? img.originalFileName
-                                           : '등록된 이미지'}">
-                                등록된 이미지
-                            </span>
-
+                            <span>등록된 이미지</span>
                         </div>
 
-                        <input type="checkbox"
-                               name="deleteImageIds"
-                               th:value="${img.id}"
-                               class="existing-delete-checkbox"
-                               style="display: none;">
+                        <label class="notice-file-delete-label">
 
-                        <button type="button"
-                                class="notice-file-remove existing-remove-btn">
-                            ✕
-                        </button>
+                            <input type="checkbox"
+                                   name="deleteImageIds"
+                                   th:value="${img.id}">
+
+                            <span>삭제</span>
+
+                        </label>
 
                     </div>
 
@@ -152,43 +245,39 @@
 
             </div>
 
-            <!-- 새로운 사진 첨부 -->
-            <div class="notice-field">
+            <!-- 기존 이미지가 없는 경우 -->
+            <div class="notice-field"
+                 th:if="${notice.imageDetails == null
+                         or notice.imageDetails.isEmpty()}">
 
                 <label>
+                    현재 등록된 사진
+                </label>
+
+                <p class="notice-file-drop-sub">
+                    현재 등록된 이미지가 없습니다.
+                </p>
+
+            </div>
+
+            <!-- 새 이미지 업로드 -->
+            <div class="notice-field">
+
+                <label for="notice-file-input">
                     사진 추가
                 </label>
 
-                <p class="notice-file-drop-sub"
-                   style="margin-bottom: 10px; margin-left: 10px;">
-                    기존 사진을 유지하면서 새로운 사진을 추가할 수 있습니다.
+                <p class="notice-file-drop-sub">
+                    기존 사진을 유지하면서 새로운 사진을 추가할 수 있습니다.<br>
                     JPG, JPEG, PNG, GIF, WEBP 파일을 업로드할 수 있으며 파일당 최대 10MB입니다.
                 </p>
-
-                <label class="notice-file-drop"
-                       for="notice-file-input"
-                       id="notice-file-drop">
-
-                    <div class="notice-file-drop-icon">
-                        📎
-                    </div>
-
-                    <div class="notice-file-drop-text">
-                        클릭하거나 파일을 선택하세요
-                    </div>
-
-                    <div class="notice-file-drop-sub">
-                        JPG, JPEG, PNG, GIF, WEBP / 파일당 최대 10MB
-                    </div>
-
-                </label>
 
                 <input type="file"
                        name="images"
                        id="notice-file-input"
+                       class="notice-upload-input"
                        multiple
-                       accept="image/jpeg,image/png,image/gif,image/webp"
-                       style="display: none;">
+                       accept="image/jpeg,image/png,image/gif,image/webp">
 
                 <div class="notice-file-list"
                      id="notice-file-list">
@@ -196,6 +285,7 @@
 
             </div>
 
+            <!-- 하단 버튼 -->
             <div class="notice-actions">
 
                 <a th:href="@{/notice/view/{id}(id=${notice.id})}"
@@ -216,10 +306,7 @@
 
 </main>
 
-<script th:src="@{/js/notice-update.js}"></script>
-
 <div th:replace="~{fragments/footer :: footer}"></div>
 
 </body>
 </html>
-
