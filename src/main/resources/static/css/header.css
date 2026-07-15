@@ -153,6 +153,22 @@
     width: 780px;
 }
 
+/* 컬럼이 1개뿐인 메뉴(자취 요리 팁 / 우리들의 대화 / 고객센터)는
+   950px로 고정하지 않고 내용 크기만큼만 박스가 뜨도록 처리 */
+.mega-menu.compact {
+    width: max-content;
+    max-width: min(560px, calc(100vw - 32px));
+}
+
+.mega-menu.compact .mega-inner {
+    width: max-content;
+}
+
+.mega-menu.compact .mega-title-box {
+    width: 260px;
+    min-width: 260px;
+}
+
 .gnb-item:hover .mega-menu {
     opacity: 1;
     visibility: visible;
@@ -561,17 +577,24 @@
         height: 48px;
     }
 
-    .mega-menu {
+    .mega-menu,
+    .mega-menu.compact {
         top: 100%;
         left: 0;
 
         width: calc(100vw - 36px);
+        max-width: calc(100vw - 36px);
 
         transform: translateX(0) translateY(12px);
     }
 
     .mega-menu.single {
         width: calc(100vw - 36px);
+    }
+
+    .mega-menu.compact .mega-inner,
+    .mega-menu.compact .mega-title-box {
+        width: 100%;
     }
 
     .gnb-item:hover .mega-menu {
