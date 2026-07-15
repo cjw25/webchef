@@ -1,15 +1,24 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html lang="ko"
+      xmlns:th="http://www.thymeleaf.org">
+
 <head>
     <meta charset="UTF-8">
     <title>공지사항 작성</title>
 
-    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1">
 
-    <link rel="stylesheet" th:href="@{/css/header.css}">
-    <link rel="stylesheet" th:href="@{/css/footer.css}">
-    <link rel="stylesheet" th:href="@{/css/notice-create.css}">
+    <link rel="stylesheet"
+          th:href="@{/css/header.css}">
+
+    <link rel="stylesheet"
+          th:href="@{/css/footer.css}">
+
+    <link rel="stylesheet"
+          th:href="@{/css/notice-create.css}">
 </head>
+
 <body>
 
 <div th:replace="~{fragments/header :: header}"></div>
@@ -17,54 +26,136 @@
 <main class="notice-wrap">
 
     <div class="notice-crumb">
-        <a th:href="@{/notice/list}" style="color:inherit;text-decoration:none;">고객센터</a>
-        &nbsp;›&nbsp; <span>공지사항</span>
+
+        <a th:href="@{/notice/list}"
+           style="color: inherit; text-decoration: none;">
+            고객센터
+        </a>
+
+        <span>&nbsp;›&nbsp;</span>
+
+        <span>
+            공지사항
+        </span>
+
     </div>
 
-    <div class="notice-subtitle">공지사항</div>
+    <div class="notice-subtitle">
+        공지사항
+    </div>
 
     <div class="notice-card">
+
         <div class="box-header"></div>
-        <div class="notice-error-box" th:if="${errorMessage}" th:text="${errorMessage}"></div>
 
-        <form th:action="@{/notice/create}" th:object="${request}" method="post" enctype="multipart/form-data">
+        <div class="notice-error-box"
+             th:if="${errorMessage}"
+             th:text="${errorMessage}">
+        </div>
 
-            <input type="hidden" th:if="${_csrf}" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+        <form th:action="@{/notice/create}"
+              th:object="${request}"
+              method="post"
+              enctype="multipart/form-data">
+
+            <input type="hidden"
+                   th:if="${_csrf}"
+                   th:name="${_csrf.parameterName}"
+                   th:value="${_csrf.token}">
 
             <div class="notice-field">
-                <label>제목<span class="req">*</span></label>
-                <input type="text" th:field="*{subject}" placeholder="공지사항 제목을 입력하세요">
-                <p class="notice-field-error" th:if="${#fields.hasErrors('subject')}" th:errors="*{subject}"></p>
+
+                <label for="notice-subject">
+                    제목
+                    <span class="req">*</span>
+                </label>
+
+                <input type="text"
+                       id="notice-subject"
+                       th:field="*{subject}"
+                       maxlength="200"
+                       placeholder="공지사항 제목을 입력하세요">
+
+                <p class="notice-field-error"
+                   th:if="${#fields.hasErrors('subject')}"
+                   th:errors="*{subject}">
+                </p>
+
             </div>
 
             <div class="notice-field">
-                <label>내용<span class="req">*</span></label>
-                <textarea th:field="*{content}" id="notice-content" placeholder="공지사항 내용을 입력하세요"></textarea>
-                <div class="notice-char-count"><span id="notice-char-current">0</span> / 2000</div>
-                <p class="notice-field-error" th:if="${#fields.hasErrors('content')}" th:errors="*{content}"></p>
+
+                <label for="notice-content">
+                    내용
+                    <span class="req">*</span>
+                </label>
+
+                <textarea th:field="*{content}"
+                          id="notice-content"
+                          maxlength="2000"
+                          placeholder="공지사항 내용을 입력하세요"></textarea>
+
+                <div class="notice-char-count">
+                    <span id="notice-char-current">0</span>
+                    / 2000
+                </div>
+
+                <p class="notice-field-error"
+                   th:if="${#fields.hasErrors('content')}"
+                   th:errors="*{content}">
+                </p>
+
             </div>
 
             <div class="notice-field">
-                <label>파일 첨부</label>
 
-                <label class="notice-file-drop" for="notice-file-input" id="notice-file-drop">
-                    <div class="notice-file-drop-icon">📎</div>
-                    <div class="notice-file-drop-text">클릭하거나 파일을 선택하세요</div>
-                    <div class="notice-file-drop-sub">JPG, JPEG, PNG, GIF, WEBP / 최대 10MB</div>
+                <label>
+                    파일 첨부
+                </label>
+
+                <label class="notice-file-drop"
+                       for="notice-file-input"
+                       id="notice-file-drop">
+
+                    <div class="notice-file-drop-icon">
+                        📎
+                    </div>
+
+                    <div class="notice-file-drop-text">
+                        클릭하거나 파일을 선택하세요
+                    </div>
+
+                    <div class="notice-file-drop-sub">
+                        JPG, JPEG, PNG, GIF, WEBP / 파일당 최대 10MB
+                    </div>
+
                 </label>
 
                 <input type="file"
-                       name="img"
+                       name="images"
                        id="notice-file-input"
                        accept="image/jpeg,image/png,image/gif,image/webp"
+                       multiple
                        style="display: none;">
 
-                <div class="notice-file-list" id="notice-file-list"></div>
+                <div class="notice-file-list"
+                     id="notice-file-list">
+                </div>
+
             </div>
 
             <div class="notice-actions">
-                <a th:href="@{/notice/list}" class="notice-btn notice-btn-prev">처음으로</a>
-                <button type="submit" class="notice-btn notice-btn-submit">공지사항 등록</button>
+
+                <a th:href="@{/notice/list}"
+                   class="notice-btn notice-btn-prev">
+                    처음으로
+                </a>
+
+                <button type="submit"
+                        class="notice-btn notice-btn-submit">
+                    공지사항 등록
+                </button>
+
             </div>
 
         </form>
