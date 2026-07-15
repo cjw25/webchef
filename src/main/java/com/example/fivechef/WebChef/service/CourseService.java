@@ -64,7 +64,9 @@ public class CourseService {
         Pageable pageable = PageRequest.of(page, 12, sortOption);
 
         User loginUser = getLoginUserOrNull(username);
-        SubscriptionPlanType userPlan = loginUser == null ? null : subscriptionService.getCurrentPlan(loginUser);
+        SubscriptionPlanType userPlan = loginUser == null
+                ? null
+                : subscriptionService.getCurrentPlan(loginUser);
 
         return courseRepository.findAll((root, query, criteriaBuilder) -> {
             List<Predicate> predicates = new ArrayList<>();
@@ -82,6 +84,28 @@ public class CourseService {
                 predicates.add(criteriaBuilder.or(
                         criteriaBuilder.like(root.get("title"), likeKeyword),
                         criteriaBuilder.like(root.get("description"), likeKeyword)
+                ));
+            }
+
+            /*
+             * BASIC 구독자는 PREMIUM 강의를 목록에서 숨김
+             *
+             * 비로그인 / 미구독 USER
+             * - 무료 / BASIC / PREMIUM 모두 보임
+             *
+             * BASIC 구독 USER
+             * - 무료 / BASIC만 보임
+             *
+             * PREMIUM 구독 USER
+             * - 무료 / BASIC / PREMIUM 모두 보임
+             */
+            if (loginUser != null
+                    && loginUser.getRole() == Role.USER
+                    && userPlan == SubscriptionPlanType.BASIC) {
+
+                predicates.add(criteriaBuilder.or(
+                        criteriaBuilder.isNull(root.get("requiredPlanType")),
+                        criteriaBuilder.equal(root.get("requiredPlanType"), SubscriptionPlanType.BASIC)
                 ));
             }
 
@@ -115,10 +139,28 @@ public class CourseService {
         return new CourseResponse(course);
     }
 
+    /*
+     * 강의 상세 보기
+     *
+     * 직접 URL 입력 방지 포함
+     * BASIC 구독자가 PREMIUM 강의 URL을 직접 입력해도 차단됨
+     */
     @Transactional
-    public CourseResponse getCourseDetailResponse(Long id) {
+    public CourseResponse getCourseDetailResponse(Long id, String username) {
         Course course = getCourseEntity(id);
+
+        User loginUser = getLoginUserOrNull(username);
+
+        if (loginUser == null) {
+            throw new IllegalArgumentException("로그인 후 이용할 수 있습니다.");
+        }
+
+        SubscriptionPlanType userPlan = subscriptionService.getCurrentPlan(loginUser);
+
+        validateCourseViewAccess(course, loginUser, userPlan);
+
         course.setViewCount(course.getViewCount() + 1);
+
         return new CourseResponse(course);
     }
 
@@ -284,6 +326,34 @@ public class CourseService {
                 requiredPlan.name() + " 구독권이 필요한 강의입니다.",
                 false
         );
+    }
+
+    private void validateCourseViewAccess(
+            Course course,
+            User loginUser,
+            SubscriptionPlanType userPlan
+    ) {
+        if (loginUser.getRole() == Role.ADMIN) {
+            return;
+        }
+
+        if (loginUser.getRole() == Role.INSTRUCTOR
+                && course.getInstructor() != null
+                && course.getInstructor().getId().equals(loginUser.getId())) {
+            return;
+        }
+
+        SubscriptionPlanType requiredPlan = course.getRequiredPlanType();
+
+        if (requiredPlan == null) {
+            return;
+        }
+
+        boolean canAccess = coursePlanPolicyService.canAccess(userPlan, requiredPlan);
+
+        if (!canAccess) {
+            throw new IllegalArgumentException("현재 구독권으로는 이 강의를 수강할 수 없습니다.");
+        }
     }
 
     private void validateCourseOwnerOrAdmin(Course course, User loginUser) {
