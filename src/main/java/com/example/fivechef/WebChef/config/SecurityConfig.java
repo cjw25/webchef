@@ -133,6 +133,8 @@ public class SecurityConfig {
                          */
                         .requestMatchers("/instructor/**").hasAnyRole("INSTRUCTOR", "ADMIN")
 
+                        .requestMatchers("/instructor/courses/**").hasRole("INSTRUCTOR")
+
                         /*
                          * 나머지는 로그인 필요
                          */

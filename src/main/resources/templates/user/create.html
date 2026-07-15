@@ -6,7 +6,7 @@
 
   <meta name="viewport" content="width=device-width, initial-scale=1">
 
-  <link rel="stylesheet" th:href="@{/css/auth.css}">
+  <link rel="stylesheet" th:href="@{/css/user.css}">
 </head>
 <body>
 
@@ -14,44 +14,35 @@
 
   <section class="auth-left">
 
-    <a href="/" class="auth-logo">
-      <img th:src="@{/img/webchef-logo.png}"
-           src="/img/webchef-logo.png"
-           alt="WebChef 로고">
-      <strong>WebChef</strong>
+    <a th:href="@{/}" class="auth-logo">
+      <img th:src="@{/img/webchef-logo.png}" alt="WebChef 로고">
+      <span>WebChef</span>
     </a>
 
-    <div class="auth-copy">
-      <span>WEB CHEF</span>
+    <div class="auth-badge">WEB CHEF</div>
 
-      <h1>
-        자취 생활을 위한<br>
-        요리 학습 플랫폼
-      </h1>
+    <h1>
+      자취 생활을 위한<br>
+      요리 학습 플랫폼
+    </h1>
 
-      <p>
-        요리 강의, 자취 팁, 커뮤니티를 통해<br>
-        더 쉽고 똑똑한 자취 생활을 시작하세요.
-      </p>
-    </div>
+    <p>
+      요리 강의, 자취 팁, 커뮤니티를 통해<br>
+      더 쉽고 똑똑한 자취 생활을 시작하세요.
+    </p>
 
-    <div class="auth-feature-list">
-      <div>
+    <div class="auth-feature-grid">
+      <div class="auth-feature-card">
         <strong>01</strong>
         <span>냉장고 재료 기반 요리 추천</span>
       </div>
 
-      <div>
+      <div class="auth-feature-card">
         <strong>02</strong>
-        <span>냉장고 재료 기반 요리 추천</span>
+        <span>자취생 맞춤 요리 강의</span>
       </div>
 
-      <div>
-        <strong>02</strong>
-        자취생 맞춤 요리 강의</span>
-      </div>
-
-      <div>
+      <div class="auth-feature-card">
         <strong>03</strong>
         <span>커뮤니티와 자취 생활 팁</span>
       </div>
@@ -63,70 +54,63 @@
 
     <div class="auth-card">
 
-      <div class="auth-card-header">
-        <span>JOIN WEB CHEF</span>
-        <h2>회원가입</h2>
-        <p>WebChef 계정을 생성하세요.</p>
-      </div>
+      <div class="auth-card-badge">JOIN WEB CHEF</div>
+
+      <h2>회원가입</h2>
+
+      <p class="auth-desc">
+        WebChef 계정을 생성하세요.
+      </p>
 
       <form th:action="@{/user/create}"
+            th:object="${request}"
             method="post"
             class="auth-form">
 
-        <input type="hidden"
-               th:if="${_csrf != null}"
-               th:name="${_csrf.parameterName}"
-               th:value="${_csrf.token}">
-
-        <div class="form-group">
+        <div class="auth-field">
           <label for="username">아이디</label>
           <input type="text"
                  id="username"
-                 name="username"
-                 placeholder="아이디를 입력하세요"
-                 required>
+                 th:field="*{username}"
+                 placeholder="아이디를 입력하세요">
         </div>
 
-        <div class="form-group">
+        <div class="auth-field">
           <label for="password">비밀번호</label>
           <input type="password"
                  id="password"
-                 name="password"
-                 placeholder="비밀번호를 입력하세요"
-                 required>
+                 th:field="*{password}"
+                 placeholder="비밀번호를 입력하세요">
         </div>
 
-        <div class="form-group">
-          <label for="passwordConfirm">비밀번호 확인</label>
+        <div class="auth-field">
+          <label for="passwordCheck">비밀번호 확인</label>
           <input type="password"
-                 id="passwordConfirm"
-                 name="passwordConfirm"
-                 placeholder="비밀번호를 다시 입력하세요"
-                 required>
+                 id="passwordCheck"
+                 th:field="*{passwordCheck}"
+                 placeholder="비밀번호를 다시 입력하세요">
         </div>
 
-        <div class="form-group">
+        <div class="auth-field">
           <label for="name">이름</label>
           <input type="text"
                  id="name"
-                 name="name"
-                 placeholder="이름을 입력하세요"
-                 required>
+                 th:field="*{name}"
+                 placeholder="이름을 입력하세요">
         </div>
 
-        <div class="form-group">
+        <div class="auth-field">
           <label for="email">이메일</label>
           <input type="email"
                  id="email"
-                 name="email"
-                 placeholder="이메일을 입력하세요"
-                 required>
+                 th:field="*{email}"
+                 placeholder="이메일을 입력하세요">
         </div>
 
         <p class="auth-error"
            th:if="${errorMessage != null}"
            th:text="${errorMessage}">
-          에러 메시지
+          오류 메시지
         </p>
 
         <button type="submit" class="auth-submit-btn">
@@ -136,8 +120,8 @@
       </form>
 
       <div class="auth-bottom">
-        <span>이미 계정이 있으신가요?</span>
-        <a href="/user/login">로그인</a>
+        이미 계정이 있으신가요?
+        <a th:href="@{/user/login}">로그인</a>
       </div>
 
     </div>

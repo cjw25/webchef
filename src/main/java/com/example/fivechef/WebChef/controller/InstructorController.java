@@ -72,13 +72,8 @@ public class InstructorController {
 
     @PreAuthorize("hasRole('INSTRUCTOR')")
     @GetMapping("/instructor")
-    public String dashboard(Model model, Principal principal) {
-        model.addAttribute(
-                "instructor",
-                instructorService.getInstructorDashboard(principal.getName())
-        );
-
-        return "instructor/dashboard";
+    public String dashboard() {
+        return "redirect:/instructor/courses";
     }
 
     @PreAuthorize("hasRole('INSTRUCTOR')")
