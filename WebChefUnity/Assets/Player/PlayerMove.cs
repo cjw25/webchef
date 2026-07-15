@@ -1,12 +1,13 @@
-using System.Collections;
+ï»¿using System.Collections;
 using System.Collections.Generic;
+using TMPro;
 using Unity.Netcode;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
 public class PlayerMove : NetworkBehaviour
 {
-    [Header("ÀÌµ¿ ¼³Á¤")]
+    [Header("ì´ë™ ì„¤ì •")]
     public float moveSpeed = 5f;
 
     private Rigidbody2D rb;
@@ -17,7 +18,7 @@ public class PlayerMove : NetworkBehaviour
 
     private bool isFrozen = false;
     private float clientPingTimer = 0f;
-    private string lastAnimation = "Player_Down"; // ¾Ö´Ï¸ŞÀÌ¼Ç Á÷Àü ¹æÇâ ±â¾ï »óÀÚ
+    private string lastAnimation = "Player_Down"; // ì• ë‹ˆë©”ì´ì…˜ ì§ì „ ë°©í–¥ ê¸°ì–µ ìƒì
 
     public override void OnNetworkSpawn()
     {
@@ -43,7 +44,7 @@ public class PlayerMove : NetworkBehaviour
         }
         else
         {
-            // È£½ºÆ®/¼­¹ö°¡ ¾Æ´Ñ '¼ø¼ö Å¬¶óÀÌ¾ğÆ®' È­¸é¿¡¼­¸¸ Å¸ÀÎÀÇ ¹°¸®¸¦ °íÁ¤½ÃÅµ´Ï´Ù.
+            // í˜¸ìŠ¤íŠ¸/ì„œë²„ê°€ ì•„ë‹Œ 'ìˆœìˆ˜ í´ë¼ì´ì–¸íŠ¸' í™”ë©´ì—ì„œë§Œ íƒ€ì¸ì˜ ë¬¼ë¦¬ë¥¼ ê³ ì •ì‹œí‚µë‹ˆë‹¤.
             if (rb != null)
             {
                 rb.bodyType = RigidbodyType2D.Kinematic;
@@ -54,7 +55,7 @@ public class PlayerMove : NetworkBehaviour
 
     private void Start()
     {
-        // [½Ì±ÛÇÃ·¹ÀÌ ´ëÀÀ] ³İÄÚµå ¼­¹ö ¾øÀÌ È¥ÀÚ ½ÃÀÛÇßÀ» ¶§¸¦ À§ÇÑ ¾ÈÀüÀåÄ¡
+        // [ì‹±ê¸€í”Œë ˆì´ ëŒ€ì‘] ë„·ì½”ë“œ ì„œë²„ ì—†ì´ í˜¼ì ì‹œì‘í–ˆì„ ë•Œë¥¼ ìœ„í•œ ì•ˆì „ì¥ì¹˜
         if (NetworkManager.Singleton == null || !NetworkManager.Singleton.IsListening)
         {
             rb = GetComponent<Rigidbody2D>();
@@ -216,7 +217,7 @@ public class PlayerMove : NetworkBehaviour
     }
 
     /// <summary>
-    /// ¾Ö´Ï¸ŞÀÌÅÍ ´ÙÀÌ·ºÆ® »óÇÏÁÂ¿ì ¹× ¸ØÃã Á¦¾î Á¦¾î ÇÔ¼ö
+    /// ì• ë‹ˆë©”ì´í„° ë‹¤ì´ë ‰íŠ¸ ìƒí•˜ì¢Œìš° ë° ë©ˆì¶¤ ì œì–´ ì œì–´ í•¨ìˆ˜
     /// </summary>
     private void UpdateAnimation(Vector2 input)
     {
@@ -263,6 +264,36 @@ public class PlayerMove : NetworkBehaviour
     [ServerRpc]
     private void KeepAliveServerRpc()
     {
-        Debug.Log($"[¼­¹ö ¼ö½Å] Å¬¶óÀÌ¾ğÆ® {OwnerClientId}¹øÀÇ ½ÅÈ£ ¼Û½Å Áß...");
+        Debug.Log($"[ì„œë²„ ìˆ˜ì‹ ] í´ë¼ì´ì–¸íŠ¸ {OwnerClientId}ë²ˆì˜ ì‹ í˜¸ ì†¡ì‹  ì¤‘...");
+    }
+    [Header("ë§í’ì„  ì—°ê²°")]
+    [SerializeField] private GameObject bubbleBackground; // ë§í’ì„  ì „ì²´ ì˜¤ë¸Œì íŠ¸
+    [SerializeField] private TMP_Text bubbleText;         // í…ìŠ¤íŠ¸ ì˜¤ë¸Œì íŠ¸
+
+    public void DisplaySpeechBubble(string message)
+    {
+        Debug.Log("DisplaySpeechBubble í•¨ìˆ˜ê°€ ì‹¤í–‰ë˜ì—ˆìŠµë‹ˆë‹¤! ë©”ì‹œì§€: " + message); // ğŸ‘ˆ ì´ê²Œ ì°íˆëŠ”ì§€ê°€ í•µì‹¬!
+
+        if (bubbleBackground != null && bubbleText != null)
+        {
+            bubbleText.text = message;
+            bubbleText.color = Color.black;
+            bubbleBackground.SetActive(true);
+
+            Debug.Log("ë§í’ì„  ì˜¤ë¸Œì íŠ¸ê°€ í™œì„±í™”ë˜ì—ˆìŠµë‹ˆë‹¤."); // ğŸ‘ˆ ì´ê²ƒë„ ì°íˆëŠ”ì§€ í™•ì¸!
+
+            StopAllCoroutines();
+            StartCoroutine(HideBubbleRoutine(bubbleBackground, 3f));
+        }
+        else
+        {
+            Debug.LogError("ì—°ê²°ì´ ì•ˆ ë˜ì–´ ìˆìŠµë‹ˆë‹¤! ì¸ìŠ¤í™í„°ë¥¼ í™•ì¸í•˜ì„¸ìš”.");
+        }
+    }
+
+    private IEnumerator HideBubbleRoutine(GameObject bubbleObj, float delay)
+    {
+        yield return new WaitForSeconds(delay);
+        bubbleObj.SetActive(false); // 3ì´ˆ ë’¤ ë§í’ì„  ìˆ¨ê¹€
     }
 }
