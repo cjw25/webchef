@@ -65,4 +65,12 @@ public class Inquiry {
     public void preUpdate() {
         this.modifyDate = LocalDateTime.now();
     }
+
+    @OneToMany(
+            mappedBy = "inquiry",
+            cascade = CascadeType.ALL,
+            orphanRemoval = true
+    )
+    @OrderBy("createDate ASC")
+    private List<InquiryAnswer> answers = new ArrayList<>();
 }

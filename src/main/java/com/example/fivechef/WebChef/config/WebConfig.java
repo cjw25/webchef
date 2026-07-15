@@ -14,13 +14,59 @@ public class WebConfig implements WebMvcConfigurer {
     @Value("${file.course-upload-dir:uploads/course}")
     private String courseUploadDir;
 
+    @Value("${file.inquiry-upload-dir:uploads/inquiry}")
+    private String inquiryUploadDir;
+
+
+    @Value("${file.notice-upload-dir:uploads/notice}")
+    private String noticeUploadDir;
+
+    @Value("${file.tips-upload-dir:uploads/tips}")
+    private String tipsUploadDir;
+
+    @Value("${file.community-upload-dir:uploads/community}")
+    private String communityUploadDir;
+
+
     @Override
     public void addResourceHandlers(ResourceHandlerRegistry registry) {
-        Path uploadPath = Paths.get("uploads").toAbsolutePath().normalize();
+
+        Path coursePath = Paths.get(courseUploadDir)
+                .toAbsolutePath()
+                .normalize();
+
+        Path inquiryPath = Paths.get(inquiryUploadDir)
+                .toAbsolutePath()
+                .normalize();
+
+
+        Path noticePath = Paths.get(noticeUploadDir)
+                .toAbsolutePath()
+                .normalize();
+
+        Path tipsPath = Paths.get(tipsUploadDir)
+                .toAbsolutePath()
+                .normalize();
+
+        Path communityPath = Paths.get(communityUploadDir)
+                .toAbsolutePath()
+                .normalize();
 
         registry.addResourceHandler("/uploads/course/**")
-                .addResourceLocations("file:" + courseUploadDir + "/");
+                .addResourceLocations(coursePath.toUri().toString());
+
+        registry.addResourceHandler("/uploads/inquiry/**")
+                .addResourceLocations(inquiryPath.toUri().toString());
+
+
+        registry.addResourceHandler("/uploads/notice/**")
+                .addResourceLocations(noticePath.toUri().toString());
+
+        registry.addResourceHandler("/uploads/tips/**")
+                .addResourceLocations(tipsPath.toUri().toString());
+
+        registry.addResourceHandler("/uploads/community/**")
+                .addResourceLocations(communityPath.toUri().toString());
+
     }
-
-
 }

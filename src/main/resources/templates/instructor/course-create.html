@@ -4,8 +4,11 @@
   <meta charset="UTF-8">
   <title>강의 등록 | WebChef</title>
 
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
   <link rel="stylesheet" th:href="@{/css/header.css}">
   <link rel="stylesheet" th:href="@{/css/footer.css}">
+  <link rel="stylesheet" th:href="@{/css/chatbot-widget.css}">
   <link rel="stylesheet" th:href="@{/css/instructor.css}">
 </head>
 <body>
@@ -17,18 +20,183 @@
   <section class="instructor-hero">
     <span>CREATE COURSE</span>
     <h1>강의 등록</h1>
-    <p>강의 등록 화면입니다.</p>
+    <p>등록한 강의는 관리자 승인 후 유저에게 공개됩니다.</p>
   </section>
 
   <section class="instructor-card">
+
     <div class="guide-box">
-      이 화면은 Course 등록 로직과 연결하면 됩니다.
+      강의 등록 후 관리자가 승인하면 유저 강의 목록에 노출됩니다.
     </div>
+
+    <div class="add-error-box" th:if="${errorMessage != null}" th:text="${errorMessage}">
+      오류 메시지
+    </div>
+
+    <form th:action="@{/instructor/courses/create}"
+          th:object="${courseCreateRequest}"
+          method="post"
+          enctype="multipart/form-data"
+          class="add-card">
+
+      <div class="add-field">
+        <label for="title">강의 제목 <span class="req">*</span></label>
+        <input type="text"
+               id="title"
+               th:field="*{title}"
+               placeholder="예: 된장찌개 기초 강의">
+      </div>
+
+      <div class="add-field">
+        <label for="description">강의 설명 <span class="req">*</span></label>
+        <textarea id="description"
+                  th:field="*{description}"
+                  placeholder="강의 설명을 입력하세요."></textarea>
+      </div>
+
+      <div class="add-field">
+        <label for="img">썸네일 이미지 <span class="req">*</span></label>
+
+        <label class="add-file-drop" for="img">
+          <input type="file"
+                 id="img"
+                 name="img"
+                 accept="image/jpeg,image/png,image/gif,image/webp">
+
+          <div class="add-file-drop-icon">📷</div>
+          <div class="add-file-drop-text" id="fileDropText">
+            음식 사진을 업로드하세요.
+          </div>
+          <div class="add-file-drop-sub">
+            jpg, jpeg, png, gif, webp / 최대 10MB
+          </div>
+        </label>
+
+        <div class="thumbnail-preview" id="thumbnailPreview" style="display:none;">
+          <img id="thumbnailPreviewImg" src="" alt="썸네일 미리보기">
+          <p class="thumbnail-preview-hint" id="thumbnailFileName">
+            선택된 파일
+          </p>
+        </div>
+      </div>
+
+      <div class="add-field">
+        <label for="videoUrl">유튜브 영상 URL <span class="req">*</span></label>
+        <input type="text"
+               id="videoUrl"
+               th:field="*{videoUrl}"
+               class="video-url-input"
+               placeholder="예: https://youtu.be/xxxx">
+        <p class="video-url-hint">
+          유튜브 공유하기 URL을 붙여넣으면 자동으로 재생용 주소로 변환됩니다.
+        </p>
+      </div>
+
+      <div class="add-field">
+        <label for="price">강의 가격 <span class="req">*</span></label>
+        <input type="number"
+               id="price"
+               th:field="*{price}"
+               min="0"
+               placeholder="0">
+        <p class="video-url-hint">
+          0원은 무료, 1원~200,000원은 BASIC, 200,001원 이상은 PREMIUM 강의로 자동 분류됩니다.
+        </p>
+      </div>
+
+      <div class="add-field">
+        <label for="category">카테고리 <span class="req">*</span></label>
+        <select id="category" th:field="*{category}">
+          <option value="">카테고리 선택</option>
+          <option th:each="category : ${categories}"
+                  th:value="${category}"
+                  th:text="${category}">
+            KOREAN
+          </option>
+        </select>
+      </div>
+
+      <div class="add-field">
+        <label for="difficulty">난이도 <span class="req">*</span></label>
+        <select id="difficulty" th:field="*{difficulty}">
+          <option value="">난이도 선택</option>
+          <option th:each="difficulty : ${difficulties}"
+                  th:value="${difficulty}"
+                  th:text="${difficulty}">
+            EASY
+          </option>
+        </select>
+      </div>
+
+      <div class="add-field">
+        <label for="cookTime">조리 시간 <span class="req">*</span></label>
+        <input type="text"
+               id="cookTime"
+               th:field="*{cookTime}"
+               placeholder="예: 30분">
+      </div>
+
+      <div class="add-actions">
+        <a th:href="@{/instructor/courses}" class="add-btn add-btn-prev">
+          취소
+        </a>
+
+        <button type="submit" class="add-btn add-btn-submit">
+          관리자 승인 요청
+        </button>
+      </div>
+
+    </form>
+
   </section>
 
 </main>
 
 <div th:replace="~{fragments/footer :: footer}"></div>
+
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+      const imgInput = document.getElementById("img");
+      const previewBox = document.getElementById("thumbnailPreview");
+      const previewImg = document.getElementById("thumbnailPreviewImg");
+      const fileNameText = document.getElementById("thumbnailFileName");
+      const fileDropText = document.getElementById("fileDropText");
+
+      if (!imgInput) {
+          return;
+      }
+
+      imgInput.addEventListener("change", function () {
+          const file = imgInput.files[0];
+
+          if (!file) {
+              previewBox.style.display = "none";
+              previewImg.src = "";
+              fileNameText.textContent = "";
+              fileDropText.textContent = "음식 사진을 업로드하세요.";
+              return;
+          }
+
+          if (!file.type.startsWith("image/")) {
+              alert("이미지 파일만 선택할 수 있습니다.");
+              imgInput.value = "";
+              previewBox.style.display = "none";
+              return;
+          }
+
+          const reader = new FileReader();
+
+          reader.onload = function (event) {
+              previewImg.src = event.target.result;
+              previewBox.style.display = "block";
+              fileNameText.textContent = file.name;
+              fileDropText.textContent = "선택된 이미지: " + file.name;
+          };
+
+          reader.readAsDataURL(file);
+      });
+  });
+</script>
 
 </body>
 </html>

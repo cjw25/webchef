@@ -2,10 +2,13 @@
 <html lang="ko" xmlns:th="http://www.thymeleaf.org">
 <head>
   <meta charset="UTF-8">
-  <title>강사 강의 관리 | WebChef</title>
+  <title>강사 페이지 | WebChef</title>
+
+  <meta name="viewport" content="width=device-width, initial-scale=1">
 
   <link rel="stylesheet" th:href="@{/css/header.css}">
   <link rel="stylesheet" th:href="@{/css/footer.css}">
+  <link rel="stylesheet" th:href="@{/css/chatbot-widget.css}">
   <link rel="stylesheet" th:href="@{/css/instructor.css}">
 </head>
 <body>
@@ -15,19 +18,99 @@
 <main class="instructor-page">
 
   <section class="instructor-hero">
-    <span>COURSES</span>
-    <h1>내 강의 관리</h1>
-    <p>강사가 등록한 강의를 관리하는 페이지입니다.</p>
+    <span>INSTRUCTOR COURSE</span>
+    <h1>강사 페이지</h1>
+    <p>등록한 강의의 승인 상태를 확인하고 수정할 수 있습니다.</p>
   </section>
 
   <section class="instructor-card">
+
     <div class="guide-box">
-      강의 등록 기능은 다음 단계에서 Course 기능과 연결하면 됩니다.
+      강의를 등록하면 관리자 승인 후 유저 강의 목록에 공개됩니다.
+      강의 수정 시에는 다시 관리자 승인이 필요합니다.
     </div>
 
-    <a th:href="@{/instructor/courses/create}" class="primary-link">
-      강의 등록하기
-    </a>
+    <div class="form-top-actions">
+      <a class="add-btn add-btn-submit" th:href="@{/instructor/courses/create}">
+        강의 등록
+      </a>
+    </div>
+
+    <section class="instructor-course-grid"
+             th:if="${courses != null and !courses.isEmpty()}">
+
+      <article class="instructor-course-card"
+               th:each="course : ${courses}">
+
+        <div class="instructor-course-thumb">
+          <img th:if="${course.thumbnailUrl != null and !#strings.isEmpty(course.thumbnailUrl)}"
+               th:src="${course.thumbnailUrl}"
+               alt="강의 이미지">
+
+          <div th:unless="${course.thumbnailUrl != null and !#strings.isEmpty(course.thumbnailUrl)}"
+               class="instructor-course-no-image">
+            WebChef
+          </div>
+
+          <span class="status-badge"
+                th:classappend="${course.status.name().toLowerCase()}"
+                th:text="${course.statusLabel}">
+                        승인 대기
+                    </span>
+        </div>
+
+        <div class="instructor-course-body">
+          <h2 th:text="${course.title}">
+            강의명
+          </h2>
+
+          <p class="instructor-course-desc"
+             th:text="${#strings.abbreviate(course.description, 70)}">
+            강의 설명
+          </p>
+
+          <div class="instructor-course-meta">
+            <span th:text="${course.category}">카테고리</span>
+            <span th:text="${course.difficultyLabel}">난이도</span>
+            <span th:text="${course.cookTime}">조리시간</span>
+          </div>
+
+          <div class="instructor-course-price">
+            <strong th:text="${#numbers.formatInteger(course.price, 3, 'COMMA')} + '원'">
+              0원
+            </strong>
+            <span th:text="${course.requiredPlanName}">
+                            무료
+                        </span>
+          </div>
+
+          <div class="instructor-course-actions">
+            <a th:href="@{|/course/view/${course.id}|}" class="table-link">
+              보기
+            </a>
+
+            <a th:href="@{|/instructor/courses/update/${course.id}|}" class="table-link">
+              수정
+            </a>
+
+            <form th:action="@{|/instructor/courses/delete/${course.id}|}"
+                  method="post"
+                  onsubmit="return confirm('정말 삭제하시겠습니까?');">
+              <button type="submit" class="table-delete-btn">
+                삭제
+              </button>
+            </form>
+          </div>
+        </div>
+
+      </article>
+
+    </section>
+
+    <div class="empty-box" th:if="${courses == null or courses.isEmpty()}">
+      등록한 강의가 없습니다.
+    </div>
+
   </section>
 
 </main>

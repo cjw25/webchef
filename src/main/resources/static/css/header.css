@@ -1,17 +1,65 @@
 /* =========================
+   Root
+========================= */
+
+:root {
+    --header-height: 76px;
+
+    --header-bg: #ffffff;
+    --header-border: #eeeeee;
+
+    --text-main: #111111;
+    --text-sub: #4d4d4d;
+    --text-soft: #777777;
+
+    --accent: #d71920;
+    --accent-dark: #b9151b;
+    --accent-soft: #fff1f2;
+
+    --dropdown-bg: rgba(255, 255, 255, 0.98);
+    --dropdown-border: #e7e7e7;
+}
+
+
+/* =========================
+   Reset
+========================= */
+
+* {
+    box-sizing: border-box;
+}
+
+html,
+body {
+    margin: 0;
+    padding: 0;
+}
+
+a {
+    color: inherit;
+    text-decoration: none;
+}
+
+button,
+input {
+    font-family: inherit;
+}
+
+
+/* =========================
    Header
 ========================= */
 
 .site-header {
-    width: 100%;
-    height: 76px;
-
-    background: #ffffff;
-    border-bottom: 1px solid #eeeeee;
-
     position: sticky;
     top: 0;
     z-index: 3000;
+
+    width: 100%;
+    height: var(--header-height);
+
+    background: var(--header-bg);
+    border-bottom: 1px solid var(--header-border);
 
     overflow: visible;
 }
@@ -21,14 +69,13 @@
     height: 100%;
 
     margin: 0 auto;
-    padding: 0;
 
     display: flex;
     align-items: center;
-    justify-content: flex-start;
 
     overflow: visible;
 }
+
 
 /* =========================
    Logo
@@ -44,32 +91,33 @@
 }
 
 .logo-link {
-    display: flex;
+    display: inline-flex;
     align-items: center;
     gap: 10px;
-
-    text-decoration: none;
 }
 
 .logo-img {
+    display: block;
+
     width: 34px;
     height: 34px;
 
     object-fit: contain;
-    display: block;
 
     flex-shrink: 0;
 }
 
 .logo-text {
-    color: #d71920;
+    color: var(--accent);
 
     font-size: 22px;
     font-weight: 900;
+    line-height: 1;
     letter-spacing: -0.6px;
 
     white-space: nowrap;
 }
+
 
 /* =========================
    GNB
@@ -93,17 +141,21 @@
 }
 
 .gnb-item {
-    height: 100%;
-
     position: relative;
+
+    height: 100%;
 
     display: flex;
     align-items: center;
+
+    flex-shrink: 0;
 
     overflow: visible;
 }
 
 .gnb-link {
+    position: relative;
+
     height: 100%;
     padding: 0 4px;
 
@@ -111,24 +163,48 @@
     align-items: center;
     justify-content: center;
 
-    color: #111111;
+    color: var(--text-main);
 
     font-size: 15px;
     font-weight: 900;
-    text-decoration: none;
+    line-height: 1;
 
     white-space: nowrap;
 
-    transition: 0.15s ease;
+    transition: color 0.15s ease;
 }
 
-.gnb-link:hover {
-    color: #d71920;
+.gnb-link::after {
+    content: "";
+
+    position: absolute;
+    left: 50%;
+    bottom: 0;
+
+    width: 0;
+    height: 3px;
+
+    background: var(--accent);
+    border-radius: 999px 999px 0 0;
+
+    transform: translateX(-50%);
+
+    transition: width 0.18s ease;
 }
+
+.gnb-item:hover > .gnb-link,
+.gnb-item:focus-within > .gnb-link {
+    color: var(--accent);
+}
+
+.gnb-item:hover > .gnb-link::after,
+.gnb-item:focus-within > .gnb-link::after {
+    width: 100%;
+}
+
 
 /* =========================
-   Mega Menu
-   메뉴 글씨 중앙 기준으로 열림
+   냉장고 메가 메뉴
 ========================= */
 
 .mega-menu {
@@ -136,7 +212,8 @@
     top: 100%;
     left: 50%;
 
-    width: 820px;
+    width: 780px;
+
     padding-top: 14px;
 
     opacity: 0;
@@ -144,21 +221,13 @@
     pointer-events: none;
 
     transform: translateX(-50%) translateY(12px);
-    transition: 0.18s ease;
+
+    transition:
+        opacity 0.18s ease,
+        visibility 0.18s ease,
+        transform 0.18s ease;
 
     z-index: 9000;
-}
-
-.mega-menu.single {
-    width: 780px;
-}
-
-.gnb-item:hover .mega-menu {
-    opacity: 1;
-    visibility: visible;
-    pointer-events: auto;
-
-    transform: translateX(-50%) translateY(0);
 }
 
 .mega-menu::before {
@@ -170,6 +239,15 @@
 
     width: 100%;
     height: 14px;
+}
+
+.gnb-item:hover > .mega-menu,
+.gnb-item:focus-within > .mega-menu {
+    opacity: 1;
+    visibility: visible;
+    pointer-events: auto;
+
+    transform: translateX(-50%) translateY(0);
 }
 
 .mega-inner {
@@ -186,10 +264,19 @@
 
     display: flex;
     align-items: stretch;
+
     gap: 42px;
 }
 
-/* 왼쪽 설명 영역 */
+.fridge-mega-menu {
+    width: 780px;
+}
+
+
+/* =========================
+   냉장고 설명 영역
+========================= */
+
 .mega-title-box {
     width: 310px;
     min-width: 310px;
@@ -202,10 +289,11 @@
 .mega-title-box h3 {
     margin: 0 0 16px;
 
-    color: #d71920;
+    color: var(--accent);
 
     font-size: 25px;
     font-weight: 900;
+    line-height: 1.3;
     letter-spacing: -0.7px;
 
     white-space: nowrap;
@@ -221,48 +309,11 @@
     line-height: 1.85;
 
     word-break: keep-all;
-    overflow-wrap: normal;
 }
 
-/* 오른쪽 컬럼 */
-.mega-column {
-    min-width: 140px;
-
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-}
-
-.mega-column h4 {
-    margin: 0 0 8px;
-
-    color: #111111;
-
-    font-size: 16px;
-    font-weight: 900;
-
-    white-space: nowrap;
-}
-
-.mega-column a {
-    color: #444444;
-
-    font-size: 15px;
-    font-weight: 700;
-    line-height: 1.4;
-    text-decoration: none;
-
-    white-space: nowrap;
-
-    transition: 0.15s ease;
-}
-
-.mega-column a:hover {
-    color: #d71920;
-}
 
 /* =========================
-   Fridge Search Mega Menu
+   냉장고 검색 영역
 ========================= */
 
 .mega-search-box {
@@ -274,13 +325,18 @@
 }
 
 .mega-search-box form {
+    width: 100%;
+
     display: flex;
     align-items: center;
+
     gap: 10px;
 }
 
 .mega-search-box input {
     flex: 1;
+
+    min-width: 0;
     height: 50px;
 
     padding: 0 18px;
@@ -288,14 +344,27 @@
     border: 1px solid #dddddd;
     border-radius: 999px;
 
+    background: #ffffff;
+    color: var(--text-main);
+
     outline: none;
 
     font-size: 15px;
     font-weight: 700;
+
+    transition:
+        border-color 0.15s ease,
+        box-shadow 0.15s ease;
+}
+
+.mega-search-box input::placeholder {
+    color: #999999;
 }
 
 .mega-search-box input:focus {
-    border-color: #d71920;
+    border-color: var(--accent);
+
+    box-shadow: 0 0 0 4px rgba(215, 25, 32, 0.08);
 }
 
 .mega-search-box button {
@@ -305,14 +374,25 @@
     border: none;
     border-radius: 50%;
 
-    background: #d71920;
+    background: var(--accent);
     color: #ffffff;
 
     font-size: 14px;
     font-weight: 900;
-    line-height: 1.1;
 
     cursor: pointer;
+
+    flex-shrink: 0;
+
+    transition:
+        background 0.15s ease,
+        transform 0.15s ease;
+}
+
+.mega-search-box button:hover {
+    background: var(--accent-dark);
+
+    transform: translateY(-1px);
 }
 
 .keyword-tags {
@@ -320,6 +400,7 @@
 
     display: flex;
     flex-wrap: wrap;
+
     gap: 10px;
 }
 
@@ -328,13 +409,300 @@
 
     border-radius: 999px;
 
-    background: #fff2f3;
-    color: #d71920;
+    background: var(--accent-soft);
+    color: var(--accent);
 
     font-size: 14px;
     font-weight: 900;
-    text-decoration: none;
+
+    transition:
+        background 0.15s ease,
+        color 0.15s ease;
 }
+
+.keyword-tags a:hover {
+    background: var(--accent);
+    color: #ffffff;
+}
+
+
+/* =====================================
+   공통 세로형 드롭다운
+===================================== */
+
+.vertical-dropdown {
+    position: absolute;
+    top: 100%;
+    left: 50%;
+
+    width: 220px;
+    padding: 10px 0;
+
+    background: rgba(255, 255, 255, 0.98);
+    border: 1px solid #e7e7e7;
+    border-radius: 0 0 12px 12px;
+
+    box-shadow: 0 18px 45px rgba(0, 0, 0, 0.18);
+
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+
+    transform: translateX(-50%) translateY(10px);
+
+    transition:
+        opacity 0.2s ease,
+        visibility 0.2s ease,
+        transform 0.2s ease;
+
+    z-index: 9500;
+
+    overflow: visible;
+}
+
+.vertical-dropdown::before {
+    content: "";
+
+    position: absolute;
+    left: 0;
+    bottom: 100%;
+
+    width: 100%;
+    height: 14px;
+}
+
+.dropdown-gnb-item:hover > .vertical-dropdown,
+.dropdown-gnb-item:focus-within > .vertical-dropdown {
+    opacity: 1;
+    visibility: visible;
+    pointer-events: auto;
+
+    transform: translateX(-50%) translateY(0);
+}
+
+
+
+/* =====================================
+   그룹
+===================================== */
+
+.vertical-group {
+    width: 100%;
+}
+
+.vertical-group + .vertical-group {
+    border-top: 1px solid #eeeeee;
+}
+
+
+/* =====================================
+   그룹 제목
+===================================== */
+
+.vertical-group-title {
+    width: 100%;
+    min-height: 52px;
+
+    padding: 0 18px 0 20px;
+
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    background: #ffffff;
+    color: #444444;
+
+    font-size: 15px;
+    font-weight: 800;
+
+    cursor: default;
+
+    transition:
+        background 0.18s ease,
+        color 0.18s ease,
+        padding-left 0.18s ease;
+}
+
+.vertical-group:hover > .vertical-group-title,
+.vertical-group:focus-within > .vertical-group-title {
+    padding-left: 24px;
+
+    background: #fff1f2;
+    color: #d71920;
+}
+
+.vertical-arrow {
+    color: #999999;
+
+    font-size: 12px;
+    font-weight: 900;
+    line-height: 1;
+
+    transition:
+        color 0.18s ease,
+        transform 0.28s ease;
+}
+
+.vertical-group:hover > .vertical-group-title .vertical-arrow,
+.vertical-group:focus-within > .vertical-group-title .vertical-arrow {
+    color: #d71920;
+
+    transform: rotate(180deg);
+}
+
+
+
+/* =====================================
+   바로 아래로 펼쳐지는 서브메뉴
+===================================== */
+
+.vertical-submenu {
+    position: static;
+
+    width: 100%;
+    max-height: 0;
+
+    padding: 0;
+
+    overflow: hidden;
+
+    background: #fafafa;
+    border-top: 0 solid #eeeeee;
+
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+
+    transition:
+        max-height 0.35s ease,
+        padding 0.3s ease,
+        opacity 0.2s ease,
+        visibility 0.2s ease,
+        border-top-width 0.2s ease;
+
+    scrollbar-width: none;
+}
+
+.vertical-submenu::-webkit-scrollbar {
+    display: none;
+}
+
+.vertical-group:hover > .vertical-submenu,
+.vertical-group:focus-within > .vertical-submenu {
+    max-height: 500px;
+
+    padding: 6px 0;
+
+    border-top-width: 1px;
+
+    opacity: 1;
+    visibility: visible;
+    pointer-events: auto;
+}
+
+.vertical-submenu a {
+    position: relative;
+
+    width: 100%;
+    min-height: 40px;
+
+    padding: 0 18px 0 29px;
+
+    display: flex;
+    align-items: center;
+
+    color: var(--text-sub);
+
+    font-size: 14px;
+    font-weight: 700;
+    line-height: 1.4;
+
+    white-space: nowrap;
+
+    transition:
+        color 0.15s ease,
+        background 0.15s ease,
+        padding-left 0.15s ease;
+}
+
+.vertical-submenu a::before {
+    content: "";
+
+    position: absolute;
+    top: 50%;
+    left: 18px;
+
+    width: 4px;
+    height: 4px;
+
+    background: #bbbbbb;
+    border-radius: 50%;
+
+    transform: translateY(-50%);
+
+    transition: background 0.15s ease;
+}
+
+.vertical-submenu a:hover,
+.vertical-submenu a:focus {
+    padding-left: 34px;
+
+    background: #ffffff;
+    color: var(--accent);
+
+    outline: none;
+}
+
+.vertical-submenu a:hover::before,
+.vertical-submenu a:focus::before {
+    background: var(--accent);
+}
+
+/* =========================
+   개별 드롭다운 크기
+========================= */
+
+.course-vertical-dropdown {
+    width: 220px;
+    min-height: 335px;
+}
+
+.tips-vertical-dropdown {
+    width: 220px;
+    min-height: 285px;
+
+    padding-bottom: 224px;
+}
+
+.tips-vertical-dropdown .vertical-submenu {
+    top: 58px;
+    height: 222px;
+}
+
+.community-vertical-dropdown {
+    width: 230px;
+    min-height: 285px;
+
+    padding-bottom: 224px;
+}
+
+.community-vertical-dropdown .vertical-submenu {
+    top: 58px;
+    height: 222px;
+}
+
+.customer-vertical-dropdown {
+    width: 210px;
+    min-height: 240px;
+
+    padding-bottom: 179px;
+}
+
+.customer-vertical-dropdown .vertical-submenu {
+    top: 58px;
+    height: 177px;
+}
+
 
 /* =========================
    Auth
@@ -360,24 +728,28 @@
     border-radius: 999px;
 
     background: #ffffff;
-    color: #111111;
+    color: var(--text-main);
 
-    display: flex;
+    display: inline-flex;
     align-items: center;
     justify-content: center;
 
     font-size: 14px;
     font-weight: 900;
-    text-decoration: none;
 
     white-space: nowrap;
 
-    transition: 0.15s ease;
+    transition:
+        border-color 0.15s ease,
+        color 0.15s ease,
+        background 0.15s ease;
 }
 
 .login-link:hover {
-    border-color: #d71920;
-    color: #d71920;
+    border-color: var(--accent);
+    color: var(--accent);
+
+    background: #fffafa;
 }
 
 .join-link {
@@ -386,26 +758,29 @@
 
     border-radius: 12px;
 
-    background: #d71920;
+    background: var(--accent);
     color: #ffffff;
 
-    display: flex;
+    display: inline-flex;
     align-items: center;
     justify-content: center;
 
     font-size: 14px;
     font-weight: 900;
-    text-decoration: none;
 
     white-space: nowrap;
 
     box-shadow: 0 10px 24px rgba(215, 25, 32, 0.24);
 
-    transition: 0.15s ease;
+    transition:
+        background 0.15s ease,
+        transform 0.15s ease;
 }
 
 .join-link:hover {
-    background: #b9151b;
+    background: var(--accent-dark);
+
+    transform: translateY(-1px);
 }
 
 .metaverse-header-btn {
@@ -414,24 +789,32 @@
 
     border-radius: 999px;
 
-    background: linear-gradient(135deg, #3b82f6 0%, #6d28d9 100%);
+    background: linear-gradient(
+        135deg,
+        #3b82f6 0%,
+        #6d28d9 100%
+    );
+
     color: #ffffff;
 
-    display: flex;
+    display: inline-flex;
     align-items: center;
     justify-content: center;
 
     font-size: 14px;
     font-weight: 900;
-    text-decoration: none;
 
     white-space: nowrap;
 
-    transition: 0.15s ease;
+    transition:
+        filter 0.15s ease,
+        transform 0.15s ease;
 }
 
 .metaverse-header-btn:hover {
     filter: brightness(0.95);
+
+    transform: translateY(-1px);
 }
 
 .logout-form {
@@ -446,7 +829,7 @@
     border: none;
     border-radius: 999px;
 
-    background: #111111;
+    background: var(--text-main);
     color: #ffffff;
 
     font-size: 14px;
@@ -455,25 +838,27 @@
     cursor: pointer;
     white-space: nowrap;
 
-    transition: 0.15s ease;
+    transition: background 0.15s ease;
 }
 
 .logout-btn:hover {
     background: #333333;
 }
 
+
 /* =========================
-   Responsive
+   Responsive 1280px
 ========================= */
 
-@media (max-width: 1180px) {
+@media (max-width: 1280px) {
+
     .header-inner {
-        width: min(100% - 36px, 1180px);
+        width: calc(100% - 36px);
     }
 
     .gnb {
         margin-left: 60px;
-        gap: 14px;
+        gap: 16px;
     }
 
     .gnb-link {
@@ -484,105 +869,187 @@
         font-size: 20px;
     }
 
-    .mega-menu {
-        width: 720px;
+    .header-auth {
+        gap: 7px;
     }
 
-    .mega-menu.single {
-        width: 700px;
+    .login-link,
+    .metaverse-header-btn,
+    .logout-btn {
+        padding: 0 12px;
+        font-size: 13px;
     }
 
-    .mega-inner {
-        min-height: 220px;
-        padding: 28px 30px;
-        gap: 30px;
+    .join-link {
+        padding: 0 15px;
+        font-size: 13px;
+    }
+}
+
+
+/* =========================
+   Responsive 1080px
+========================= */
+
+@media (max-width: 1080px) {
+
+    .logo-text {
+        display: none;
     }
 
-    .mega-title-box {
-        width: 270px;
-        min-width: 270px;
-        padding-right: 26px;
+    .gnb {
+        margin-left: 30px;
+        gap: 13px;
     }
 
-    .mega-title-box h3 {
-        font-size: 23px;
-    }
-
-    .mega-title-box p {
-        font-size: 14px;
+    .gnb-link {
+        font-size: 13px;
     }
 
     .login-link,
     .join-link,
     .metaverse-header-btn,
     .logout-btn {
-        padding: 0 12px;
-        font-size: 13px;
+        height: 36px;
+        padding: 0 10px;
+
+        font-size: 12px;
+    }
+
+    .fridge-mega-menu {
+        width: 700px;
+    }
+
+    .mega-inner {
+        padding: 30px;
+        gap: 30px;
+    }
+
+    .mega-title-box {
+        width: 270px;
+        min-width: 270px;
+
+        padding-right: 26px;
     }
 }
 
-@media (max-width: 960px) {
+
+/* =========================
+   Responsive Mobile
+========================= */
+
+@media (max-width: 900px) {
+
     .site-header {
         height: auto;
     }
 
     .header-inner {
-        min-height: 76px;
-        padding: 14px 0;
+        width: 100%;
+        min-height: 68px;
+
+        padding: 12px 18px 0;
 
         flex-wrap: wrap;
-        gap: 12px;
+
+        row-gap: 10px;
+    }
+
+    .logo-area {
+        height: 44px;
+    }
+
+    .logo-text {
+        display: inline-block;
+
+        font-size: 20px;
+    }
+
+    .logo-img {
+        width: 31px;
+        height: 31px;
     }
 
     .header-auth {
+        height: 44px;
+
         margin-left: auto;
     }
 
     .gnb {
         order: 3;
 
-        width: 100%;
-        height: 48px;
+        width: calc(100% + 36px);
+        height: 52px;
 
-        margin-left: 0;
+        margin: 0 -18px;
+        padding: 0 18px;
 
-        justify-content: flex-start;
+        gap: 22px;
 
         overflow-x: auto;
-        overflow-y: visible;
+        overflow-y: hidden;
+
+        border-top: 1px solid #f2f2f2;
+
+        scrollbar-width: none;
+    }
+
+    .gnb::-webkit-scrollbar {
+        display: none;
     }
 
     .gnb-item {
-        height: 48px;
-        flex-shrink: 0;
+        position: static;
+
+        height: 52px;
     }
 
     .gnb-link {
-        height: 48px;
+        height: 52px;
+
+        padding: 0;
+
+        font-size: 14px;
     }
 
-    .mega-menu {
-        top: 100%;
-        left: 0;
+    .mega-menu,
+    .fridge-mega-menu {
+        position: fixed;
+        top: 120px;
+        left: 50%;
 
-        width: calc(100vw - 36px);
+        width: min(700px, calc(100vw - 32px));
+        max-width: calc(100vw - 32px);
+        max-height: calc(100vh - 145px);
 
-        transform: translateX(0) translateY(12px);
+        padding-top: 0;
+
+        overflow-y: auto;
+
+        transform: translateX(-50%) translateY(10px);
     }
 
-    .mega-menu.single {
-        width: calc(100vw - 36px);
+    .gnb-item:hover > .mega-menu,
+    .gnb-item:focus-within > .mega-menu {
+        transform: translateX(-50%) translateY(0);
     }
 
-    .gnb-item:hover .mega-menu {
-        transform: translateX(0) translateY(0);
+    .mega-menu::before {
+        display: none;
     }
 
     .mega-inner {
+        width: 100%;
         min-height: auto;
+
         padding: 26px;
+
         flex-direction: column;
+
         gap: 22px;
+
+        border-radius: 14px;
     }
 
     .mega-title-box {
@@ -596,95 +1063,148 @@
         border-bottom: 1px solid #eeeeee;
     }
 
-    .mega-title-box h3 {
-        white-space: normal;
+    .vertical-dropdown,
+    .course-vertical-dropdown,
+    .tips-vertical-dropdown,
+    .community-vertical-dropdown,
+    .customer-vertical-dropdown {
+        position: fixed;
+        top: 120px;
+        left: 50%;
+
+        width: min(270px, calc(100vw - 32px));
+        min-height: 335px;
+        max-height: calc(100vh - 145px);
+
+        padding: 10px 0 176px;
+
+        overflow: hidden;
+
+        border-radius: 12px;
+
+        transform: translateX(-50%) translateY(10px);
     }
 
-    .header-action-btn {
-        height: 42px;
-        padding: 0 18px;
-
-        border-radius: 999px;
-
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-
-        font-size: 14px;
-        font-weight: 900;
-        text-decoration: none;
-
-        white-space: nowrap;
+    .dropdown-gnb-item:hover > .vertical-dropdown,
+    .dropdown-gnb-item:focus-within > .vertical-dropdown {
+        transform: translateX(-50%) translateY(0);
     }
 
-    .instructor-request-btn {
-        background: #fff0f1;
-        color: #d71920;
-        border: 1px solid #ffd0d4;
+    .vertical-dropdown::before {
+        display: none;
     }
 
-    .instructor-page-btn {
-        background: #d71920;
-        color: #ffffff;
-        border: 1px solid #d71920;
+    .tips-vertical-dropdown,
+    .community-vertical-dropdown {
+        min-height: 285px;
+        padding-bottom: 224px;
     }
 
-    .instructor-request-btn:hover,
-    .instructor-page-btn:hover {
-        transform: translateY(-1px);
+    .customer-vertical-dropdown {
+        min-height: 240px;
+        padding-bottom: 179px;
+    }
+}
+
+
+/* =========================
+   Responsive 640px
+========================= */
+
+@media (max-width: 640px) {
+
+    .header-inner {
+        padding-right: 14px;
+        padding-left: 14px;
     }
 
-    /* =========================
-       Instructor Header Button
-       PC / Mobile 공통 적용
-    ========================= */
-
-    .header-action-btn,
-    .header-action-btn:link,
-    .header-action-btn:visited {
-        height: 38px;
-        padding: 0 16px;
-
-        border-radius: 999px;
-
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-
-        font-size: 14px;
-        font-weight: 900;
-        text-decoration: none;
-
-        white-space: nowrap;
-
-        transition: 0.15s ease;
+    .logo-text {
+        font-size: 18px;
     }
 
-    .instructor-request-btn,
-    .instructor-request-btn:link,
-    .instructor-request-btn:visited {
-        background: #fff0f1;
-        color: #d71920;
-        border: 1px solid #ffd0d4;
+    .logo-img {
+        width: 29px;
+        height: 29px;
     }
 
-    .instructor-page-btn,
-    .instructor-page-btn:link,
-    .instructor-page-btn:visited {
-        background: #d71920;
-        color: #ffffff;
-        border: 1px solid #d71920;
+    .header-auth {
+        gap: 5px;
     }
 
-    .instructor-request-btn:hover {
-        background: #d71920;
-        color: #ffffff;
-        text-decoration: none;
+    .login-link,
+    .join-link,
+    .logout-btn {
+        height: 34px;
+
+        padding: 0 10px;
+
+        font-size: 12px;
     }
 
-    .instructor-page-btn:hover {
-        background: #b9151b;
-        color: #ffffff;
-        text-decoration: none;
+    .join-link {
+        border-radius: 9px;
+    }
+
+    .metaverse-header-btn {
+        display: none;
+    }
+
+    .gnb {
+        width: calc(100% + 28px);
+
+        margin-right: -14px;
+        margin-left: -14px;
+
+        padding-right: 14px;
+        padding-left: 14px;
+
+        gap: 20px;
+    }
+
+    .gnb-link {
+        font-size: 13px;
+    }
+
+    .mega-search-box form {
+        align-items: stretch;
+    }
+
+    .mega-search-box input {
+        height: 46px;
+
+        font-size: 13px;
+    }
+
+    .mega-search-box button {
+        width: 46px;
+        height: 46px;
+
+        font-size: 12px;
+    }
+}
+
+
+/* =========================
+   Reduced Motion
+========================= */
+
+@media (prefers-reduced-motion: reduce) {
+
+    .gnb-link,
+    .gnb-link::after,
+    .mega-menu,
+    .mega-search-box input,
+    .mega-search-box button,
+    .keyword-tags a,
+    .vertical-dropdown,
+    .vertical-group-title,
+    .vertical-arrow,
+    .vertical-submenu,
+    .vertical-submenu a,
+    .login-link,
+    .join-link,
+    .metaverse-header-btn,
+    .logout-btn {
+        transition: none;
     }
 }

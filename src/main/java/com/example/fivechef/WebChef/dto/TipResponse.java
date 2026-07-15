@@ -15,6 +15,8 @@ public class TipResponse {
 
     private final String content;
 
+    private final String imageUrl;
+
     private final TipCategory category;
 
     private final Integer viewCount;
@@ -27,6 +29,7 @@ public class TipResponse {
         this.id = tip.getId();
         this.title = tip.getTitle();
         this.content = tip.getContent();
+        this.imageUrl = tip.getImageUrl();
         this.category = tip.getCategory();
         this.viewCount = tip.getViewCount();
         this.createdAt = tip.getCreatedAt();
@@ -43,5 +46,19 @@ public class TipResponse {
             case INGREDIENT_STORE -> "재료보관법";
             case TOOL_MANAGE -> "조리도구 관리법";
         };
+    }
+
+    /**
+     * 카드 뷰의 부제목 자리에 쓸 본문 미리보기.
+     * HTML 태그를 제거하고 40자로 잘라서 보여준다.
+     */
+    public String getContentPreview() {
+        if (this.content == null) {
+            return "";
+        }
+
+        String plain = this.content.replaceAll("<[^>]*>", "").trim();
+
+        return plain.length() > 40 ? plain.substring(0, 40) + "..." : plain;
     }
 }

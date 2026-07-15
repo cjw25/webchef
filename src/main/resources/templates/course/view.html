@@ -82,10 +82,20 @@
                 <!-- 강사 전용 관리 버튼 -->
                 <div class="view-owner-actions"
                      th:if="${isLogin and (loginRole == 'ADMIN' or (loginRole == 'INSTRUCTOR' and course.instructorUsername == loginUsername))}">
-                    <a th:href="@{'/course/update/' + ${course.id}}" class="btn-outline">강의 수정</a>
-                    <form th:action="@{'/course/delete/' + ${course.id}}" method="post" class="inline-form">
-                        <button type="submit" class="btn-outline btn-danger-outline"
-                                onclick="return confirm('정말 이 강의를 삭제할까요?')">강의 삭제</button>
+
+                    <a th:href="@{'/instructor/courses/update/' + ${course.id}}"
+                       class="btn-outline">
+                        강의 수정
+                    </a>
+
+                    <form th:action="@{'/instructor/courses/delete/' + ${course.id}}"
+                          method="post"
+                          class="inline-form">
+                        <button type="submit"
+                                class="btn-outline btn-danger-outline"
+                                onclick="return confirm('정말 이 강의를 삭제할까요?')">
+                            강의 삭제
+                        </button>
                     </form>
                 </div>
 

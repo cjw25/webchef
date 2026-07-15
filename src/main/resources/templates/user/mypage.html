@@ -28,7 +28,7 @@
             </p>
         </div>
 
-        <a href="/mypage/update" class="mypage-edit-btn">
+        <a th:href="@{/mypage/update}" class="mypage-edit-btn">
             정보 수정
         </a>
     </section>
@@ -113,68 +113,105 @@
 
             </div>
 
-            <div class="quick-grid">
+            <!-- USER 전용 메뉴 -->
+            <div class="quick-grid" th:if="${user.role.name() == 'USER'}">
 
-                <a href="/course/list" class="quick-card">
+                <a th:href="@{/course/list}" class="quick-card">
                     <span>01</span>
                     <strong>요리 강의</strong>
                     <p>자취생 맞춤 요리 강의를 확인하세요.</p>
                 </a>
 
-                <a href="/fridge" class="quick-card">
+                <a th:href="@{/fridge}" class="quick-card">
                     <span>02</span>
                     <strong>냉장고를 부탁해</strong>
                     <p>보유 재료로 만들 수 있는 요리를 찾아보세요.</p>
                 </a>
 
-                <a href="/community/list" class="quick-card">
+                <a th:href="@{/community/list}" class="quick-card">
                     <span>03</span>
                     <strong>우리들의 대화</strong>
                     <p>자취 요리 정보와 팁을 공유하세요.</p>
                 </a>
 
-                <a href="/inquiry/list" class="quick-card">
+                <a th:href="@{/inquiry/list}" class="quick-card">
                     <span>04</span>
                     <strong>고객센터</strong>
                     <p>공지사항과 문의사항을 확인하세요.</p>
                 </a>
 
-                <a th:if="${loginRole == 'USER'}"
-                   th:href="@{/instructor/create}"
-                   class="quick-card">
+                <a th:href="@{/instructor/create}" class="quick-card">
                     <span>05</span>
                     <strong>강사 신청</strong>
                     <p>WebChef 강사로 신청하고 나만의 요리 강의를 등록해보세요.</p>
                 </a>
 
-                <a th:if="${loginRole == 'INSTRUCTOR'}"
-                   th:href="@{/instructor}"
-                   class="quick-card">
-                    <span>05</span>
-                    <strong>강사 페이지</strong>
-                    <p>강의 등록과 강의 관리를 할 수 있습니다.</p>
+                <a th:href="@{/subscription/my}" class="quick-card">
+                    <span>06</span>
+                    <strong>내 구독권</strong>
+                    <p>현재 이용 중인 구독권을 확인하고 해지할 수 있습니다.</p>
                 </a>
 
             </div>
 
-            <div class="role-action-card" th:if="${user.role.name() == 'INSTRUCTOR'}">
-                <div>
-                    <span>INSTRUCTOR</span>
-                    <h3>강사 페이지</h3>
-                    <p>강의 관리와 강사 전용 기능을 이용할 수 있습니다.</p>
-                </div>
 
-                <a href="/instructor">강사 페이지 이동</a>
+            <!-- INSTRUCTOR 전용 메뉴 -->
+            <div class="quick-grid" th:if="${user.role.name() == 'INSTRUCTOR'}">
+
+                <a th:href="@{/instructor/courses}" class="quick-card">
+                    <span>01</span>
+                    <strong>내 강의 관리</strong>
+                    <p>등록한 강의와 승인 상태를 확인하고 수정할 수 있습니다.</p>
+                </a>
+
+                <a th:href="@{/instructor/courses/create}" class="quick-card">
+                    <span>02</span>
+                    <strong>강의 등록</strong>
+                    <p>새로운 요리 강의를 등록하고 관리자 승인을 요청합니다.</p>
+                </a>
+
+                <a th:href="@{/instructor/courses}" class="quick-card">
+                    <span>03</span>
+                    <strong>승인 상태 확인</strong>
+                    <p>승인 대기, 승인 완료, 반려 상태를 확인합니다.</p>
+                </a>
+
+                <a th:href="@{/course/list}" class="quick-card">
+                    <span>04</span>
+                    <strong>공개 강의 확인</strong>
+                    <p>관리자가 승인한 공개 강의 목록을 확인합니다.</p>
+                </a>
+
             </div>
 
-            <div class="role-action-card admin" th:if="${user.role.name() == 'ADMIN'}">
-                <div>
-                    <span>ADMIN</span>
-                    <h3>관리자 페이지</h3>
-                    <p>회원 관리와 강사 권한 관리를 할 수 있습니다.</p>
-                </div>
 
-                <a href="/admin">관리자 페이지 이동</a>
+            <!-- ADMIN 전용 메뉴 -->
+            <div class="quick-grid" th:if="${user.role.name() == 'ADMIN'}">
+
+                <a th:href="@{/admin}" class="quick-card">
+                    <span>01</span>
+                    <strong>관리자 대시보드</strong>
+                    <p>WebChef 관리자 기능을 확인합니다.</p>
+                </a>
+
+                <a th:href="@{/admin/courses}" class="quick-card">
+                    <span>02</span>
+                    <strong>강의 승인 관리</strong>
+                    <p>강사가 등록하거나 수정한 강의를 승인 또는 반려합니다.</p>
+                </a>
+
+                <a th:href="@{/admin/members}" class="quick-card">
+                    <span>03</span>
+                    <strong>회원 관리</strong>
+                    <p>회원 정보와 권한, 활성 상태를 관리합니다.</p>
+                </a>
+
+                <a th:href="@{/admin/instructors}" class="quick-card">
+                    <span>04</span>
+                    <strong>강사 관리</strong>
+                    <p>강사 계정과 권한을 확인합니다.</p>
+                </a>
+
             </div>
 
         </section>

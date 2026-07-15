@@ -14,8 +14,6 @@ public class CourseCreateRequest {
 
     private String description;
 
-    private String thumbnailUrl;
-
     private Integer price;
 
     private CourseCategory category;

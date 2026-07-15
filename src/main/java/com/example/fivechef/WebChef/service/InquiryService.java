@@ -69,10 +69,19 @@ public class InquiryService {
 
     // 상세 조회 시 조회수 1 증가
     @Transactional
-    public InquiryResponse getInquiryResponse(Long id) {
+    public InquiryResponse getInquiryResponse(Long id, String username) {
         Inquiry inquiry = getInquiryEntity(id);
         inquiry.setViewCount(inquiry.getViewCount() + 1);
-        return new InquiryResponse(inquiry);
+
+        InquiryResponse response = new InquiryResponse(inquiry);
+
+        boolean isMine = username != null
+                && inquiry.getAuthor() != null
+                && username.equals(inquiry.getAuthor().getUsername());
+
+        response.setMine(isMine);
+
+        return response;
     }
 
     @Transactional
@@ -93,7 +102,7 @@ public class InquiryService {
     }
 
     @Transactional
-    public void updateInquiry(Long id, InquiryUpdateRequest request, String username) {
+    public void updateInquiry(Long id, InquiryUpdateRequest request, String username, MultipartFile[] img) {
         validateUpdateRequest(request);
 
         Inquiry inquiry = getInquiryEntity(id);
@@ -103,6 +112,9 @@ public class InquiryService {
 
         inquiry.setSubject(request.getSubject().trim());
         inquiry.setContent(request.getContent().trim());
+
+        removeImages(inquiry, request.getDeleteImageIds());
+        appendImages(inquiry, img);
 
         inquiryRepository.save(inquiry);
     }
@@ -199,6 +211,108 @@ public class InquiryService {
             inquiryImage.setStoredFileName(storedFileName);
             inquiryImage.setFileUrl("/uploads/inquiry/" + storedFileName);
             inquiryImage.setSortOrder(i);
+
+            inquiry.getImages().add(inquiryImage);
+        }
+    }
+
+    private void removeImages(Inquiry inquiry, List<Long> deleteImageIds) {
+        if (deleteImageIds == null || deleteImageIds.isEmpty()) {
+            return;
+        }
+
+        List<InquiryImage> toRemove = inquiry.getImages().stream()
+                .filter(img -> deleteImageIds.contains(img.getId()))
+                .toList();
+
+        for (InquiryImage img : toRemove) {
+            try {
+                Path filePath = Paths.get(uploadDir)
+                        .toAbsolutePath()
+                        .normalize()
+                        .resolve(img.getStoredFileName());
+                Files.deleteIfExists(filePath);
+            } catch (Exception e) {
+                // 개별 파일 삭제 실패는 무시
+            }
+        }
+
+        inquiry.getImages().removeAll(toRemove);
+    }
+
+    private void appendImages(Inquiry inquiry, MultipartFile[] image) {
+        if (image == null) {
+            return;
+        }
+
+        List<MultipartFile> validFiles = new ArrayList<>();
+        for (MultipartFile file : image) {
+            if (file != null && !file.isEmpty()) {
+                validFiles.add(file);
+            }
+        }
+
+        if (validFiles.isEmpty()) {
+            return;
+        }
+
+        int existingCount = inquiry.getImages().size();
+
+        if (existingCount + validFiles.size() > MAX_FILE_COUNT) {
+            throw new IllegalArgumentException("사진은 최대 " + MAX_FILE_COUNT + "개까지 첨부할 수 있어요.");
+        }
+
+        Path uploadPath = Paths.get(uploadDir).toAbsolutePath().normalize();
+
+        try {
+            if (!Files.exists(uploadPath)) {
+                Files.createDirectories(uploadPath);
+            }
+        } catch (Exception e) {
+            throw new IllegalArgumentException("업로드 폴더 생성 중 오류가 발생했습니다.");
+        }
+
+        int nextSortOrder = inquiry.getImages().stream()
+                .mapToInt(InquiryImage::getSortOrder)
+                .max()
+                .orElse(-1) + 1;
+
+        for (int i = 0; i < validFiles.size(); i++) {
+            MultipartFile file = validFiles.get(i);
+
+            if (file.getSize() > MAX_FILE_SIZE) {
+                throw new IllegalArgumentException("사진 용량은 10MB를 초과할 수 없어요.");
+            }
+
+            String originalFileName = file.getOriginalFilename();
+            if (originalFileName == null || originalFileName.isBlank()) {
+                throw new IllegalArgumentException("잘못된 파일입니다.");
+            }
+
+            int dotIdx = originalFileName.lastIndexOf(".");
+            if (dotIdx == -1 || dotIdx == originalFileName.length() - 1) {
+                throw new IllegalArgumentException("확장자가 없는 파일은 업로드할 수 없어요.");
+            }
+            String extension = originalFileName.substring(dotIdx + 1).toLowerCase();
+
+            if (!ALLOWED_EXTENSIONS.contains(extension)) {
+                throw new IllegalArgumentException("이미지 파일(jpg, jpeg, png, gif, webp)만 업로드할 수 있어요.");
+            }
+
+            String storedFileName = UUID.randomUUID() + "." + extension;
+            Path filePath = uploadPath.resolve(storedFileName);
+
+            try {
+                file.transferTo(filePath.toFile());
+            } catch (Exception e) {
+                throw new IllegalArgumentException("파일 저장 중 오류가 발생했습니다.");
+            }
+
+            InquiryImage inquiryImage = new InquiryImage();
+            inquiryImage.setInquiry(inquiry);
+            inquiryImage.setStoredFileName(storedFileName);
+            inquiryImage.setFileUrl("/uploads/inquiry/" + storedFileName);
+            inquiryImage.setSortOrder(nextSortOrder + i);
 
             inquiry.getImages().add(inquiryImage);
         }

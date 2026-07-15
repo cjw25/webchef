@@ -1,0 +1,328 @@
+:root{
+  --wc-card: #FFFFFF;
+  --wc-text: #211D2E;
+  --wc-text-soft: #6F6B7D;
+  --wc-accent: #BD1D1D;
+  --wc-accent-dark: #9F1616;
+  --wc-pink-bg: #FCE2DF;
+  --wc-border: #F0DCDC;
+  --wc-field-bg: #FDF7F5;
+  --wc-bg: #F7F8FB;
+}
+
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+}
+
+body{
+    min-height:100vh;
+    background:var(--wc-bg);
+    color:var(--wc-text);
+    font-family:'Pretendard', Arial, sans-serif;
+}
+
+a{
+    color:inherit;
+    text-decoration:none;
+}
+
+button,
+input,
+select,
+textarea{
+    font-family:inherit;
+}
+
+.tips-wrap{
+    width:100%;
+    max-width:760px;
+    margin:0 auto;
+    padding:48px 24px 80px;
+}
+
+.tips-hero{
+    margin-bottom:28px;
+    text-align:center;
+}
+
+.tips-hero h1{
+    margin-bottom:10px;
+    color:var(--wc-text);
+    font-size:32px;
+    font-weight:700;
+    line-height:1.4;
+}
+
+.tips-hero p{
+    color:var(--wc-text-soft);
+    font-size:15px;
+    line-height:1.6;
+}
+
+.tips-form{
+    position:relative;
+    overflow:hidden;
+    border:1px solid var(--wc-border);
+    border-radius:20px;
+    background:var(--wc-card);
+    box-shadow:0 12px 30px rgba(0,0,0,.06);
+}
+
+.tips-form::before{
+    content:"";
+    display:block;
+    width:100%;
+    height:6px;
+    background:var(--wc-accent);
+}
+
+.form-row{
+    margin-bottom:24px;
+    padding:0 32px;
+}
+
+.form-row:first-of-type{
+    margin-top:32px;
+}
+
+.form-row:last-of-type{
+    margin-bottom:32px;
+}
+
+.form-row > label{
+    display:block;
+    margin-bottom:10px;
+    color:var(--wc-text);
+    font-size:13px;
+    font-weight:700;
+}
+
+.form-row input[type="text"],
+.form-row select,
+.form-row textarea{
+    width:100%;
+    padding:13px 16px;
+    border:1.5px solid var(--wc-border);
+    border-radius:12px;
+    outline:none;
+    background:var(--wc-field-bg);
+    color:var(--wc-text);
+    font-size:14px;
+    transition:
+        border-color .2s ease,
+        background .2s ease,
+        box-shadow .2s ease;
+}
+
+.form-row textarea{
+    min-height:240px;
+    line-height:1.7;
+    resize:vertical;
+}
+
+.form-row input[type="text"]:focus,
+.form-row select:focus,
+.form-row textarea:focus{
+    border-color:var(--wc-accent);
+    background:#fff;
+    box-shadow:0 0 0 3px rgba(189,29,29,.08);
+}
+
+.form-row input::placeholder,
+.form-row textarea::placeholder{
+    color:#B5AFC4;
+}
+
+/* 현재 등록된 이미지 */
+.current-image-box{
+    width:100%;
+    padding:16px;
+    border:1.5px solid var(--wc-border);
+    border-radius:12px;
+    background:var(--wc-field-bg);
+}
+
+.current-image-box img{
+    display:block;
+    width:100%;
+    max-height:360px;
+    margin:0 auto;
+    border-radius:10px;
+    object-fit:contain;
+    background:#fff;
+}
+
+/* HTML에 별도 박스 없이 img만 있는 경우에도 적용 */
+.form-row > img{
+    display:block;
+    width:100%;
+    max-height:360px;
+    margin-bottom:12px;
+    padding:12px;
+    border:1.5px solid var(--wc-border);
+    border-radius:12px;
+    background:var(--wc-field-bg);
+    object-fit:contain;
+}
+
+/* 이미지 삭제 체크박스 */
+.delete-image-check{
+    display:flex !important;
+    align-items:center;
+    gap:9px;
+    margin-top:12px;
+    margin-bottom:0 !important;
+    padding:12px 14px;
+    border:1px solid var(--wc-border);
+    border-radius:10px;
+    background:var(--wc-pink-bg);
+    color:var(--wc-accent-dark) !important;
+    cursor:pointer;
+}
+
+.delete-image-check input[type="checkbox"]{
+    width:17px;
+    height:17px;
+    flex-shrink:0;
+    accent-color:var(--wc-accent);
+    cursor:pointer;
+}
+
+.delete-image-check span{
+    font-size:13px;
+    font-weight:600;
+}
+
+/* HTML에서 class 없이 현재 이미지 삭제 label을 사용하는 경우 */
+.form-row > label[style*="display:flex"]{
+    padding:12px 14px;
+    border:1px solid var(--wc-border);
+    border-radius:10px;
+    background:var(--wc-pink-bg);
+    color:var(--wc-accent-dark);
+}
+
+/* 새 이미지 첨부 */
+.form-row input[type="file"]{
+    width:100%;
+    padding:12px 14px;
+    border:1.5px dashed var(--wc-border);
+    border-radius:12px;
+    background:var(--wc-field-bg);
+    color:var(--wc-text-soft);
+    font-size:13px;
+    cursor:pointer;
+    transition:
+        border-color .2s ease,
+        background .2s ease;
+}
+
+.form-row input[type="file"]:hover{
+    border-color:var(--wc-accent);
+    background:var(--wc-pink-bg);
+}
+
+.form-row input[type="file"]::file-selector-button{
+    margin-right:16px;
+    padding:8px 18px;
+    border:none;
+    border-radius:999px;
+    background:var(--wc-accent);
+    color:#fff;
+    font-weight:600;
+    cursor:pointer;
+    transition:background .2s ease;
+}
+
+.form-row input[type="file"]::file-selector-button:hover{
+    background:var(--wc-accent-dark);
+}
+
+.form-help,
+.form-row small{
+    display:block;
+    margin-top:8px;
+    color:var(--wc-text-soft) !important;
+    font-size:12px;
+    line-height:1.5;
+}
+
+/* 하단 버튼 */
+.form-actions{
+    display:flex;
+    justify-content:flex-end;
+    gap:10px;
+    padding:0 32px 32px;
+}
+
+.tips-cancel-btn,
+.tips-write-btn{
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    min-width:160px;
+    padding:14px 28px;
+    border:none;
+    border-radius:999px;
+    font-size:15px;
+    font-weight:700;
+    text-align:center;
+    cursor:pointer;
+    transition:
+        background .2s ease,
+        color .2s ease,
+        transform .2s ease;
+}
+
+.tips-cancel-btn{
+    background:#F4EFEC;
+    color:var(--wc-text-soft);
+}
+
+.tips-cancel-btn:hover{
+    background:var(--wc-pink-bg);
+    color:var(--wc-accent-dark);
+}
+
+.tips-write-btn{
+    background:var(--wc-accent);
+    color:#fff;
+}
+
+.tips-write-btn:hover{
+    background:var(--wc-accent-dark);
+    transform:translateY(-2px);
+}
+
+@media (max-width:600px){
+
+    .tips-wrap{
+        padding:32px 16px 60px;
+    }
+
+    .tips-hero h1{
+        font-size:26px;
+    }
+
+    .form-row{
+        padding:0 20px;
+    }
+
+    .form-actions{
+        flex-direction:column;
+        padding:0 20px 24px;
+    }
+
+    .tips-cancel-btn,
+    .tips-write-btn{
+        width:100%;
+        min-width:0;
+    }
+
+    .current-image-box img,
+    .form-row > img{
+        max-height:280px;
+    }
+}

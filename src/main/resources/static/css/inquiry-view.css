@@ -1,295 +1,923 @@
-:root{
-  --wc-card: #FFFFFF;
-  --wc-text: #211D2E;
-  --wc-text-soft: #6F6B7D;
-  --wc-accent: #e20f00;
-  --wc-accent-dark: #C7362B;
-  --wc-pink-bg: #fff5f5;
-  --wc-pink-text: #C7362B;
-  --wc-border: #c4c4c4;
-  --wc-field-bg: #ffffff;
+:root {
+    --wc-primary: #e5392f;
+    --wc-primary-dark: #c92d25;
+    --wc-primary-soft: #fff3f1;
+
+    --wc-text: #242129;
+    --wc-text-sub: #6f6b75;
+    --wc-text-light: #9b97a1;
+
+    --wc-bg: #f8f8fa;
+    --wc-card: #ffffff;
+    --wc-border: #e8e6eb;
+    --wc-border-dark: #d6d3da;
+
+    --wc-shadow:
+            0 2px 6px rgba(30, 24, 40, 0.03),
+            0 10px 30px rgba(30, 24, 40, 0.06);
+
+    --wc-radius-lg: 22px;
+    --wc-radius-md: 14px;
+    --wc-radius-sm: 10px;
 }
 
+/* ==================================================
+   공통 초기화
+================================================== */
+
 * {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+html {
+    scroll-behavior: smooth;
 }
 
 body {
-  height: 100vh;
-  color: #111;
-  background: #fff;
-  font-family: Arial, sans-serif;
+    min-height: 100vh;
+    color: var(--wc-text);
+    background: var(--wc-bg);
+    font-family:
+            "Pretendard",
+            "Noto Sans KR",
+            -apple-system,
+            BlinkMacSystemFont,
+            "Segoe UI",
+            sans-serif;
+    word-break: keep-all;
+}
+
+button,
+input,
+textarea {
+    font: inherit;
+}
+
+button {
+    border: 0;
 }
 
 a {
-  color: inherit;
-  text-decoration: none;
+    color: inherit;
+    text-decoration: none;
 }
 
-/* 전체 페이지 */
-.page {
-  display: flex;
-  flex-direction: column;
-  height: 100%;
-}
-
-.main {
-  display: flex;
-  flex: 1;
-}
+/* ==================================================
+   전체 레이아웃
+================================================== */
 
 .inquiry-wrap {
-  max-width: 1200px;
-  padding: 50px 258px;
-  margin: 0 auto;
+    width: min(100% - 40px, 960px);
+    margin: 0 auto;
+    padding: 0 0 80px;
+}
+
+/* ==================================================
+   상단 히어로 영역
+================================================== */
+
+.inquiry-hero {
+    position: relative;
+    margin: 0 calc(50% - 50vw) 42px;
+    padding: 56px max(20px, calc((100vw - 960px) / 2)) 48px;
+    overflow: hidden;
+    background:
+            radial-gradient(
+                    circle at 85% 20%,
+                    rgba(229, 57, 47, 0.1),
+                    transparent 28%
+            ),
+            linear-gradient(
+                    135deg,
+                    #fff4f2 0%,
+                    #fff9f8 50%,
+                    #ffffff 100%
+            );
+    border-bottom: 1px solid #f4dfdc;
+}
+
+.inquiry-hero::after {
+    content: "";
+    position: absolute;
+    right: -60px;
+    bottom: -100px;
+    width: 260px;
+    height: 260px;
+    border: 48px solid rgba(229, 57, 47, 0.035);
+    border-radius: 50%;
+    pointer-events: none;
 }
 
 .inquiry-crumb {
-  margin-bottom: 15px;
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 5px;
+    margin-bottom: 24px;
+    color: var(--wc-text-sub);
+    font-size: 14px;
+    line-height: 1.5;
 }
 
-.inquiry-crumb span {
-  color: #cf0000;
-  font-weight: bolder;
+.inquiry-crumb a {
+    transition: color 0.2s ease;
+}
+
+.inquiry-crumb a:hover {
+    color: var(--wc-primary);
+}
+
+.inquiry-crumb span:last-child {
+    max-width: 600px;
+    overflow: hidden;
+    color: var(--wc-text);
+    font-weight: 600;
+    text-overflow: ellipsis;
+    white-space: nowrap;
 }
 
 .inquiry-banner {
-  display:inline-block;
-  padding: 10px 25px;
-  font-size: 20px;
-  font-weight: bolder;
-  background: #ff8787;
-  color: #ffffff;
-  border: 4px solid rgb(211, 211, 211);
-  border-radius: 10px;
-  margin-bottom: 30px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 42px;
+    margin-bottom: 16px;
+    padding: 0 20px;
+    color: var(--wc-primary);
+    background: rgba(255, 255, 255, 0.9);
+    border: 1px solid rgba(229, 57, 47, 0.14);
+    border-radius: 999px;
+    box-shadow: 0 6px 20px rgba(229, 57, 47, 0.08);
+    font-size: 15px;
+    font-weight: 800;
+    letter-spacing: -0.02em;
 }
 
 .inquiry-subtitle {
-  color: #6F6B7D;
-  font-weight: bolder;
+    color: var(--wc-text-sub);
+    font-size: 15px;
+    font-weight: 500;
+    line-height: 1.7;
 }
 
-.view-card {
-  margin-top: 15px;
-  border: 1px solid rgb(255, 133, 133);
-  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-  background: #ffffff;
+/* ==================================================
+   공통 카드
+================================================== */
+
+.inquiry-card {
+    position: relative;
+    overflow: hidden;
+    background: var(--wc-card);
+    border: 1px solid var(--wc-border);
+    border-radius: var(--wc-radius-lg);
+    box-shadow: var(--wc-shadow);
 }
 
 .box-header {
-  background-color: #e94444;
-  height: 40px;
+    width: 100%;
+    height: 5px;
+    background: linear-gradient(
+            90deg,
+            var(--wc-primary) 0%,
+            #f2766e 65%,
+            #ffb5af 100%
+    );
+}
+
+/* ==================================================
+   문의 상세 카드
+================================================== */
+
+.view-card {
+    margin-bottom: 28px;
+}
+
+.view-header {
+    position: relative;
+    padding-bottom: 26px;
+    border-bottom: 1px solid #f0eef2;
 }
 
 .view-subject {
-  font-size: 25px;
-  font-weight: bolder;
-  padding: 15px;
+    padding: 32px 34px 14px;
+    color: var(--wc-text);
+    font-size: 24px;
+    font-weight: 800;
+    line-height: 1.45;
+    letter-spacing: -0.035em;
 }
 
 .view-meta {
-  display: flex;
-  align-items: center;
-  padding: 15px;
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 9px;
+    padding: 0 34px;
+    color: var(--wc-text-sub);
+    font-size: 13px;
 }
 
 .view-author {
-  font-size: 17px;
-  font-weight: bolder;
-  color: #5e5e5e;
-  padding-right: 10px;
+    color: #4d4953;
+    font-weight: 700;
 }
+
 .view-dot {
-  font-size: 17px;
-  color: #5e5e5e;
-  padding-right: 10px;
+    color: #d3d0d7;
 }
-.view-date {
-  font-size: 17px;
-  color: #5e5e5e;
-  padding-right: 10px;
-}
-.view-dot {
-  font-size: 17px;
-  color: #5e5e5e;
-  padding-right: 10px;
-}
+
+.view-date,
 .view-views {
-  font-size: 17px;
-  color: #5e5e5e;
-  padding-right: 10px;
+    color: var(--wc-text-sub);
+}
+
+.view-views {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+}
+
+/* 문의 수정 및 삭제 버튼 */
+
+.view-bottom-actions {
+    position: absolute;
+    right: 34px;
+    bottom: 20px;
 }
 
 .view-actions {
-  margin-left: 260px;
-  display: flex;
-  gap: 10px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.view-delete-form {
+    margin: 0;
+}
+
+.inquiry-update-btn,
+.inquiry-delete-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 64px;
+    height: 36px;
+    padding: 0 16px;
+    border-radius: 10px;
+    font-size: 13px;
+    font-weight: 700;
+    cursor: pointer;
+    transition:
+            background-color 0.2s ease,
+            border-color 0.2s ease,
+            color 0.2s ease,
+            transform 0.2s ease;
 }
 
 .inquiry-update-btn {
-  align-content: center;
-  font-size: 17px;
-  background-color: #e2e2e2;
-  padding: 5px 10px;
-  border-radius: 5px;
+    color: #4d4953;
+    background: #f4f3f6;
+    border: 1px solid #eeecf0;
 }
 
 .inquiry-update-btn:hover {
-  background-color: rgb(77, 77, 77);
-  color: #ffffff;
+    color: #ffffff;
+    background: #333038;
+    border-color: #333038;
+    transform: translateY(-1px);
 }
 
 .inquiry-delete-btn {
-  font-size: 17px;
-  background-color: #ffffff;
-  padding: 5px 10px;
-  border-radius: 5px;
-  border: 3px solid rgb(255, 76, 76);
+    color: var(--wc-primary);
+    background: #ffffff;
+    border: 1px solid #f0b4af;
 }
 
 .inquiry-delete-btn:hover {
-  background-color: rgb(255, 172, 172);
-  color: #ffffff;
-  border: 3px solid rgb(255, 172, 172);
+    color: #ffffff;
+    background: var(--wc-primary);
+    border-color: var(--wc-primary);
+    transform: translateY(-1px);
 }
+
+/* 첨부 이미지 */
 
 .view-images {
-  color: #6F6B7D;
-  padding: 15px;
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 14px;
+    padding: 28px 34px 0;
 }
+
+.view-image {
+    display: block;
+    width: 100%;
+    max-height: 460px;
+    object-fit: cover;
+    background: #f4f4f5;
+    border: 1px solid var(--wc-border);
+    border-radius: var(--wc-radius-md);
+}
+
+/* 문의 본문 */
 
 .view-content {
-  padding: 15px;
-  height: 200px;
+    min-height: 210px;
+    padding: 34px;
+    color: #3f3b45;
+    font-size: 16px;
+    line-height: 1.9;
+    white-space: pre-wrap;
+    word-break: break-word;
 }
 
+/* ==================================================
+   답변 영역
+================================================== */
+
 .answer-card {
-  margin-top: 15px;
-  border: 1px solid rgb(255, 133, 133);
-  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-  background: #ffffff;
+    margin-top: 0;
 }
 
 .answer-title {
-  font-size: 25px;
-  font-weight: bolder;
-  padding: 15px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 30px 34px 20px;
+    color: var(--wc-text);
+    font-size: 21px;
+    font-weight: 800;
+    letter-spacing: -0.025em;
 }
 
+.answer-title span {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 27px;
+    height: 27px;
+    padding: 0 8px;
+    color: var(--wc-primary);
+    background: var(--wc-primary-soft);
+    border-radius: 999px;
+    font-size: 13px;
+    font-weight: 800;
+}
+
+/* ==================================================
+   오류 문구
+================================================== */
+
+.inquiry-error-box {
+    margin: 0 34px 18px;
+    padding: 14px 16px;
+    color: #b42318;
+    background: #fff2f1;
+    border: 1px solid #ffd4d0;
+    border-radius: 10px;
+    font-size: 14px;
+    font-weight: 600;
+    line-height: 1.5;
+}
+
+/* ==================================================
+   답변 등록 폼
+================================================== */
+
 .answer-form {
-  display: flex;
-  padding: 15px;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: end;
+    gap: 12px;
+    margin: 0 34px 10px;
+    padding: 20px;
+    background: #faf9fb;
+    border: 1px solid var(--wc-border);
+    border-radius: 16px;
 }
 
 .answer-input {
-  flex: 1;
-  min-height: 100px;
-  padding: 12px 14px;
-  border: 1px solid #ddd;
-  border-radius: 10px;
-  font-size: 14px;
-  font-family: inherit;
-  resize: vertical;
+    width: 100%;
+    min-height: 120px;
+    padding: 17px 18px;
+    color: var(--wc-text);
+    background: #ffffff;
+    border: 1px solid var(--wc-border-dark);
+    border-radius: 12px;
+    outline: none;
+    resize: vertical;
+    font-size: 15px;
+    line-height: 1.65;
+    transition:
+            border-color 0.2s ease,
+            box-shadow 0.2s ease,
+            background-color 0.2s ease;
+}
+
+.answer-input::placeholder {
+    color: #aaa6af;
+}
+
+.answer-input:hover {
+    border-color: #bbb7c0;
 }
 
 .answer-input:focus {
-  outline: none;
-  border: 1px solid rgb(196, 0, 0);
+    background: #ffffff;
+    border-color: var(--wc-primary);
+    box-shadow: 0 0 0 4px rgba(229, 57, 47, 0.1);
+}
+
+.answer-error {
+    grid-column: 1 / -1;
+    margin-top: -2px;
+    color: var(--wc-primary-dark);
+    font-size: 13px;
+    font-weight: 600;
 }
 
 .inquiry-btn-submit {
-  font-size: 15px;
-  color: #353535;
-  font-weight: bolder;
-  margin-left: 10px;
-  border: none;
-  background-color: #ffe1e1;
-  border: 2px solid rgb(255, 133, 133);
-  border-radius: 5px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 112px;
+    height: 48px;
+    padding: 0 22px;
+    color: #ffffff;
+    background: var(--wc-primary);
+    border: 1px solid var(--wc-primary);
+    border-radius: 12px;
+    box-shadow: 0 7px 18px rgba(229, 57, 47, 0.18);
+    font-size: 14px;
+    font-weight: 800;
+    cursor: pointer;
+    white-space: nowrap;
+    transition:
+            background-color 0.2s ease,
+            border-color 0.2s ease,
+            transform 0.2s ease,
+            box-shadow 0.2s ease;
 }
 
+.inquiry-btn-submit:hover {
+    background: var(--wc-primary-dark);
+    border-color: var(--wc-primary-dark);
+    box-shadow: 0 9px 22px rgba(201, 45, 37, 0.22);
+    transform: translateY(-1px);
+}
+
+.inquiry-btn-submit:active {
+    transform: translateY(0);
+}
+
+/* ==================================================
+   답변 목록
+================================================== */
+
 .answer-list {
-  list-style: none;
-  margin: 0;
-  padding: 0;
-  display: flex;
-  flex-direction: column;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    padding: 24px 34px 34px;
 }
 
 .answer-item {
-  padding: 14px 0;
-  border-bottom: 1px solid #f0f0f0;
+    position: relative;
+    padding: 24px;
+    background: #ffffff;
+    border: 1px solid var(--wc-border);
+    border-radius: 16px;
+    transition:
+            border-color 0.2s ease,
+            box-shadow 0.2s ease,
+            transform 0.2s ease;
 }
 
-.answer-item:last-child {
-  border-bottom: none;
+.answer-item:hover {
+    border-color: #dad7de;
+    box-shadow: 0 8px 24px rgba(30, 24, 40, 0.06);
+    transform: translateY(-1px);
 }
+
+.answer-item.company-answer {
+    background:
+            linear-gradient(
+                    135deg,
+                    rgba(255, 246, 245, 0.9),
+                    rgba(255, 255, 255, 1)
+            );
+    border-color: #f4d2cf;
+}
+
+.answer-item.company-answer::before {
+    content: "";
+    position: absolute;
+    top: 22px;
+    left: 0;
+    width: 4px;
+    height: 42px;
+    background: var(--wc-primary);
+    border-radius: 0 4px 4px 0;
+}
+
+.answer-item.user-answer {
+    background: #ffffff;
+}
+
+/* 답변 상단 */
 
 .answer-item-header {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  margin-top: 10px;
-  margin-bottom: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    margin: 0 0 18px;
 }
 
-.answer-update-btn {
-  align-content: center;
-  font-size: 17px;
-  background-color: #e2e2e2;
-  padding: 3px 10px;
-  border-radius: 5px;
-  margin-left: 107px;
+.answer-author-wrap {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 9px;
 }
 
-.answer-update-btn:hover {
-  background-color: rgb(0, 0, 0);
-  color: #ffffff;
+.answer-role {
+    display: inline-flex;
+    align-items: center;
+    min-height: 28px;
+    padding: 0 11px;
+    color: #595560;
+    background: #f2f1f4;
+    border-radius: 999px;
+    font-size: 12px;
+    font-weight: 800;
 }
 
-.answer-delete-btn {
-  background-color: #ffe1e1;
-  align-content: center;
-  font-size: 17px;
-  border: none;
-  border: 3px solid rgb(255, 76, 76);
-  padding: 3px 10px;
-  border-radius: 5px;
-}
-
-.answer-delete-btn:hover {
-  background-color: rgb(255, 76, 76);
-  color: #ffffff;
+.company-answer .answer-role {
+    color: var(--wc-primary-dark);
+    background: #ffe8e5;
 }
 
 .answer-author {
-  padding: 0px 15px;
-  font-weight: 600;
-  font-size: 18px;
-  color: #4a4a4a;
+    padding: 0;
+    color: var(--wc-text);
+    font-size: 15px;
+    font-weight: 750;
 }
 
 .answer-date {
-  font-size: 17px;
-  color: #aaa;
+    flex-shrink: 0;
+    color: var(--wc-text-light);
+    font-size: 12px;
 }
+
+/* 답변 내용 */
 
 .answer-content {
-  margin: 0;
-  padding: 25px 15px;
-  font-size: 17px;
-  line-height: 1.6;
-  color: #333;
-  white-space: pre-wrap;
-  word-break: break-word;
+    margin: 0;
+    padding: 0 0 22px;
+    color: #46414c;
+    font-size: 15px;
+    line-height: 1.8;
+    white-space: pre-wrap;
+    word-break: break-word;
 }
 
+/* ==================================================
+   답변 수정 폼
+================================================== */
+
+.answer-update-form {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: end;
+    gap: 10px;
+    margin-top: 4px;
+    padding: 16px;
+    background: #f8f7f9;
+    border: 1px solid #eeecf0;
+    border-radius: 12px;
+}
+
+.answer-update-input {
+    width: 100%;
+    min-height: 92px;
+    padding: 13px 14px;
+    color: var(--wc-text);
+    background: #ffffff;
+    border: 1px solid var(--wc-border-dark);
+    border-radius: 10px;
+    outline: none;
+    resize: vertical;
+    font-size: 14px;
+    line-height: 1.6;
+    transition:
+            border-color 0.2s ease,
+            box-shadow 0.2s ease;
+}
+
+.answer-update-input:focus {
+    border-color: var(--wc-primary);
+    box-shadow: 0 0 0 3px rgba(229, 57, 47, 0.09);
+}
+
+.answer-update-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 68px;
+    height: 40px;
+    padding: 0 16px;
+    color: #ffffff;
+    background: #3b3840;
+    border-radius: 10px;
+    font-size: 13px;
+    font-weight: 750;
+    cursor: pointer;
+    transition:
+            background-color 0.2s ease,
+            transform 0.2s ease;
+}
+
+.answer-update-btn:hover {
+    background: #17151a;
+    transform: translateY(-1px);
+}
+
+/* 답변 삭제 */
+
+.answer-delete-form {
+    display: flex;
+    justify-content: flex-end;
+    margin-top: 10px;
+}
+
+.answer-delete-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 60px;
+    height: 34px;
+    padding: 0 14px;
+    color: var(--wc-primary);
+    background: #ffffff;
+    border: 1px solid #efc1bd;
+    border-radius: 9px;
+    font-size: 12px;
+    font-weight: 750;
+    cursor: pointer;
+    transition:
+            background-color 0.2s ease,
+            border-color 0.2s ease,
+            color 0.2s ease,
+            transform 0.2s ease;
+}
+
+.answer-delete-btn:hover {
+    color: #ffffff;
+    background: var(--wc-primary);
+    border-color: var(--wc-primary);
+    transform: translateY(-1px);
+}
+
+/* ==================================================
+   답변 없음
+================================================== */
+
 .answer-empty {
-  text-align: center;
-  color: #aaa;
-  font-size: 14px;
-  padding: 24px 0;
+    margin: 10px 34px 34px;
+    padding: 45px 20px;
+    color: var(--wc-text-light);
+    background: #faf9fb;
+    border: 1px dashed #dcd9e0;
+    border-radius: 14px;
+    text-align: center;
+    font-size: 14px;
+    line-height: 1.6;
+}
+
+/* ==================================================
+   반응형
+================================================== */
+
+@media (max-width: 768px) {
+    .inquiry-wrap {
+        width: min(100% - 28px, 960px);
+        padding-bottom: 50px;
+    }
+
+    .inquiry-hero {
+        margin-bottom: 28px;
+        padding-top: 40px;
+        padding-bottom: 36px;
+    }
+
+    .inquiry-crumb {
+        margin-bottom: 20px;
+        font-size: 13px;
+    }
+
+    .inquiry-banner {
+        min-height: 38px;
+        padding: 0 17px;
+        font-size: 14px;
+    }
+
+    .inquiry-subtitle {
+        font-size: 14px;
+    }
+
+    .inquiry-card {
+        border-radius: 17px;
+    }
+
+    .view-header {
+        padding-bottom: 22px;
+    }
+
+    .view-subject {
+        padding: 26px 22px 12px;
+        font-size: 21px;
+    }
+
+    .view-meta {
+        padding: 0 22px;
+        gap: 7px;
+    }
+
+    .view-bottom-actions {
+        position: static;
+        padding: 20px 22px 0;
+    }
+
+    .view-actions {
+        justify-content: flex-end;
+    }
+
+    .view-images {
+        grid-template-columns: 1fr;
+        padding: 24px 22px 0;
+    }
+
+    .view-content {
+        min-height: 170px;
+        padding: 28px 22px;
+        font-size: 15px;
+    }
+
+    .answer-title {
+        padding: 26px 22px 18px;
+        font-size: 19px;
+    }
+
+    .inquiry-error-box {
+        margin-right: 22px;
+        margin-left: 22px;
+    }
+
+    .answer-form {
+        grid-template-columns: 1fr;
+        margin-right: 22px;
+        margin-left: 22px;
+        padding: 16px;
+    }
+
+    .answer-input {
+        min-height: 110px;
+    }
+
+    .inquiry-btn-submit {
+        width: 100%;
+        height: 46px;
+    }
+
+    .answer-list {
+        padding: 22px;
+    }
+
+    .answer-item {
+        padding: 20px;
+    }
+
+    .answer-item-header {
+        align-items: flex-start;
+    }
+
+    .answer-update-form {
+        grid-template-columns: 1fr;
+    }
+
+    .answer-update-btn {
+        width: 100%;
+    }
+
+    .answer-empty {
+        margin-right: 22px;
+        margin-left: 22px;
+    }
+}
+
+@media (max-width: 480px) {
+    .inquiry-wrap {
+        width: min(100% - 20px, 960px);
+    }
+
+    .inquiry-hero {
+        padding-top: 32px;
+        padding-bottom: 30px;
+    }
+
+    .inquiry-crumb span:last-child {
+        max-width: 230px;
+    }
+
+    .view-subject {
+        padding-right: 18px;
+        padding-left: 18px;
+        font-size: 19px;
+    }
+
+    .view-meta {
+        padding-right: 18px;
+        padding-left: 18px;
+    }
+
+    .view-dot {
+        display: none;
+    }
+
+    .view-author,
+    .view-date,
+    .view-views {
+        width: auto;
+    }
+
+    .view-bottom-actions {
+        padding-right: 18px;
+        padding-left: 18px;
+    }
+
+    .view-actions {
+        width: 100%;
+    }
+
+    .inquiry-update-btn,
+    .view-delete-form,
+    .inquiry-delete-btn {
+        flex: 1;
+    }
+
+    .inquiry-delete-btn {
+        width: 100%;
+    }
+
+    .view-images {
+        padding-right: 18px;
+        padding-left: 18px;
+    }
+
+    .view-content {
+        padding: 24px 18px;
+    }
+
+    .answer-title {
+        padding-right: 18px;
+        padding-left: 18px;
+    }
+
+    .inquiry-error-box,
+    .answer-form,
+    .answer-empty {
+        margin-right: 18px;
+        margin-left: 18px;
+    }
+
+    .answer-list {
+        gap: 12px;
+        padding: 18px;
+    }
+
+    .answer-item {
+        padding: 18px;
+    }
+
+    .answer-item-header {
+        flex-direction: column;
+        gap: 8px;
+    }
+
+    .answer-date {
+        padding-left: 1px;
+    }
+
+    .answer-content {
+        padding-bottom: 18px;
+    }
+
+    .answer-delete-btn {
+        width: 100%;
+        height: 38px;
+    }
 }

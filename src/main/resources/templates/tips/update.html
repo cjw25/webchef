@@ -1,10 +1,126 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+
 <head>
     <meta charset="UTF-8">
-    <title>Title</title>
+    <title>Update tip | WebChef</title>
+
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <link rel="stylesheet" th:href="@{/css/header.css}">
+    <link rel="stylesheet" th:href="@{/css/tips-update.css}">
 </head>
+
 <body>
+
+<!-- 공통 헤더 -->
+<div th:replace="~{fragments/header :: header}"></div>
+
+<main class="tips-wrap">
+
+    <section class="tips-hero">
+        <h1>자취요리팁 수정</h1>
+        <p>등록된 팁을 수정해주세요.</p>
+    </section>
+
+    <form class="tips-form"
+          th:action="@{/tips/update/{id}(id=${tip.id})}"
+          method="post"
+          enctype="multipart/form-data">
+
+        <!-- 카테고리 -->
+        <div class="form-row">
+            <label for="category">카테고리</label>
+
+            <select id="category" name="category" required>
+
+                <option th:each="c : ${categories}"
+                        th:value="${c}"
+                        th:selected="${c == tip.category}"
+                        th:text="${c.name() == 'INGREDIENT_PREP'
+                                ? '재료 손질법'
+                                : (c.name() == 'INGREDIENT_STORE'
+                                    ? '재료 보관법'
+                                    : '조리 도구 관리법')}">
+                </option>
+
+            </select>
+
+        </div>
+
+        <!-- 제목 -->
+        <div class="form-row">
+            <label for="title">제목</label>
+
+            <input type="text"
+                   id="title"
+                   name="title"
+                   maxlength="150"
+                   th:value="${tip.title}"
+                   required>
+
+        </div>
+
+        <!-- 현재 이미지 -->
+        <div class="form-row"
+             th:if="${tip.imageUrl != null && !#strings.isEmpty(tip.imageUrl)}">
+
+            <label>현재 등록된 사진</label>
+
+            <img th:src="@{${tip.imageUrl}}"
+                 alt="현재 이미지"
+                 style="width:100%;max-height:300px;object-fit:contain;border-radius:10px;margin-bottom:12px;">
+
+            <label style="display:flex;align-items:center;gap:8px;font-weight:500;">
+                <input type="checkbox"
+                       name="deleteImage"
+                       value="true">
+
+                현재 이미지 삭제
+            </label>
+
+        </div>
+
+        <!-- 새 이미지 -->
+        <div class="form-row">
+            <label for="imageFile">새 사진</label>
+
+            <input type="file"
+                   id="imageFile"
+                   name="imageFile"
+                   accept="image/*">
+
+            <small style="display:block;margin-top:8px;color:#777;">
+                새 사진을 선택하면 기존 사진이 교체됩니다.
+            </small>
+
+        </div>
+
+        <!-- 내용 -->
+        <div class="form-row">
+            <label for="content">내용</label>
+
+            <textarea id="content"
+                      name="content"
+                      rows="10"
+                      required
+                      th:text="${tip.content}"></textarea>
+
+        </div>
+
+        <!-- 버튼 -->
+        <div class="form-actions">
+
+            <button type="submit"
+                    class="tips-write-btn">
+                수정하기
+            </button>
+
+        </div>
+
+    </form>
+
+</main>
 
 </body>
 </html>
