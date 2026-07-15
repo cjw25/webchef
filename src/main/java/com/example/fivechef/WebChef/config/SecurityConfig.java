@@ -128,6 +128,10 @@ public class SecurityConfig {
                          */
                         .requestMatchers("/admin/**").hasRole("ADMIN")
 
+                        .requestMatchers("/mypage/**").authenticated()
+
+                        .requestMatchers("/subscription/**").hasRole("USER")
+
                         /*
                          * 강사 전용 페이지
                          */
