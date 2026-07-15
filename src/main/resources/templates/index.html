@@ -4,6 +4,8 @@
     <meta charset="UTF-8">
     <title>WebChef</title>
 
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
     <meta name="_csrf" th:content="${_csrf != null ? _csrf.token : ''}">
     <meta name="_csrf_header" th:content="${_csrf != null ? _csrf.headerName : ''}">
 
@@ -38,22 +40,64 @@
                 </p>
 
                 <div class="home-buttons">
-                    <a th:if="${loginUsername == null}" href="/user/create" class="home-start-btn">
+
+                    <!-- 비로그인 -->
+                    <a th:if="${!isLogin}"
+                       th:href="@{/user/create}"
+                       class="home-start-btn">
                         지금 시작하기 <span>→</span>
                     </a>
 
-                    <a th:if="${loginUsername != null}" href="/mypage" class="home-start-btn">
+                    <a th:if="${!isLogin}"
+                       th:href="@{/course/list}"
+                       class="home-course-btn">
+                        강의 둘러보기
+                    </a>
+
+                    <!-- USER -->
+                    <a th:if="${isLogin and loginRole == 'USER'}"
+                       th:href="@{/mypage}"
+                       class="home-start-btn">
                         내 학습 보러가기 <span>→</span>
                     </a>
 
-                    <a href="/course/list" class="home-course-btn">
+                    <a th:if="${isLogin and loginRole == 'USER'}"
+                       th:href="@{/course/list}"
+                       class="home-course-btn">
                         강의 둘러보기
                     </a>
+
+                    <!-- INSTRUCTOR -->
+                    <a th:if="${isLogin and loginRole == 'INSTRUCTOR'}"
+                       th:href="@{/instructor/courses}"
+                       class="home-start-btn">
+                        강사 페이지 <span>→</span>
+                    </a>
+
+                    <a th:if="${isLogin and loginRole == 'INSTRUCTOR'}"
+                       th:href="@{/instructor/courses/create}"
+                       class="home-course-btn">
+                        강의 등록하기
+                    </a>
+
+                    <!-- ADMIN -->
+                    <a th:if="${isLogin and loginRole == 'ADMIN'}"
+                       th:href="@{/admin/courses}"
+                       class="home-start-btn">
+                        강의 승인 관리 <span>→</span>
+                    </a>
+
+                    <a th:if="${isLogin and loginRole == 'ADMIN'}"
+                       th:href="@{/admin}"
+                       class="home-course-btn">
+                        관리자 대시보드
+                    </a>
+
                 </div>
             </div>
 
-            <!-- 로그인 전 -->
-            <div class="home-right" th:if="${loginUsername == null}">
+            <!-- 로그인 전 오른쪽 카드 -->
+            <div class="home-right" th:if="${!isLogin}">
                 <div class="guest-card">
 
                     <div class="guest-card-badge">START WEB CHEF</div>
@@ -70,7 +114,7 @@
                     <div class="guest-feature-list">
                         <div>
                             <strong>01</strong>
-                            <span>내 강의 진행률 확인</span>
+                            <span>수강 중인 강의 확인</span>
                         </div>
 
                         <div>
@@ -84,60 +128,60 @@
                         </div>
                     </div>
 
-                    <a href="/user/login" class="guest-login-btn">
+                    <a th:href="@{/user/login}" class="guest-login-btn">
                         로그인하고 시작하기 →
                     </a>
 
                 </div>
             </div>
 
-            <!-- 로그인 후 -->
-            <div class="home-right" th:if="${loginUsername != null}">
+            <!-- USER 로그인 후 오른쪽 카드 -->
+            <div class="home-right" th:if="${isLogin and loginRole == 'USER'}">
                 <div class="dashboard-card">
 
                     <div class="dashboard-top">
                         <h2>WebChef</h2>
 
                         <div class="dashboard-icons">
-                            <img src="/img/notification.png" alt="알림">
-                            <img src="/img/user.png" alt="사용자">
+                            <img th:src="@{/img/notification.png}" alt="알림">
+                            <img th:src="@{/img/user.png}" alt="사용자">
                         </div>
                     </div>
 
                     <div class="dashboard-body">
 
                         <aside class="dashboard-sidebar">
-                            <a href="/" class="active">
-                                <img src="/img/home.png" alt="홈">
+                            <a th:href="@{/}" class="active">
+                                <img th:src="@{/img/home.png}" alt="홈">
                                 <span>홈</span>
                             </a>
 
-                            <a href="/course/list">
+                            <a th:href="@{/mypage}">
                                 <span class="css-side-icon">▣</span>
-                                <span>내 강의</span>
+                                <span>내 학습</span>
                             </a>
 
-                            <a href="/mypage">
-                                <img src="/img/learning-plan.png" alt="학습 플랜">
-                                <span>학습 플랜</span>
+                            <a th:href="@{/course/list}">
+                                <img th:src="@{/img/learning-plan.png}" alt="강의">
+                                <span>강의 둘러보기</span>
                             </a>
 
-                            <a href="#">
-                                <img src="/img/bookmark.png" alt="북마크">
-                                <span>북마크</span>
+                            <a th:href="@{/fridge}">
+                                <img th:src="@{/img/bookmark.png}" alt="냉장고">
+                                <span>냉장고</span>
                             </a>
 
-                            <a href="#">
-                                <img src="/img/certificate.png" alt="수료증">
-                                <span>수료증</span>
+                            <a th:href="@{/tips/list}">
+                                <img th:src="@{/img/certificate.png}" alt="팁">
+                                <span>자취 팁</span>
                             </a>
                         </aside>
 
                         <section class="dashboard-content">
 
                             <div class="dashboard-title-row">
-                                <h3>내 강의</h3>
-                                <a href="/course/list">전체 보기 &gt;</a>
+                                <h3>내 학습</h3>
+                                <a th:href="@{/mypage}">전체 보기 &gt;</a>
                             </div>
 
                             <div class="dashboard-course-grid">
@@ -146,7 +190,7 @@
                                     <div class="mini-course-thumb cooking"></div>
 
                                     <div class="mini-course-info">
-                                        <span class="course-state">진행 중</span>
+                                        <span class="course-state">추천</span>
                                         <h4>10분 완성 한 끼 요리</h4>
 
                                         <div class="progress-row">
@@ -162,7 +206,7 @@
                                     <div class="mini-course-thumb cleaning"></div>
 
                                     <div class="mini-course-info">
-                                        <span class="course-state">진행 중</span>
+                                        <span class="course-state">추천</span>
                                         <h4>똑똑한 청소 루틴</h4>
 
                                         <div class="progress-row">
@@ -196,7 +240,7 @@
 
                                 <div class="goal-card">
                                     <strong>이번 주 학습 목표</strong>
-                                    <p>2 / 3 강의 수강</p>
+                                    <p>요리 강의 1개 수강하기</p>
 
                                     <div class="goal-progress">
                                         <span></span>
@@ -204,8 +248,260 @@
                                 </div>
 
                                 <div class="streak-card">
-                                    <strong>연속 학습</strong>
-                                    <p>🔥 <span>3일</span></p>
+                                    <strong>오늘의 추천</strong>
+                                    <p>🍳 <span>한 끼</span></p>
+                                </div>
+
+                            </div>
+
+                        </section>
+
+                    </div>
+
+                </div>
+            </div>
+
+            <!-- INSTRUCTOR 로그인 후 오른쪽 카드 -->
+            <div class="home-right" th:if="${isLogin and loginRole == 'INSTRUCTOR'}">
+                <div class="dashboard-card">
+
+                    <div class="dashboard-top">
+                        <h2>Instructor</h2>
+
+                        <div class="dashboard-icons">
+                            <img th:src="@{/img/notification.png}" alt="알림">
+                            <img th:src="@{/img/user.png}" alt="강사">
+                        </div>
+                    </div>
+
+                    <div class="dashboard-body">
+
+                        <aside class="dashboard-sidebar">
+                            <a th:href="@{/instructor/courses}" class="active">
+                                <img th:src="@{/img/home.png}" alt="강사 홈">
+                                <span>강사 홈</span>
+                            </a>
+
+                            <a th:href="@{/instructor/courses}">
+                                <span class="css-side-icon">▣</span>
+                                <span>내 강의 관리</span>
+                            </a>
+
+                            <a th:href="@{/instructor/courses/create}">
+                                <img th:src="@{/img/learning-plan.png}" alt="등록">
+                                <span>강의 등록</span>
+                            </a>
+
+                            <a th:href="@{/course/list}">
+                                <img th:src="@{/img/bookmark.png}" alt="목록">
+                                <span>공개 강의 보기</span>
+                            </a>
+
+                            <a th:href="@{/mypage}">
+                                <img th:src="@{/img/certificate.png}" alt="마이페이지">
+                                <span>마이페이지</span>
+                            </a>
+                        </aside>
+
+                        <section class="dashboard-content">
+
+                            <div class="dashboard-title-row">
+                                <h3>강사 관리</h3>
+                                <a th:href="@{/instructor/courses}">전체 보기 &gt;</a>
+                            </div>
+
+                            <div class="dashboard-course-grid">
+
+                                <article class="mini-course-card">
+                                    <div class="mini-course-thumb cooking"></div>
+
+                                    <div class="mini-course-info">
+                                        <span class="course-state">등록</span>
+                                        <h4>새 강의 등록</h4>
+
+                                        <div class="progress-row">
+                                            <div class="progress-bar">
+                                                <span style="width: 30%"></span>
+                                            </div>
+                                            <em>신청</em>
+                                        </div>
+                                    </div>
+                                </article>
+
+                                <article class="mini-course-card">
+                                    <div class="mini-course-thumb cleaning"></div>
+
+                                    <div class="mini-course-info">
+                                        <span class="course-state">승인 대기</span>
+                                        <h4>관리자 승인 필요</h4>
+
+                                        <div class="progress-row">
+                                            <div class="progress-bar">
+                                                <span style="width: 70%"></span>
+                                            </div>
+                                            <em>검토</em>
+                                        </div>
+                                    </div>
+                                </article>
+
+                                <article class="mini-course-card">
+                                    <div class="mini-course-thumb budget"></div>
+
+                                    <div class="mini-course-info">
+                                        <span class="course-state">관리</span>
+                                        <h4>강의 수정 / 삭제</h4>
+
+                                        <div class="progress-row">
+                                            <div class="progress-bar">
+                                                <span style="width: 100%"></span>
+                                            </div>
+                                            <em>가능</em>
+                                        </div>
+                                    </div>
+                                </article>
+
+                            </div>
+
+                            <div class="dashboard-bottom">
+
+                                <div class="goal-card">
+                                    <strong>강사 안내</strong>
+                                    <p>강의 수정 시 관리자 재승인이 필요합니다.</p>
+
+                                    <div class="goal-progress">
+                                        <span></span>
+                                    </div>
+                                </div>
+
+                                <div class="streak-card">
+                                    <strong>상태</strong>
+                                    <p>👨‍🍳 <span>강사</span></p>
+                                </div>
+
+                            </div>
+
+                        </section>
+
+                    </div>
+
+                </div>
+            </div>
+
+            <!-- ADMIN 로그인 후 오른쪽 카드 -->
+            <div class="home-right" th:if="${isLogin and loginRole == 'ADMIN'}">
+                <div class="dashboard-card">
+
+                    <div class="dashboard-top">
+                        <h2>Admin</h2>
+
+                        <div class="dashboard-icons">
+                            <img th:src="@{/img/notification.png}" alt="알림">
+                            <img th:src="@{/img/user.png}" alt="관리자">
+                        </div>
+                    </div>
+
+                    <div class="dashboard-body">
+
+                        <aside class="dashboard-sidebar">
+                            <a th:href="@{/admin}" class="active">
+                                <img th:src="@{/img/home.png}" alt="관리자 홈">
+                                <span>관리자 홈</span>
+                            </a>
+
+                            <a th:href="@{/admin/courses}">
+                                <span class="css-side-icon">▣</span>
+                                <span>강의 승인</span>
+                            </a>
+
+                            <a th:href="@{/admin/members}">
+                                <img th:src="@{/img/learning-plan.png}" alt="회원">
+                                <span>회원 관리</span>
+                            </a>
+
+                            <a th:href="@{/admin/instructors}">
+                                <img th:src="@{/img/bookmark.png}" alt="강사">
+                                <span>강사 관리</span>
+                            </a>
+
+                            <a th:href="@{/notice/list}">
+                                <img th:src="@{/img/certificate.png}" alt="공지">
+                                <span>공지사항</span>
+                            </a>
+                        </aside>
+
+                        <section class="dashboard-content">
+
+                            <div class="dashboard-title-row">
+                                <h3>관리자 업무</h3>
+                                <a th:href="@{/admin/courses}">승인 관리 &gt;</a>
+                            </div>
+
+                            <div class="dashboard-course-grid">
+
+                                <article class="mini-course-card">
+                                    <div class="mini-course-thumb cooking"></div>
+
+                                    <div class="mini-course-info">
+                                        <span class="course-state">승인</span>
+                                        <h4>강의 승인 / 반려</h4>
+
+                                        <div class="progress-row">
+                                            <div class="progress-bar">
+                                                <span style="width: 80%"></span>
+                                            </div>
+                                            <em>관리</em>
+                                        </div>
+                                    </div>
+                                </article>
+
+                                <article class="mini-course-card">
+                                    <div class="mini-course-thumb cleaning"></div>
+
+                                    <div class="mini-course-info">
+                                        <span class="course-state">회원</span>
+                                        <h4>회원 권한 관리</h4>
+
+                                        <div class="progress-row">
+                                            <div class="progress-bar">
+                                                <span style="width: 70%"></span>
+                                            </div>
+                                            <em>관리</em>
+                                        </div>
+                                    </div>
+                                </article>
+
+                                <article class="mini-course-card">
+                                    <div class="mini-course-thumb budget"></div>
+
+                                    <div class="mini-course-info">
+                                        <span class="course-state">강사</span>
+                                        <h4>강사 승인 관리</h4>
+
+                                        <div class="progress-row">
+                                            <div class="progress-bar">
+                                                <span style="width: 65%"></span>
+                                            </div>
+                                            <em>검토</em>
+                                        </div>
+                                    </div>
+                                </article>
+
+                            </div>
+
+                            <div class="dashboard-bottom">
+
+                                <div class="goal-card">
+                                    <strong>관리자 안내</strong>
+                                    <p>관리자는 구독권 결제 없이 승인 업무를 처리합니다.</p>
+
+                                    <div class="goal-progress">
+                                        <span></span>
+                                    </div>
+                                </div>
+
+                                <div class="streak-card">
+                                    <strong>권한</strong>
+                                    <p>🛠 <span>ADMIN</span></p>
                                 </div>
 
                             </div>
@@ -225,7 +521,7 @@
 
         <div class="section-header">
             <h2>🔥 이번 주 인기 강의</h2>
-            <a href="/course/list">전체 보기 &gt;</a>
+            <a th:href="@{/course/list}">전체 보기 &gt;</a>
         </div>
 
         <div class="home-content-grid">
@@ -321,43 +617,79 @@
                         양파를 보관할 땐 신문지에 싸서 통풍이 잘 되는 곳에 두면 더 오래 신선해요.
                     </p>
 
-                    <a href="/tips/list">더 많은 팁 보기 &gt;</a>
+                    <a th:href="@{/tips/list}">더 많은 팁 보기 &gt;</a>
                 </div>
             </aside>
 
             <aside class="status-card">
                 <div class="card-title-row">
-                    <h3>나의 학습 현황</h3>
+                    <h3 th:if="${!isLogin or loginRole == 'USER'}">나의 학습 현황</h3>
+                    <h3 th:if="${isLogin and loginRole == 'INSTRUCTOR'}">강사 진행 현황</h3>
+                    <h3 th:if="${isLogin and loginRole == 'ADMIN'}">관리자 현황</h3>
+
                     <span>MY</span>
                 </div>
 
                 <div class="status-inner">
 
                     <div class="status-circle">
-                        <strong>67%</strong>
-                        <span>전체 진행률</span>
+                        <strong th:if="${!isLogin or loginRole == 'USER'}">67%</strong>
+                        <strong th:if="${isLogin and loginRole == 'INSTRUCTOR'}">승인</strong>
+                        <strong th:if="${isLogin and loginRole == 'ADMIN'}">검토</strong>
+
+                        <span th:if="${!isLogin or loginRole == 'USER'}">전체 진행률</span>
+                        <span th:if="${isLogin and loginRole == 'INSTRUCTOR'}">강의 상태</span>
+                        <span th:if="${isLogin and loginRole == 'ADMIN'}">관리 업무</span>
                     </div>
 
                     <div class="status-list">
                         <div>
-                            <span>완료 강의</span>
-                            <strong>8개</strong>
+                            <span th:if="${!isLogin or loginRole == 'USER'}">완료 강의</span>
+                            <span th:if="${isLogin and loginRole == 'INSTRUCTOR'}">등록 강의</span>
+                            <span th:if="${isLogin and loginRole == 'ADMIN'}">승인 대기</span>
+                            <strong th:if="${!isLogin or loginRole == 'USER'}">8개</strong>
+                            <strong th:if="${isLogin and loginRole == 'INSTRUCTOR'}">관리</strong>
+                            <strong th:if="${isLogin and loginRole == 'ADMIN'}">확인</strong>
                         </div>
 
                         <div>
-                            <span>수강 중 강의</span>
-                            <strong>3개</strong>
+                            <span th:if="${!isLogin or loginRole == 'USER'}">수강 중 강의</span>
+                            <span th:if="${isLogin and loginRole == 'INSTRUCTOR'}">수정 요청</span>
+                            <span th:if="${isLogin and loginRole == 'ADMIN'}">회원 관리</span>
+                            <strong th:if="${!isLogin or loginRole == 'USER'}">3개</strong>
+                            <strong th:if="${isLogin and loginRole == 'INSTRUCTOR'}">가능</strong>
+                            <strong th:if="${isLogin and loginRole == 'ADMIN'}">가능</strong>
                         </div>
 
                         <div>
-                            <span>예정 강의</span>
-                            <strong>4개</strong>
+                            <span th:if="${!isLogin or loginRole == 'USER'}">예정 강의</span>
+                            <span th:if="${isLogin and loginRole == 'INSTRUCTOR'}">승인 상태</span>
+                            <span th:if="${isLogin and loginRole == 'ADMIN'}">강사 관리</span>
+                            <strong th:if="${!isLogin or loginRole == 'USER'}">4개</strong>
+                            <strong th:if="${isLogin and loginRole == 'INSTRUCTOR'}">확인</strong>
+                            <strong th:if="${isLogin and loginRole == 'ADMIN'}">가능</strong>
                         </div>
                     </div>
 
                 </div>
 
-                <a href="/mypage" class="status-link">학습 플랜 보러가기 &gt;</a>
+                <a th:if="${!isLogin or loginRole == 'USER'}"
+                   th:href="@{/mypage}"
+                   class="status-link">
+                    학습 플랜 보러가기 &gt;
+                </a>
+
+                <a th:if="${isLogin and loginRole == 'INSTRUCTOR'}"
+                   th:href="@{/instructor/courses}"
+                   class="status-link">
+                    내 강의 관리하기 &gt;
+                </a>
+
+                <a th:if="${isLogin and loginRole == 'ADMIN'}"
+                   th:href="@{/admin/courses}"
+                   class="status-link">
+                    강의 승인 관리하기 &gt;
+                </a>
             </aside>
 
         </div>
