@@ -4,6 +4,7 @@ import com.example.fivechef.WebChef.entity.Notice;
 import lombok.Getter;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Getter
 public class NoticeResponse {
@@ -18,6 +19,11 @@ public class NoticeResponse {
 
     private final LocalDateTime createDate;
     private final LocalDateTime modifyDate;
+
+    private final int viewCount;
+
+    // 추가
+    private final List<NoticeImageResponse> imageDetails;
 
     public NoticeResponse(Notice notice) {
         this.id = notice.getId();
@@ -36,5 +42,12 @@ public class NoticeResponse {
 
         this.createDate = notice.getCreateDate();
         this.modifyDate = notice.getModifyDate();
+        this.viewCount = notice.getViewCount();
+
+        // 추가
+        this.imageDetails = notice.getImages()
+                .stream()
+                .map(NoticeImageResponse::new)
+                .toList();
     }
 }
