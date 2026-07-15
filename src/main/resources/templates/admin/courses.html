@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>강의 승인 관리 | WebChef</title>
+
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <link rel="stylesheet" th:href="@{/css/header.css}">
+    <link rel="stylesheet" th:href="@{/css/footer.css}">
+    <link rel="stylesheet" th:href="@{/css/chatbot-widget.css}">
+    <link rel="stylesheet" th:href="@{/css/instructor.css}">
+</head>
+<body>
+
+<div th:replace="~{fragments/header :: header}"></div>
+
+<main class="instructor-page">
+
+    <section class="instructor-hero">
+        <span>ADMIN COURSE</span>
+        <h1>강의 승인 관리</h1>
+        <p>강사가 등록하거나 수정한 강의를 승인 또는 반려합니다.</p>
+    </section>
+
+    <section class="instructor-card">
+
+        <div class="guide-box">
+            관리자는 강의를 추가하지 않고, 강사가 등록한 강의를 승인 또는 반려합니다.
+        </div>
+
+        <section class="admin-course-grid"
+                 th:if="${courses != null and !courses.isEmpty()}">
+
+            <article class="admin-course-card"
+                     th:each="course : ${courses}">
+
+                <div class="admin-course-thumb">
+                    <img th:if="${course.thumbnailUrl != null and !#strings.isEmpty(course.thumbnailUrl)}"
+                         th:src="${course.thumbnailUrl}"
+                         alt="강의 이미지">
+
+                    <div th:unless="${course.thumbnailUrl != null and !#strings.isEmpty(course.thumbnailUrl)}"
+                         class="admin-course-no-image">
+                        WebChef
+                    </div>
+
+                    <span class="status-badge"
+                          th:classappend="${course.status.name().toLowerCase()}"
+                          th:text="${course.statusLabel}">
+                        승인 대기
+                    </span>
+                </div>
+
+                <div class="admin-course-body">
+                    <h2 th:text="${course.title}">
+                        강의명
+                    </h2>
+
+                    <p class="admin-course-desc"
+                       th:text="${#strings.abbreviate(course.description, 90)}">
+                        강의 설명
+                    </p>
+
+                    <div class="admin-course-meta">
+                        <span>
+                            강사:
+                            <strong th:text="${course.instructorName != null ? course.instructorName : '강사 미정'}">
+                                강사
+                            </strong>
+                        </span>
+
+                        <span th:text="${course.category}">
+                            카테고리
+                        </span>
+
+                        <span th:text="${course.difficultyLabel}">
+                            난이도
+                        </span>
+                    </div>
+
+                    <div class="admin-course-price">
+                        <strong th:text="${#numbers.formatInteger(course.price, 3, 'COMMA')} + '원'">
+                            0원
+                        </strong>
+                        <span th:text="${course.requiredPlanName}">
+                            무료
+                        </span>
+                    </div>
+
+                    <div class="admin-course-actions">
+                        <a th:href="@{|/course/view/${course.id}|}" class="table-link">
+                            미리보기
+                        </a>
+
+                        <form th:action="@{|/admin/courses/${course.id}/approve|}"
+                              method="post">
+                            <button type="submit" class="table-approve-btn">
+                                승인
+                            </button>
+                        </form>
+
+                        <form th:action="@{|/admin/courses/${course.id}/reject|}"
+                              method="post">
+                            <button type="submit" class="table-delete-btn">
+                                반려
+                            </button>
+                        </form>
+                    </div>
+                </div>
+
+            </article>
+
+        </section>
+
+        <div class="empty-box" th:if="${courses == null or courses.isEmpty()}">
+            승인 대기 중인 강의가 없습니다.
+        </div>
+
+    </section>
+
+</main>
+
+<div th:replace="~{fragments/footer :: footer}"></div>
+
+</body>
+</html>

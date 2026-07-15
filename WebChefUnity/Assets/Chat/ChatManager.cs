@@ -1,262 +1,106 @@
-﻿using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.Globalization;
+﻿using UnityEngine;
 using TMPro;
 using Unity.Netcode;
-using UnityEngine;
-using UnityEngine.SceneManagement;
 
 public class ChatManager : NetworkBehaviour
 {
-    [Header("전체 채팅창 UI")]
-    public TMP_InputField chatInput;
-    public TMP_Text chatWindow;
-
-    [Header("채팅 환경 설정")]
-    public float chatDisplayTime = 5f;
-
-    private List<string> chatHistory = new List<string>();
-
     public static ChatManager Instance;
+    public TMP_InputField chatInput;
+    public TMP_Text chatWindow; // 화면 전체 채팅 로그용
 
-    private void Awake()
+    private void Awake() => Instance = this;
+
+    // 채팅 입력창에서 엔터를 쳤을 때 호출
+    public void OnChatSubmit(string text)
     {
-        if (Instance == null)
+        // 1. 내용이 비어있으면 바로 리턴
+        if (string.IsNullOrWhiteSpace(text))
         {
-            Instance = this;
-            DontDestroyOnLoad(gameObject);
-            SceneManager.sceneLoaded += OnSceneLoaded;
-        }
-        else
-        {
-            Destroy(gameObject);
-        }
-    }
-
-    public override void OnDestroy()
-    {
-        base.OnDestroy();
-
-        if (Instance == this)
-        {
-            SceneManager.sceneLoaded -= OnSceneLoaded;
-        }
-    }
-
-    // ⭐️ [방법 1 핵심 적용] NGO가 이 오브젝트를 안전하게 스폰 완료했을 때 호출됩니다.
-    public override void OnNetworkSpawn()
-    {
-        base.OnNetworkSpawn();
-
-        // 켜진 상태로 프리팹이 스폰되었으므로, 네트워크 연결 확인이 끝난 지금 바로 안전하게 꺼줍니다.
-        // 이 스크립트가 붙은 오브젝트 자체 혹은 필요한 자식 오브젝트를 초기 비활성화합니다.
-        HideChatUIOnSpawn();
-    }
-
-    private void HideChatUIOnSpawn()
-    {
-        // 씬 시작 시 말풍선용 Canvas가 강제로 켜져서 방해되지 않도록 즉시 찾아 꺼주는 로직
-        foreach (PlayerMove player in GameObject.FindObjectsOfType<PlayerMove>())
-        {
-            Canvas[] canvases = player.GetComponentsInChildren<Canvas>(true);
-            foreach (Canvas canvas in canvases)
-            {
-                if (canvas.name == "SpeechBubbleCanvas")
-                {
-                    canvas.gameObject.SetActive(false); // 스폰 확인 후 바로 끄기
-                }
-            }
-        }
-    }
-
-    private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
-    {
-        if (Instance != this) return;
-
-        TMP_InputField newInputField = GameObject.FindObjectOfType<TMP_InputField>(true);
-        if (newInputField != null)
-        {
-            chatInput = newInputField;
-            chatInput.onEndEdit.RemoveAllListeners();
-            chatInput.onSubmit.RemoveAllListeners();
-            chatInput.onSubmit.AddListener(OnChatSubmit);
-        }
-
-        TMP_Text[] allTexts = GameObject.FindObjectsOfType<TMP_Text>(true);
-        foreach (TMP_Text t in allTexts)
-        {
-            if (t.gameObject.name.Contains("Chat") && t.gameObject.name != "BubbleText")
-            {
-                chatWindow = t;
-                break;
-            }
-        }
-
-        ResetFocus();
-
-        // 씬이 새로 로드되었을 때도 혹시 켜져 있을지 모를 말풍선을 다시 숨깁니다.
-        HideChatUIOnSpawn();
-    }
-
-    void Start()
-    {
-        if (Instance != this) return;
-        if (chatWindow != null) chatWindow.text = "";
-
-        if (chatInput != null)
-        {
-            chatInput.onEndEdit.RemoveAllListeners();
-            chatInput.onSubmit.RemoveAllListeners();
-            chatInput.onSubmit.AddListener(OnChatSubmit);
-        }
-    }
-
-    void Update()
-    {
-        if (Instance != this) return;
-
-        if (chatInput != null && chatInput.isFocused)
-        {
-            if (Input.GetKeyDown(KeyCode.Escape))
-            {
-                chatInput.text = "";
-                ResetFocus();
-            }
+            chatInput.text = ""; // 입력창 초기화
             return;
         }
 
-        if (Input.GetKeyDown(KeyCode.Return) || Input.GetKeyDown(KeyCode.KeypadEnter))
-        {
-            if (chatInput != null)
-            {
-                StartCoroutine(ActivateChatInputDeferred());
-            }
-        }
-    }
+        // 2. 입력된 텍스트를 변수에 먼저 저장
+        string messageToSend = text;
 
-    IEnumerator ActivateChatInputDeferred()
-    {
-        yield return null;
-        if (chatInput != null) chatInput.ActivateInputField();
-    }
+        // 3. 서버로 메시지 전송
+        SendChatMessageServerRpc(NetworkManager.Singleton.LocalClientId, messageToSend);
 
-    void OnChatSubmit(string text)
-    {
-        if (chatInput == null || !chatInput.isFocused) return;
-
-        if (string.IsNullOrEmpty(text.Trim())) return;
+        // 4. 전송 후 입력창 비우기 및 포커스 해제
         chatInput.text = "";
-
-        ulong myClientId = NetworkManager.Singleton.LocalClientId;
-        SendChatMessageServerRpc(myClientId, text);
-
-        ResetFocus();
+        chatInput.DeactivateInputField();
     }
-
     [ServerRpc(RequireOwnership = false)]
-    private void SendChatMessageServerRpc(ulong senderClientId, string message)
+    private void SendChatMessageServerRpc(ulong senderId, string message)
     {
-        ReceiveChatMessageClientRpc(senderClientId, message);
+        ReceiveChatMessageClientRpc(senderId, message);
     }
 
     [ClientRpc]
-    private void ReceiveChatMessageClientRpc(ulong senderClientId, string message)
+    private void ReceiveChatMessageClientRpc(ulong senderId, string message)
     {
-        string formattedMessage = $"[유저 {senderClientId}]: {message}";
-        chatHistory.Add(formattedMessage);
-        UpdateChatWindowText(formattedMessage);
+        Debug.Log($"[네트워크] 메시지 수신됨: {message}, 보낸 사람: {senderId}");
 
-        foreach (PlayerMove player in GameObject.FindObjectsOfType<PlayerMove>())
+        // 1. 전체 채팅 로그창 업데이트
+        if (chatWindow != null)
         {
-            NetworkObject netObj = player.GetComponent<NetworkObject>();
-            if (netObj != null && netObj.OwnerClientId == senderClientId)
+            chatWindow.text += $"\n[유저 {senderId}]: {message}";
+        }
+
+        // 2. 네트워크상의 Client 목록에서 senderId를 찾아 정확하게 참조
+        if (NetworkManager.Singleton.ConnectedClients.TryGetValue(senderId, out var client))
+        {
+            // 해당 클라이언트의 PlayerObject를 가져옵니다.
+            var playerObject = client.PlayerObject;
+
+            if (playerObject != null)
             {
-                Canvas[] canvases = player.GetComponentsInChildren<Canvas>(true);
-                foreach (Canvas canvas in canvases)
+                var playerMove = playerObject.GetComponent<PlayerMove>();
+                if (playerMove != null)
                 {
-                    if (canvas.name == "SpeechBubbleCanvas")
-                    {
-                        // 채팅이 수신되었을 때만 필요한 말풍선 창을 dynamic하게 활성화합니다.
-                        canvas.gameObject.SetActive(true);
-
-                        TMP_Text bText = canvas.GetComponentInChildren<TMP_Text>(true);
-
-                        if (bText != null)
-                        {
-                            bText.text = message;
-                            bText.gameObject.SetActive(true);
-                            if (bText.transform.parent != null && bText.transform.parent != canvas.transform)
-                            {
-                                bText.transform.parent.gameObject.SetActive(true);
-                            }
-
-                            GameObject targetTimerObj = bText.transform.parent != null ? bText.transform.parent.gameObject : bText.gameObject;
-
-                            ChatBubbleTimeout timeoutScript = targetTimerObj.GetComponent<ChatBubbleTimeout>();
-                            if (timeoutScript == null) timeoutScript = targetTimerObj.AddComponent<ChatBubbleTimeout>();
-
-                            timeoutScript.TriggerHide(3f);
-                        }
-                        break;
-                    }
+                    Debug.Log($"[성공] {senderId}번 유저의 말풍선 함수를 직접 호출합니다.");
+                    playerMove.DisplaySpeechBubble(message);
                 }
-                break;
+                else
+                {
+                    Debug.LogError($"[에러] {senderId}번 유저의 PlayerObject에 PlayerMove 스크립트가 없습니다!");
+                }
             }
-        }
-
-        StartCoroutine(RemoveChatAfterDelay(formattedMessage, chatDisplayTime));
-    }
-
-    IEnumerator RemoveChatAfterDelay(string messageToRemove, float delay)
-    {
-        yield return new WaitForSeconds(delay);
-        if (chatHistory.Contains(messageToRemove))
-        {
-            chatHistory.Remove(messageToRemove);
-            if (chatWindow != null)
+            else
             {
-                chatWindow.text = string.Join("\n", chatHistory);
+                Debug.LogError($"[에러] {senderId}번 유저의 PlayerObject가 null입니다!");
             }
         }
-    }
-
-    void UpdateChatWindowText(string newEntry)
-    {
-        if (chatWindow == null) return;
-        if (string.IsNullOrEmpty(chatWindow.text)) chatWindow.text = newEntry;
-        else chatWindow.text += "\n" + newEntry;
-    }
-
-    void ResetFocus()
-    {
-        if (chatInput != null) chatInput.DeactivateInputField();
-        if (UnityEngine.EventSystems.EventSystem.current != null)
+        else
         {
-            UnityEngine.EventSystems.EventSystem.current.SetSelectedGameObject(null);
+            Debug.LogError($"[에러] 네트워크 상에서 {senderId}번 클라이언트를 찾을 수 없습니다.");
         }
     }
-
     public bool IsTyping()
     {
+        // chatInput이 있고, 현재 키보드 입력을 받고 있는 상태인지 확인
         if (chatInput == null) return false;
         return chatInput.isFocused;
     }
-}
-
-public class ChatBubbleTimeout : MonoBehaviour
-{
-    private Coroutine currentCoroutine;
-
-    public void TriggerHide(float delay)
+    void Update()
     {
-        if (currentCoroutine != null) StopCoroutine(currentCoroutine);
-        currentCoroutine = StartCoroutine(HideRoutine(delay));
-    }
+        if (Input.GetKeyDown(KeyCode.Return))
+        {
+            Debug.Log("엔터 키 입력 감지됨!");
 
-    private IEnumerator HideRoutine(float delay)
-    {
-        yield return new WaitForSeconds(delay);
-        gameObject.SetActive(false);
+            if (chatInput != null)
+            {
+                Debug.Log($"입력창 텍스트: {chatInput.text}"); // 텍스트가 비어있는지 확인
+
+                // 여기서 직접 함수를 호출해 봅니다.
+                OnChatSubmit(chatInput.text);
+            }
+            else
+            {
+                Debug.LogError("ChatInput 컴포넌트가 연결되지 않았습니다!");
+            }
+
+           
+        }
     }
 }

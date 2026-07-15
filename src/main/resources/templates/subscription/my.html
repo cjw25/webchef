@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <title>내 구독권 | WebChef</title>
+
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <link rel="stylesheet" th:href="@{/css/header.css}">
+  <link rel="stylesheet" th:href="@{/css/footer.css}">
+  <link rel="stylesheet" th:href="@{/css/chatbot-widget.css}">
+  <link rel="stylesheet" th:href="@{/css/subscription.css}">
+</head>
+<body>
+
+<div th:replace="~{fragments/header :: header}"></div>
+
+<main class="subscription-page">
+
+  <section class="subscription-hero">
+    <span>MY SUBSCRIPTION</span>
+    <h1>내 구독권</h1>
+    <p>현재 이용 중인 구독권 상태를 확인하고 해지할 수 있습니다.</p>
+  </section>
+
+  <section class="subscription-card">
+
+    <div th:if="${!subscription.subscribed}" class="subscription-empty">
+      <h2>이용 중인 구독권이 없습니다.</h2>
+      <p>유료 강의를 수강하려면 필요한 구독권을 결제해야 합니다.</p>
+
+      <a th:href="@{/course/list}" class="subscription-main-btn">
+        강의 둘러보기
+      </a>
+    </div>
+
+    <div th:if="${subscription.subscribed}" class="subscription-info">
+
+      <div class="subscription-plan-badge"
+           th:classappend="${subscription.premium} ? ' premium' : ' basic'"
+           th:text="${subscription.planName}">
+        BASIC
+      </div>
+
+      <h2 th:text="${subscription.planName} + ' 구독권 이용 중'">
+        BASIC 구독권 이용 중
+      </h2>
+
+      <p>
+        만료일:
+        <strong th:text="${subscription.expiredAt != null ? #temporals.format(subscription.expiredAt, 'yyyy-MM-dd HH:mm') : '-'}">
+          -
+        </strong>
+      </p>
+
+      <div th:if="${subscription.cancelled}" class="subscription-cancelled-box">
+        <strong>해지 완료</strong>
+        <p>구독권은 해지되었지만 만료일까지는 계속 이용할 수 있습니다.</p>
+
+        <p>
+          해지일:
+          <span th:text="${subscription.cancelledAt != null ? #temporals.format(subscription.cancelledAt, 'yyyy-MM-dd HH:mm') : '-'}">
+                        -
+                    </span>
+        </p>
+      </div>
+
+      <form th:if="${!subscription.cancelled}"
+            th:action="@{/subscription/cancel}"
+            method="post"
+            onsubmit="return confirm('구독권을 해지하시겠습니까? 만료일까지는 이용할 수 있습니다.');">
+
+        <button type="submit" class="subscription-cancel-btn">
+          구독권 해지
+        </button>
+      </form>
+
+      <a th:href="@{/course/list}" class="subscription-sub-btn">
+        강의 목록으로 이동
+      </a>
+
+    </div>
+
+  </section>
+
+</main>
+
+<div th:replace="~{fragments/footer :: footer}"></div>
+
+</body>
+</html>

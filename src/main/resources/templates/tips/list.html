@@ -1,262 +1,124 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html lang="ko"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+
 <head>
     <meta charset="UTF-8">
-    <title>Tips</title>
+    <title>자취요리팁 | WebChef</title>
 
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
     <link rel="stylesheet" th:href="@{/css/header.css}">
-    <link rel="stylesheet" th:href="@{/css/footer.css}">
     <link rel="stylesheet" th:href="@{/css/tips.css}">
+    <link rel="stylesheet" th:href="@{/css/footer.css}">
+    <link rel="stylesheet" th:href="@{/css/chatbot-widget.css}">
 </head>
+
 <body>
 
+<!-- 공통 헤더 -->
 <div th:replace="~{fragments/header :: header}"></div>
 
-<main>
-    <div class="page">
-        <div class="category">
-            <div class="category-kind">
-                <a href="#" class="all">전체 보기</a>
-                <a href="#" class="prep">재료 손질법</a>
-                <a href="#" class="store">재료 보관법</a>
-                <a href="#" class="tools">조리 도구 관리법</a>
-            </div>
-        </div>
+<main class="tips-wrap">
 
-        <div class="intro">
-            <h2 class="title">재료 손질법</h2>
-            <div class="list">
-                <a href="#" class="list">전체 보기 〉</a>
-            </div>
-        </div>
+    <!-- 상단 소개 영역 -->
+    <section class="tips-hero">
 
-        <div class="cook-box">
-            <div class="box-container">
-                <div class="box-img">
-                    <a href="#">
-                        <img src="https://picsum.photos/100" alt="프로필 이미지" class="food-img" >
-                    </a>
-                </div>
-                <div class="box-line"></div>
-                <div class="details">
-                    <a href="#" class="subtitle">〈부제목〉</a>
-                    <a href="#" class="name">〈제목〉</a>
-                </div>
-            </div>
+        <h1>자취요리팁</h1>
 
-            <div class="box-container">
-                <div class="box-img">
-                    <a href="#">
-                        <img src="https://picsum.photos/110" alt="프로필 이미지" class="food-img" >
-                    </a>
-                </div>
-                <div class="box-line"></div>
-                <div class="details">
-                    <a href="#" class="subtitle">〈부제목〉</a>
-                    <a href="#" class="name">〈제목〉</a>
-                </div>
-            </div>
+        <p>
+            재료 손질부터 보관, 도구 관리까지<br>
+            자취 요리에 필요한 팁을 모아봤어요.
+        </p>
 
-            <div class="box-container">
-                <div class="box-img">
-                    <a href="#">
-                        <img src="https://picsum.photos/120" alt="프로필 이미지" class="food-img" >
-                    </a>
-                </div>
-                <div class="box-line"></div>
-                <div class="details">
-                    <a href="#" class="subtitle">〈부제목〉</a>
-                    <a href="#" class="name">〈제목〉</a>
-                </div>
-            </div>
+    </section>
 
-            <div class="box-container">
-                <div class="box-img">
-                    <a href="#">
-                        <img src="https://picsum.photos/130" alt="프로필 이미지" class="food-img" >
-                    </a>
-                </div>
-                <div class="box-line"></div>
-                <div class="details">
-                    <a href="#" class="subtitle">〈부제목〉</a>
-                    <a href="#" class="name">〈제목〉</a>
-                </div>
+    <!-- 카테고리 탭 -->
+    <nav class="tips-tabs">
+
+        <a th:href="@{/tips/list(keyword=${keyword})}"
+           th:classappend="${category == null or #strings.isEmpty(category)} ? ' active'">
+            전체 보기
+        </a>
+
+        <a th:href="@{/tips/list(category='INGREDIENT_PREP', keyword=${keyword})}"
+           th:classappend="${category == 'INGREDIENT_PREP'} ? ' active'">
+            재료 손질법
+        </a>
+
+        <a th:href="@{/tips/list(category='INGREDIENT_STORE', keyword=${keyword})}"
+           th:classappend="${category == 'INGREDIENT_STORE'} ? ' active'">
+            재료 보관법
+        </a>
+
+        <a th:href="@{/tips/list(category='TOOL_MANAGE', keyword=${keyword})}"
+           th:classappend="${category == 'TOOL_MANAGE'} ? ' active'">
+            조리 도구 관리법
+        </a>
+
+    </nav>
+
+    <!-- 관리자 전용 추가 버튼 -->
+    <section class="tips-write-box" sec:authorize="hasRole('ADMIN')">
+
+        <a class="tips-write-btn"
+           th:href="@{/tips/create}">
+            + 등록하기
+        </a>
+
+    </section>
+
+    <!-- 팁 카드 목록 -->
+    <section class="tips-grid" th:if="${!paging.empty}">
+
+        <a class="tip-card"
+           th:each="tip : ${paging.content}"
+           th:href="@{|/tips/view/${tip.id}|}">
+
+            <div class="tip-thumb">
+                <img th:if="${tip.imageUrl != null and !#strings.isEmpty(tip.imageUrl)}"
+                     th:src="${tip.imageUrl}"
+                     th:alt="${tip.title}">
+                <span class="tip-thumb-placeholder"
+                      th:unless="${tip.imageUrl != null and !#strings.isEmpty(tip.imageUrl)}">
+                    사진 준비 중
+                </span>
             </div>
 
-            <div class="box-container">
-                <div class="box-img">
-                    <a href="#">
-                        <img src="https://picsum.photos/140" alt="프로필 이미지" class="food-img" >
-                    </a>
-                </div>
-                <div class="box-line"></div>
-                <div class="details">
-                    <a href="#" class="subtitle">〈부제목〉</a>
-                    <a href="#" class="name">〈제목〉</a>
-                </div>
-            </div>
-        </div>
-
-        <div class="intro">
-            <h2 class="title">재료 보관법</h2>
-            <div class="list">
-                <a href="#" class="list">전체 보기 〉</a>
-            </div>
-        </div>
-
-        <div class="cook-box">
-            <div class="box-container2">
-                <div class="box-img">
-                    <a href="#">
-                        <img src="https://picsum.photos/150" alt="프로필 이미지" class="food-img" >
-                    </a>
-                </div>
-                <div class="box-line"></div>
-                <div class="details">
-                    <a href="#" class="subtitle">〈부제목〉</a>
-                    <a href="#" class="name">〈제목〉</a>
-                </div>
+            <div class="tip-body">
+                <span class="tip-badge" th:text="${tip.categoryName}">카테고리</span>
+                <p class="tip-subtitle" th:text="${tip.contentPreview}">부제목</p>
+                <p class="tip-title" th:text="${tip.title}">제목</p>
             </div>
 
-            <div class="box-container2">
-                <div class="box-img">
-                    <a href="#">
-                        <img src="https://picsum.photos/160" alt="프로필 이미지" class="food-img" >
-                    </a>
-                </div>
-                <div class="box-line"></div>
-                <div class="details">
-                    <a href="#" class="subtitle">〈부제목〉</a>
-                    <a href="#" class="name">〈제목〉</a>
-                </div>
-            </div>
+        </a>
 
-            <div class="box-container2">
-                <div class="box-img">
-                    <a href="#">
-                        <img src="https://picsum.photos/170" alt="프로필 이미지" class="food-img" >
-                    </a>
-                </div>
-                <div class="box-line"></div>
-                <div class="details">
-                    <a href="#" class="subtitle">〈부제목〉</a>
-                    <a href="#" class="name">〈제목〉</a>
-                </div>
-            </div>
+    </section>
 
-            <div class="box-container2">
-                <div class="box-img">
-                    <a href="#">
-                        <img src="https://picsum.photos/180" alt="프로필 이미지" class="food-img" >
-                    </a>
-                </div>
-                <div class="box-line"></div>
-                <div class="details">
-                    <a href="#" class="subtitle">〈부제목〉</a>
-                    <a href="#" class="name">〈제목〉</a>
-                </div>
-            </div>
+    <p class="tips-empty" th:if="${paging.empty}">등록된 팁이 없습니다.</p>
 
-            <div class="box-container2">
-                <div class="box-img">
-                    <a href="#">
-                        <img src="https://picsum.photos/190" alt="프로필 이미지" class="food-img" >
-                    </a>
-                </div>
-                <div class="box-line"></div>
-                <div class="details">
-                    <a href="#" class="subtitle">〈부제목〉</a>
-                    <a href="#" class="name">〈제목〉</a>
-                </div>
-            </div>
-        </div>
+    <!-- 페이징 -->
+    <section class="tips-pagination" th:if="${!paging.empty and paging.totalPages > 1}">
 
-        <div class="intro">
-            <h2 class="title">조리 도구 관리법</h2>
-            <div class="list">
-                <a href="#" class="list">전체 보기 〉</a>
-            </div>
-        </div>
+        <a th:if="${paging.hasPrevious()}"
+           th:href="@{/tips/list(page=${paging.number - 1}, keyword=${keyword}, category=${category})}">
+            &lt;
+        </a>
 
-        <div class="cook-box">
-            <div class="box-container3">
-                <div class="box-img">
-                    <a href="#">
-                        <img src="https://picsum.photos/200" alt="프로필 이미지" class="food-img" >
-                    </a>
-                </div>
-                <div class="box-line"></div>
-                <div class="details">
-                    <a href="#" class="subtitle">〈부제목〉</a>
-                    <a href="#" class="name">〈제목〉</a>
-                </div>
-            </div>
+        <a th:each="pageNum : ${#numbers.sequence(0, paging.totalPages - 1)}"
+           th:href="@{/tips/list(page=${pageNum}, keyword=${keyword}, category=${category})}"
+           th:text="${pageNum + 1}"
+           th:classappend="${pageNum == paging.number} ? ' active'">
+        </a>
 
-            <div class="box-container3">
-                <div class="box-img">
-                    <a href="#">
-                        <img src="https://picsum.photos/210" alt="프로필 이미지" class="food-img" >
-                    </a>
-                </div>
-                <div class="box-line"></div>
-                <div class="details">
-                    <a href="#" class="subtitle">〈부제목〉</a>
-                    <a href="#" class="name">〈제목〉</a>
-                </div>
-            </div>
+        <a th:if="${paging.hasNext()}"
+           th:href="@{/tips/list(page=${paging.number + 1}, keyword=${keyword}, category=${category})}">
+            &gt;
+        </a>
 
-            <div class="box-container3">
-                <div class="box-img">
-                    <a href="#">
-                        <img src="https://picsum.photos/220" alt="프로필 이미지" class="food-img" >
-                    </a>
-                </div>
-                <div class="box-line"></div>
-                <div class="details">
-                    <a href="#" class="subtitle">〈부제목〉</a>
-                    <a href="#" class="name">〈제목〉</a>
-                </div>
-            </div>
+    </section>
 
-            <div class="box-container3">
-                <div class="box-img">
-                    <a href="#">
-                        <img src="https://picsum.photos/230" alt="프로필 이미지" class="food-img" >
-                    </a>
-                </div>
-                <div class="box-line"></div>
-                <div class="details">
-                    <a href="#" class="subtitle">〈부제목〉</a>
-                    <a href="#" class="name">〈제목〉</a>
-                </div>
-            </div>
-
-            <div class="box-container3">
-                <div class="box-img">
-                    <a href="#">
-                        <img src="https://picsum.photos/240" alt="프로필 이미지" class="food-img" >
-                    </a>
-                </div>
-                <div class="box-line"></div>
-                <div class="details">
-                    <a href="#" class="subtitle">〈부제목〉</a>
-                    <a href="#" class="name">〈제목〉</a>
-                </div>
-            </div>
-        </div>
-
-        <section class="add-box">
-            <a class="add-btn"
-               href="@{/tips/create}">
-                팁 추가
-            </a>
-        </section>
-
-        <div class="bottom"></div>
-
-    </div>
 </main>
 
 <div th:replace="~{fragments/footer :: footer}"></div>

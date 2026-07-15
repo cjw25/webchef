@@ -21,6 +21,9 @@ public class Tip {
     @Column(columnDefinition = "TEXT", nullable = false)
     private String content;
 
+    @Column(length = 255)
+    private String imageUrl;
+
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 50)
     private TipCategory category;

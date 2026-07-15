@@ -8,6 +8,9 @@ public class CoursePlanPolicyService {
 
     private static final int PREMIUM_PRICE_THRESHOLD = 200000;
 
+    /*
+     * 강의 가격으로 필요한 최소 구독권 결정
+     */
     public SubscriptionPlanType decideRequiredPlan(Integer price) {
         if (price == null || price <= 0) {
             return null;
@@ -20,10 +23,16 @@ public class CoursePlanPolicyService {
         return SubscriptionPlanType.PREMIUM;
     }
 
-    public boolean canAccess(
-            SubscriptionPlanType userPlan,
-            SubscriptionPlanType requiredPlan
-    ) {
+    /*
+     * 수강 가능 여부
+     *
+     * BASIC 구독권
+     * - BASIC 강의만 가능
+     *
+     * PREMIUM 구독권
+     * - BASIC + PREMIUM 모두 가능
+     */
+    public boolean canAccess(SubscriptionPlanType userPlan, SubscriptionPlanType requiredPlan) {
         if (requiredPlan == null) {
             return true;
         }

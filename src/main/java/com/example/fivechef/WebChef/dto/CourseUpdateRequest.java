@@ -22,5 +22,7 @@ public class CourseUpdateRequest {
 
     private CourseStatus status;
 
+    private String cookTime;
+
     private String videoUrl;
 }

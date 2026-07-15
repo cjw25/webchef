@@ -5,6 +5,7 @@ import com.example.fivechef.WebChef.dto.AdminInstructorChangeRequest;
 import com.example.fivechef.WebChef.dto.AdminMemberResponse;
 import com.example.fivechef.WebChef.dto.AdminMemberUpdateRequest;
 import com.example.fivechef.WebChef.service.AdminService;
+import com.example.fivechef.WebChef.service.CourseService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -19,6 +20,7 @@ import org.springframework.web.bind.annotation.*;
 public class AdminController {
 
     private final AdminService adminService;
+    private final CourseService courseService;
 
     @GetMapping
     public String dashboard(Model model) {
@@ -35,7 +37,6 @@ public class AdminController {
             @RequestParam(value = "page", defaultValue = "0") int page
     ) {
         Page<AdminMemberResponse> paging = adminService.getMembers(page);
-
         model.addAttribute("paging", paging);
 
         return "admin/members";
@@ -129,5 +130,26 @@ public class AdminController {
         model.addAttribute("paging", paging);
 
         return "admin/instructors";
+    }
+
+    @GetMapping("/courses")
+    public String courseReviewList(Model model) {
+        model.addAttribute("courses", courseService.getAdminReviewCourses());
+
+        return "admin/courses";
+    }
+
+    @PostMapping("/courses/{id}/approve")
+    public String approveCourse(@PathVariable("id") Long id) {
+        courseService.approveCourse(id);
+
+        return "redirect:/admin/courses";
+    }
+
+    @PostMapping("/courses/{id}/reject")
+    public String rejectCourse(@PathVariable("id") Long id) {
+        courseService.rejectCourse(id);
+
+        return "redirect:/admin/courses";
     }
 }

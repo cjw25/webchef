@@ -1,110 +1,218 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <title>Course</title>
+    <title>요리 강의 | WebChef</title>
 
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
     <link rel="stylesheet" th:href="@{/css/header.css}">
     <link rel="stylesheet" th:href="@{/css/footer.css}">
+    <link rel="stylesheet" th:href="@{/css/chatbot-widget.css}">
     <link rel="stylesheet" th:href="@{/css/course.css}">
 </head>
 <body>
 
 <div th:replace="~{fragments/header :: header}"></div>
 
-<main>
-    <div class="page">
-        <div class="category">
+<main class="course-list-page">
+    <div class="course-page-inner">
+
+        <section class="course-category-section">
             <div class="category-kind">
+
                 <a th:href="@{/course/list(keyword=${keyword}, sort=${sort})}"
-                   class="all"
-                   th:classappend="${category == null or category == ''} ? ' active'">전체 보기</a>
+                   class="category-link"
+                   th:classappend="${selectedCategory == null} ? ' active' : ''">
+                    전체 보기
+                </a>
+
                 <a th:href="@{/course/list(category='KOREAN', keyword=${keyword}, sort=${sort})}"
-                   class="korean"
-                   th:classappend="${category == 'KOREAN'} ? ' active'">• 한식</a>
+                   class="category-link"
+                   th:classappend="${selectedCategory != null and selectedCategory.name() == 'KOREAN'} ? ' active' : ''">
+                    한식
+                </a>
+
                 <a th:href="@{/course/list(category='CHINESE', keyword=${keyword}, sort=${sort})}"
-                   class="chinese"
-                   th:classappend="${category == 'CHINESE'} ? ' active'">• 중식</a>
+                   class="category-link"
+                   th:classappend="${selectedCategory != null and selectedCategory.name() == 'CHINESE'} ? ' active' : ''">
+                    중식
+                </a>
+
                 <a th:href="@{/course/list(category='JAPANESE', keyword=${keyword}, sort=${sort})}"
-                   class="japanese"
-                   th:classappend="${category == 'JAPANESE'} ? ' active'">• 일식</a>
+                   class="category-link"
+                   th:classappend="${selectedCategory != null and selectedCategory.name() == 'JAPANESE'} ? ' active' : ''">
+                    일식
+                </a>
+
                 <a th:href="@{/course/list(category='WESTERN', keyword=${keyword}, sort=${sort})}"
-                   class="western"
-                   th:classappend="${category == 'WESTERN'} ? ' active'">• 양식</a>
+                   class="category-link"
+                   th:classappend="${selectedCategory != null and selectedCategory.name() == 'WESTERN'} ? ' active' : ''">
+                    양식
+                </a>
+
                 <a th:href="@{/course/list(category='DESSERT', keyword=${keyword}, sort=${sort})}"
-                   class="dessert"
-                   th:classappend="${category == 'DESSERT'} ? ' active'">• 간식 / 디저트</a>
+                   class="category-link"
+                   th:classappend="${selectedCategory != null and selectedCategory.name() == 'DESSERT'} ? ' active' : ''">
+                    간식 / 디저트
+                </a>
+
                 <a th:href="@{/course/list(category='ETC', keyword=${keyword}, sort=${sort})}"
-                   class="etc"
-                   th:classappend="${category == 'ETC'} ? ' active'">• 기타</a>
-            </div>
-        </div>
+                   class="category-link"
+                   th:classappend="${selectedCategory != null and selectedCategory.name() == 'ETC'} ? ' active' : ''">
+                    기타
+                </a>
 
-        <div class="intro">
-            <h2 class="title">총 <strong th:text="${paging.totalElements}">0000</strong>개의 강의가 있습니다.</h2>
-            <div class="list">
-                <a th:href="@{/course/list(category=${category}, keyword=${keyword}, sort='popular')}"
-                   class="list1"
-                   th:classappend="${sort == null or sort == '' or sort == 'popular'} ? ' active'">인기순</a>
-                <a th:href="@{/course/list(category=${category}, keyword=${keyword}, sort='difficulty')}"
-                   class="list2"
-                   th:classappend="${sort == 'difficulty'} ? ' active'">난이도순</a>
             </div>
-        </div>
+        </section>
 
-        <!-- 강의 추가 -->
-        <section class="add-box">
-            <a class="add-btn"
-               th:href="@{/course/create}">
+        <section class="course-top-section">
+            <div>
+                <p class="course-eyebrow">WEB CHEF CLASS</p>
+                <h1 class="course-main-title">요리 강의</h1>
+                <p class="course-sub-title">
+                    자취생을 위한 실전 요리 강의를 확인해보세요.
+                </p>
+            </div>
+
+            <div class="course-sort-box">
+                <a th:href="@{/course/list(category=${selectedCategory}, keyword=${keyword}, sort='popular')}"
+                   class="sort-link"
+                   th:classappend="${sort == null or sort == '' or sort == 'popular'} ? ' active' : ''">
+                    인기순
+                </a>
+
+                <a th:href="@{/course/list(category=${selectedCategory}, keyword=${keyword}, sort='difficulty')}"
+                   class="sort-link"
+                   th:classappend="${sort == 'difficulty'} ? ' active' : ''">
+                    난이도순
+                </a>
+            </div>
+        </section>
+
+        <section class="course-count-search-section">
+            <h2 class="course-count-title">
+                총
+                <strong th:text="${paging != null ? paging.totalElements : 0}">0</strong>
+                개의 강의가 있습니다.
+            </h2>
+
+            <form class="course-search-form" th:action="@{/course/list}" method="get">
+                <input type="hidden"
+                       name="category"
+                       th:if="${selectedCategory != null}"
+                       th:value="${selectedCategory}">
+
+                <input type="hidden"
+                       name="sort"
+                       th:if="${sort != null and sort != ''}"
+                       th:value="${sort}">
+
+                <input type="text"
+                       name="keyword"
+                       th:value="${keyword}"
+                       placeholder="강의명 또는 설명 검색">
+
+                <button type="submit">검색</button>
+            </form>
+        </section>
+
+        <section class="add-box"
+                 th:if="${loginRole == 'INSTRUCTOR'}">
+            <a class="add-btn" th:href="@{/instructor/courses/create}">
                 강의 추가
             </a>
         </section>
 
-        <div class="cook-box">
+        <section class="course-grid" th:if="${paging != null and !paging.empty}">
 
-            <div class="box-container" th:each="course : ${paging.content}">
-                <div class="box-img">
-                    <a th:href="@{|/course/view/${course.id}|}">
-                        <img th:if="${course.hasFile()}" th:src="@{${course.thumbnailUrl}}" alt="음식 이미지" class="food-img">
-                    </a>
+            <article class="course-card" th:each="course : ${paging.content}">
+
+                <a class="course-thumb-link" th:href="${course.listTargetUrl}">
+                    <img th:if="${course.thumbnailUrl != null and !#strings.isEmpty(course.thumbnailUrl)}"
+                         th:src="${course.thumbnailUrl}"
+                         alt="강의 이미지"
+                         class="course-thumb">
+
+                    <div th:unless="${course.thumbnailUrl != null and !#strings.isEmpty(course.thumbnailUrl)}"
+                         class="course-thumb no-image">
+                        WebChef
+                    </div>
+
+                    <span class="course-plan-badge"
+                          th:classappend="${course.free} ? ' free' : (${course.premiumRequired} ? ' premium' : ' basic')"
+                          th:text="${course.requiredPlanName}">
+                        무료
+                    </span>
+                </a>
+
+                <div class="course-card-body">
+
+                    <h2 class="course-card-title">
+                        <a th:href="${course.listTargetUrl}"
+                           th:text="${course.title}">
+                            강의명
+                        </a>
+                    </h2>
+
+                    <div class="course-meta-row">
+                        <span th:text="'✦ ' + ${course.difficultyLabel}">✦ 난이도</span>
+
+                        <span th:if="${course.cookTime != null and !#strings.isEmpty(course.cookTime)}"
+                              th:text="${course.cookTime}">
+                            조리시간
+                        </span>
+                    </div>
+
+                    <p class="course-price-text" th:if="${course.free}">
+                        무료 강의
+                    </p>
+
+                    <p class="course-price-text" th:unless="${course.free}">
+                        가격:
+                        <strong th:text="${#numbers.formatInteger(course.price, 3, 'COMMA')} + '원'">
+                            0원
+                        </strong>
+                    </p>
+
+                    <p class="course-access-message"
+                       th:classappend="${course.listAccessible} ? ' accessible' : ' locked'"
+                       th:text="${course.listAccessMessage}">
+                        접근 안내
+                    </p>
+
                 </div>
-                <div class="skills-box">
-                    <h2 class="tag-name" th:text="${course.title}">〈요리명〉</h2>
-                    <span class="tag-level" th:text="'✦ ' + ${course.difficultyLabel}">✦ 난이도</span>
-                    <span class="tag-time" th:if="${course.cookTime != null}" th:text="${course.cookTime}">조리시간</span>
-                </div>
-            </div>
 
-        </div>
+            </article>
 
-        <div class="empty-box" th:if="${paging.content.isEmpty()}">
-            등록된 강의가 없습니다.
-        </div>
+        </section>
 
-        <section class="pagination" th:if="${paging.totalPages > 1}">
+        <section class="empty-box" th:if="${paging == null or paging.empty}">
+            <h2>등록된 강의가 없습니다.</h2>
+            <p>강사가 강의를 등록하면 이곳에 표시됩니다.</p>
+        </section>
+
+        <section class="pagination" th:if="${paging != null and paging.totalPages > 1}">
+
             <a th:if="${paging.hasPrevious()}"
-               th:href="@{/course/list(page=${paging.number - 1}, keyword=${keyword}, category=${category}, sort=${sort})}">
+               th:href="@{/course/list(page=${paging.number - 1}, keyword=${keyword}, category=${selectedCategory}, sort=${sort})}">
                 &lt;
             </a>
 
             <a th:each="pageNumber : ${#numbers.sequence(0, paging.totalPages - 1)}"
-               th:href="@{/course/list(page=${pageNumber}, keyword=${keyword}, category=${category}, sort=${sort})}"
+               th:href="@{/course/list(page=${pageNumber}, keyword=${keyword}, category=${selectedCategory}, sort=${sort})}"
                th:text="${pageNumber + 1}"
-               th:classappend="${pageNumber == paging.number} ? ' active'">
+               th:classappend="${pageNumber == paging.number} ? ' active' : ''">
                 1
             </a>
 
             <a th:if="${paging.hasNext()}"
-               th:href="@{/course/list(page=${paging.number + 1}, keyword=${keyword}, category=${category}, sort=${sort})}">
+               th:href="@{/course/list(page=${paging.number + 1}, keyword=${keyword}, category=${selectedCategory}, sort=${sort})}">
                 &gt;
             </a>
+
         </section>
 
-
-
-        <div class="bottom"></div>
     </div>
 </main>
 
