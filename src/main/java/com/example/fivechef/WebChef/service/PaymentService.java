@@ -31,8 +31,6 @@ public class PaymentService {
 
     private final SubscriptionService subscriptionService;
 
-    private final CoursePlanPolicyService coursePlanPolicyService;
-
     private final RestTemplate restTemplate;
 
     @Value("${toss.client-key}")
@@ -62,10 +60,10 @@ public class PaymentService {
             throw new IllegalArgumentException("무료 강의는 결제가 필요하지 않습니다.");
         }
 
-        if (!coursePlanPolicyService.canAccess(request.getPlanType(), requiredPlan)) {
-            throw new IllegalArgumentException(requiredPlan.name() + " 구독권이 필요한 강의입니다.");
-        }
-
+        /*
+         * 여기서 BASIC / PREMIUM 선택을 막으면 안 됨.
+         * 유저는 어떤 유료 강의를 눌러도 BASIC / PREMIUM 둘 중 하나를 선택할 수 있어야 함.
+         */
         SubscriptionPlanResponse plan = subscriptionService.getPlan(request.getPlanType());
 
         String orderId = "WEBCHEF-" + UUID.randomUUID().toString().replace("-", "");

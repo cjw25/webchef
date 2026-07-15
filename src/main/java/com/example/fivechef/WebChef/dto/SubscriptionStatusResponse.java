@@ -22,6 +22,10 @@ public class SubscriptionStatusResponse {
 
     private boolean premium;
 
+    private boolean cancelled;
+
+    private LocalDateTime cancelledAt;
+
     public static SubscriptionStatusResponse none() {
         return new SubscriptionStatusResponse(
                 false,
@@ -29,13 +33,17 @@ public class SubscriptionStatusResponse {
                 "미구독",
                 null,
                 false,
-                false
+                false,
+                false,
+                null
         );
     }
 
     public static SubscriptionStatusResponse subscribed(
             SubscriptionPlanType planType,
-            LocalDateTime expiredAt
+            LocalDateTime expiredAt,
+            boolean cancelled,
+            LocalDateTime cancelledAt
     ) {
         return new SubscriptionStatusResponse(
                 true,
@@ -43,7 +51,9 @@ public class SubscriptionStatusResponse {
                 planType == null ? "미구독" : planType.name(),
                 expiredAt,
                 planType == SubscriptionPlanType.BASIC,
-                planType == SubscriptionPlanType.PREMIUM
+                planType == SubscriptionPlanType.PREMIUM,
+                cancelled,
+                cancelledAt
         );
     }
 }
