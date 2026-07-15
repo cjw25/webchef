@@ -170,24 +170,6 @@
 
             <a href="/metaverse" class="metaverse-header-btn">메타버스</a>
 
-            <a th:if="${isLogin and loginRole == 'USER'}"
-               th:href="@{/instructor/create}"
-               class="header-action-btn instructor-request-btn">
-                강사 신청
-            </a>
-
-            <a th:if="${isLogin and loginRole == 'INSTRUCTOR'}"
-               th:href="@{/instructor/courses}"
-               class="header-action-btn instructor-page-btn">
-                강사 페이지
-            </a>
-
-            <a th:if="${isLogin and loginRole == 'ADMIN'}"
-               th:href="@{/admin/courses}"
-               class="header-action-btn instructor-page-btn">
-                강의 승인
-            </a>
-
             <form th:action="@{/user/logout}" method="post" class="logout-form">
                 <button type="submit" class="logout-btn">로그아웃</button>
             </form>
