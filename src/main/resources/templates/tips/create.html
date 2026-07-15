@@ -8,7 +8,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
     <link rel="stylesheet" th:href="@{/css/header.css}">
-    <link rel="stylesheet" th:href="@{/css/tips.css}">
+    <link rel="stylesheet" th:href="@{/css/tips-create.css}">
 </head>
 
 <body>
@@ -25,7 +25,8 @@
 
     <form class="tips-form"
           th:action="@{/tips/create}"
-          method="post">
+          method="post"
+          enctype="multipart/form-data">
 
         <div class="form-row">
             <label for="category">카테고리</label>
@@ -43,8 +44,8 @@
         </div>
 
         <div class="form-row">
-            <label for="imageUrl">사진 URL</label>
-            <input type="text" id="imageUrl" name="imageUrl" placeholder="https://...">
+            <label for="imageFile">사진</label>
+            <input type="file" id="imageFile" name="imageFile" accept="image/*">
         </div>
 
         <div class="form-row">
@@ -53,7 +54,7 @@
         </div>
 
         <div class="form-actions">
-            <button type="submit" class="tips-write-btn">Create</button>
+            <button type="submit" class="tips-write-btn">등록하기</button>
         </div>
 
     </form>

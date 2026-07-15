@@ -9,6 +9,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 @RequiredArgsConstructor
 @Controller
@@ -58,10 +59,63 @@ public class TipsController {
             @RequestParam String title,
             @RequestParam String content,
             @RequestParam TipCategory category,
-            @RequestParam(required = false) String imageUrl
+            @RequestParam(required = false) MultipartFile imageFile
     ) {
-        Long id = tipsService.createTip(title, content, category, imageUrl);
+        Long id = tipsService.createTip(title, content, category, imageFile);
+
+        return "redirect:/tips/list";
+    }
+
+    @PreAuthorize("hasRole('ADMIN')")
+    @GetMapping("/tips/update/{id}")
+    public String updateForm(
+            @PathVariable Long id,
+            Model model
+    ) {
+        TipResponse tip =
+                tipsService.getTipForUpdate(id);
+
+        model.addAttribute("tip", tip);
+        model.addAttribute(
+                "categories",
+                TipCategory.values()
+        );
+
+        return "tips/update";
+    }
+
+    @PreAuthorize("hasRole('ADMIN')")
+    @PostMapping("/tips/update/{id}")
+    public String update(
+            @PathVariable Long id,
+            @RequestParam String title,
+            @RequestParam String content,
+            @RequestParam TipCategory category,
+            @RequestParam(required = false)
+            MultipartFile imageFile,
+            @RequestParam(
+                    value = "deleteImage",
+                    defaultValue = "false"
+            )
+            boolean deleteImage
+    ) {
+        tipsService.updateTip(
+                id,
+                title,
+                content,
+                category,
+                imageFile,
+                deleteImage
+        );
 
         return "redirect:/tips/view/" + id;
+    }
+
+    @PreAuthorize("hasRole('ADMIN')")
+    @PostMapping("/tips/delete/{id}")
+    public String delete(@PathVariable Long id) {
+        tipsService.deleteTip(id);
+
+        return "redirect:/tips/list";
     }
 }

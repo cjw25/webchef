@@ -1,0 +1,347 @@
+:root{
+  --wc-card: #FFFFFF;
+  --wc-text: #211D2E;
+  --wc-text-soft: #6F6B7D;
+  --wc-accent: #BD1D1D;
+  --wc-accent-dark: #9F1616;
+  --wc-pink-bg: #FCE2DF;
+  --wc-border: #F0DCDC;
+  --wc-field-bg: #FDF7F5;
+  --wc-bg: #F7F8FB;
+}
+
+*{
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body{
+  min-height: 100vh;
+  background: var(--wc-bg);
+  color: var(--wc-text);
+  font-family: 'Pretendard', Arial, sans-serif;
+}
+
+a{
+  color: inherit;
+  text-decoration: none;
+}
+
+button{
+  font-family: inherit;
+}
+
+/* 전체 영역 */
+.tip-view-wrap{
+  width: 100%;
+  max-width: 760px;
+  margin: 0 auto;
+  padding: 48px 24px 80px;
+}
+
+/* 경로 */
+.tip-view-crumb{
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 20px;
+  color: var(--wc-text-soft);
+  font-size: 13px;
+}
+
+.tip-view-crumb a{
+  transition: color .2s ease;
+}
+
+.tip-view-crumb a:hover{
+  color: var(--wc-accent);
+}
+
+.tip-view-crumb span:last-child{
+  color: var(--wc-accent-dark);
+  font-weight: 700;
+}
+
+/* 제목 영역 */
+.tip-view-hero{
+  margin-bottom: 28px;
+  text-align: center;
+}
+
+.tip-category{
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 18px;
+  padding: 8px 18px;
+  border-radius: 999px;
+  background: var(--wc-pink-bg);
+  color: var(--wc-accent-dark);
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.tip-view-hero h1{
+  margin-bottom: 16px;
+  color: var(--wc-text);
+  font-size: 32px;
+  font-weight: 700;
+  line-height: 1.4;
+  word-break: keep-all;
+  overflow-wrap: break-word;
+}
+
+.tip-meta{
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 18px;
+  color: var(--wc-text-soft);
+  font-size: 13px;
+}
+
+.tip-meta span{
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.tip-meta span + span::before{
+  content: "";
+  width: 1px;
+  height: 12px;
+  margin-right: 12px;
+  background: var(--wc-border);
+}
+
+.tip-meta strong{
+  color: var(--wc-text);
+  font-weight: 600;
+}
+
+/* 상세 카드 */
+.tip-view-card{
+  position: relative;
+  overflow: hidden;
+  border: 1px solid var(--wc-border);
+  border-radius: 20px;
+  background: var(--wc-card);
+  box-shadow: 0 12px 30px rgba(0, 0, 0, .06);
+}
+
+.tip-view-top-line{
+  width: 100%;
+  height: 6px;
+  background: var(--wc-accent);
+}
+
+/* 이미지 */
+.tip-image-box{
+  padding: 32px 32px 0;
+}
+
+.tip-image-box img{
+  display: block;
+  width: 100%;
+  max-height: 480px;
+  border-radius: 14px;
+  background: var(--wc-field-bg);
+  object-fit: contain;
+}
+
+/* 본문 */
+.tip-content{
+  min-height: 220px;
+  padding: 32px;
+  color: var(--wc-text);
+  font-size: 15px;
+  line-height: 1.8;
+  white-space: pre-wrap;
+  word-break: break-word;
+  overflow-wrap: anywhere;
+}
+
+/* th:utext로 HTML이 들어오는 경우 */
+.tip-content p{
+  margin-bottom: 16px;
+}
+
+.tip-content p:last-child{
+  margin-bottom: 0;
+}
+
+.tip-content img{
+  display: block;
+  max-width: 100%;
+  height: auto;
+  margin: 20px auto;
+  border-radius: 12px;
+}
+
+.tip-content ul,
+.tip-content ol{
+  margin: 16px 0;
+  padding-left: 24px;
+}
+
+.tip-content blockquote{
+  margin: 18px 0;
+  padding: 14px 18px;
+  border-left: 4px solid var(--wc-accent);
+  border-radius: 0 10px 10px 0;
+  background: var(--wc-field-bg);
+  color: var(--wc-text-soft);
+}
+
+/* 하단 버튼 */
+.tip-buttons{
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-top: 24px;
+}
+
+.tip-admin-buttons{
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.tip-admin-buttons form{
+  margin: 0;
+}
+
+.tip-btn{
+  min-width: 110px;
+  padding: 13px 24px;
+  border: none;
+  border-radius: 999px;
+  font-size: 14px;
+  font-weight: 700;
+  text-align: center;
+  cursor: pointer;
+  transition:
+    background .2s ease,
+    color .2s ease,
+    border-color .2s ease,
+    transform .2s ease;
+}
+
+.tip-btn-list{
+  border: 1.5px solid var(--wc-border);
+  background: var(--wc-card);
+  color: var(--wc-text-soft);
+}
+
+.tip-btn-list:hover{
+  border-color: var(--wc-accent);
+  background: var(--wc-pink-bg);
+  color: var(--wc-accent-dark);
+}
+
+.tip-btn-edit{
+  background: var(--wc-accent);
+  color: #fff;
+}
+
+.tip-btn-edit:hover{
+  background: var(--wc-accent-dark);
+  transform: translateY(-2px);
+}
+
+.tip-btn-delete{
+  border: 1.5px solid var(--wc-border);
+  background: #fff;
+  color: var(--wc-accent);
+}
+
+.tip-btn-delete:hover{
+  border-color: var(--wc-accent);
+  background: var(--wc-pink-bg);
+  transform: translateY(-2px);
+}
+
+/* 태블릿 및 모바일 */
+@media (max-width: 600px){
+
+  .tip-view-wrap{
+    padding: 32px 16px 60px;
+  }
+
+  .tip-view-hero{
+    margin-bottom: 22px;
+  }
+
+  .tip-view-hero h1{
+    font-size: 26px;
+  }
+
+  .tip-meta{
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+
+  .tip-meta span + span::before{
+    margin-right: 6px;
+  }
+
+  .tip-image-box{
+    padding: 20px 20px 0;
+  }
+
+  .tip-image-box img{
+    max-height: 320px;
+  }
+
+  .tip-content{
+    min-height: 180px;
+    padding: 24px 20px;
+    font-size: 14.5px;
+  }
+
+  .tip-buttons{
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .tip-admin-buttons{
+    width: 100%;
+  }
+
+  .tip-admin-buttons a,
+  .tip-admin-buttons form{
+    flex: 1;
+  }
+
+  .tip-btn{
+    width: 100%;
+    min-width: 0;
+  }
+}
+
+@media (max-width: 420px){
+
+  .tip-view-hero h1{
+    font-size: 23px;
+  }
+
+  .tip-meta{
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  .tip-meta span + span::before{
+    display: none;
+  }
+
+  .tip-admin-buttons{
+    flex-direction: column;
+  }
+
+  .tip-admin-buttons a,
+  .tip-admin-buttons form{
+    width: 100%;
+  }
+}

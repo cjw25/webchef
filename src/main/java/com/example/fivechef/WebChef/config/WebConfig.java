@@ -17,8 +17,13 @@ public class WebConfig implements WebMvcConfigurer {
     @Value("${file.inquiry-upload-dir:uploads/inquiry}")
     private String inquiryUploadDir;
 
+
     @Value("${file.notice-upload-dir:uploads/notice}")
     private String noticeUploadDir;
+
+    @Value("${file.tips-upload-dir:uploads/tips}")
+    private String tipsUploadDir;
+
 
     @Override
     public void addResourceHandlers(ResourceHandlerRegistry registry) {
@@ -31,7 +36,10 @@ public class WebConfig implements WebMvcConfigurer {
                 .toAbsolutePath()
                 .normalize();
 
+
         Path noticePath = Paths.get(noticeUploadDir)
+
+        Path tipsPath = Paths.get(tipsUploadDir)
                 .toAbsolutePath()
                 .normalize();
 
@@ -41,7 +49,12 @@ public class WebConfig implements WebMvcConfigurer {
         registry.addResourceHandler("/uploads/inquiry/**")
                 .addResourceLocations(inquiryPath.toUri().toString());
 
+
         registry.addResourceHandler("/uploads/notice/**")
                 .addResourceLocations(noticePath.toUri().toString());
+
+        registry.addResourceHandler("/uploads/tips/**")
+                .addResourceLocations(tipsPath.toUri().toString());
+
     }
 }

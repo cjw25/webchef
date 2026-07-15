@@ -1,10 +1,118 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ko"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+
 <head>
     <meta charset="UTF-8">
-    <title>Title</title>
+
+    <title th:text="${tip.title} + ' | WebChef'">
+        자취요리팁 | WebChef
+    </title>
+
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <link rel="stylesheet" th:href="@{/css/header.css}">
+    <link rel="stylesheet" th:href="@{/css/tips-view.css}">
 </head>
+
 <body>
+
+<div th:replace="~{fragments/header :: header}"></div>
+
+<main class="tip-view-wrap">
+
+    <!-- breadcrumb -->
+    <div class="tip-view-crumb">
+        <a th:href="@{/tips/list}">자취요리팁</a>
+        <span>›</span>
+        <span>상세보기</span>
+    </div>
+
+    <!-- 제목 -->
+    <section class="tip-view-hero">
+
+        <div class="tip-category"
+             th:text="${tip.categoryName}">
+            재료손질법
+        </div>
+
+        <h1 th:text="${tip.title}">
+            제목
+        </h1>
+
+        <div class="tip-meta">
+
+            <span>
+                작성일
+                <strong th:text="${#temporals.format(tip.createdAt,'yyyy.MM.dd')}">
+                    2026.07.15
+                </strong>
+            </span>
+
+            <span>
+                조회수
+                <strong th:text="${tip.viewCount}">
+                    0
+                </strong>
+            </span>
+
+        </div>
+
+    </section>
+
+    <!-- 내용 -->
+    <article class="tip-view-card">
+
+        <div class="tip-view-top-line"></div>
+
+        <!-- 이미지 -->
+        <div class="tip-image-box"
+             th:if="${tip.imageUrl != null and !#strings.isEmpty(tip.imageUrl)}">
+
+            <img th:src="@{${tip.imageUrl}}"
+                 th:alt="${tip.title}">
+        </div>
+
+        <!-- 본문 -->
+        <div class="tip-content"
+             th:utext="${tip.content}">
+        </div>
+
+    </article>
+
+    <!-- 버튼 -->
+    <div class="tip-buttons">
+
+        <a class="tip-btn tip-btn-list"
+           th:href="@{/tips/list}">
+            목록
+        </a>
+
+        <div sec:authorize="hasAuthority('ADMIN')"
+             class="tip-admin-buttons">
+
+            <a class="tip-btn tip-btn-edit"
+               th:href="@{/tips/update/{id}(id=${tip.id})}">
+                수정
+            </a>
+
+            <form th:action="@{/tips/delete/{id}(id=${tip.id})}"
+                  method="post"
+                  onsubmit="return confirm('삭제하시겠습니까?');">
+
+                <button class="tip-btn tip-btn-delete"
+                        type="submit">
+                    삭제
+                </button>
+
+            </form>
+
+        </div>
+
+    </div>
+
+</main>
 
 </body>
 </html>
