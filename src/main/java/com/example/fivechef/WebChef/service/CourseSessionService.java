@@ -33,7 +33,7 @@ public class CourseSessionService {
         return sessions.stream()
                 .map(session -> new CourseSessionResponse(
                         session,
-                        quizRepository.findBySessionId(session.getId()).isPresent()
+                        quizRepository.findByCourseId(session.getId()).isPresent()
                 ))
                 .toList();
     }

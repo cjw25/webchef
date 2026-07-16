@@ -20,51 +20,56 @@ public class QuizController {
 
     private final QuizService quizService;
 
+
     @PreAuthorize("hasAnyRole('INSTRUCTOR', 'ADMIN')")
-    @GetMapping("/course/session/{sessionId}/quiz/create")
-    public String createQuizPage(
-            @PathVariable("sessionId") Long sessionId,
-            @RequestParam("courseId") Long courseId,
+    @GetMapping("/course/{courseId}/quiz/create")
+    public String createOrEditQuizPage(
+            @PathVariable("courseId") Long courseId,
             Model model
     ) {
-        QuizCreateRequest request = new QuizCreateRequest();
-        request.setSessionId(sessionId);
+        boolean hasQuiz = quizService.getQuizByCourseId(courseId).isPresent();
+
+        QuizCreateRequest request = hasQuiz
+                ? quizService.getQuizEditRequest(courseId)
+                : new QuizCreateRequest();
+        request.setCourseId(courseId);
 
         model.addAttribute("request", request);
-        model.addAttribute("sessionId", sessionId);
         model.addAttribute("courseId", courseId);
+        model.addAttribute("isEdit", hasQuiz);
 
         return "course/quiz-create";
     }
 
     @PreAuthorize("hasAnyRole('INSTRUCTOR', 'ADMIN')")
     @PostMapping("/course/quiz/create")
-    public String createQuiz(
+    public String createOrUpdateQuiz(
             @ModelAttribute QuizCreateRequest request,
-            @RequestParam("courseId") Long courseId,
             Model model
     ) {
         try {
-            quizService.createQuiz(request);
+            if (quizService.getQuizByCourseId(request.getCourseId()).isPresent()) {
+                quizService.updateQuiz(request.getCourseId(), request);
+            } else {
+                quizService.createQuiz(request);
+            }
         } catch (Exception e) {
             model.addAttribute("errorMessage", e.getMessage());
             model.addAttribute("request", request);
-            model.addAttribute("sessionId", request.getSessionId());
-            model.addAttribute("courseId", courseId);
+            model.addAttribute("courseId", request.getCourseId());
             return "course/quiz-create";
         }
 
-        return "redirect:/course/view/" + courseId;
+        return "redirect:/course/view/" + request.getCourseId();
     }
 
     @PreAuthorize("isAuthenticated()")
-    @GetMapping("/course/session/{sessionId}/quiz")
+    @GetMapping("/course/{courseId}/quiz")
     public String quizPage(
-            @PathVariable("sessionId") Long sessionId,
-            @RequestParam("courseId") Long courseId,
+            @PathVariable("courseId") Long courseId,
             Model model
     ) {
-        Optional<QuizResponse> quiz = quizService.getQuizBySessionId(sessionId);
+        Optional<QuizResponse> quiz = quizService.getQuizByCourseId(courseId);
 
         if (quiz.isEmpty()) {
             return "redirect:/course/view/" + courseId;

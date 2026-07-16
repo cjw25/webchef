@@ -1,6 +1,7 @@
 package com.example.fivechef.WebChef.repository;
 
 import com.example.fivechef.WebChef.entity.Course;
+import com.example.fivechef.WebChef.entity.CourseCategory;
 import com.example.fivechef.WebChef.entity.CourseStatus;
 import com.example.fivechef.WebChef.entity.User;
 import org.springframework.data.domain.Page;
@@ -27,4 +28,7 @@ public interface CourseRepository extends JpaRepository<Course, Long>, JpaSpecif
     List<Course> findByInstructorOrderByIdDesc(User instructor);
 
     List<Course> findByStatusInOrderByIdDesc(Collection<CourseStatus> statuses);
+
+    List<Course> findTop8ByCategoryAndIdNotAndStatusOrderByViewCountDesc(
+            CourseCategory category, Long id, CourseStatus status);
 }

@@ -7,5 +7,5 @@ import java.util.Optional;
 
 public interface QuizRepository extends JpaRepository<Quiz, Long> {
 
-    Optional<Quiz> findBySessionId(Long sessionId);
+    Optional<Quiz> findByCourseId(Long courseId);
 }

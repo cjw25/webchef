@@ -9,7 +9,7 @@ import java.util.List;
 @Setter
 public class QuizCreateRequest {
 
-    private Long sessionId;
+    private Long courseId;
 
     private String title;
 

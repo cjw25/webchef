@@ -24,6 +24,7 @@ public class QuizService {
     private final QuizAttemptRepository quizAttemptRepository;
     private final CourseSessionService courseSessionService;
     private final UserService userService;
+    private final CourseService courseService;
 
     @Transactional(readOnly = true)
     public Quiz getQuizEntity(Long id) {
@@ -32,8 +33,8 @@ public class QuizService {
     }
 
     @Transactional(readOnly = true)
-    public Optional<QuizResponse> getQuizBySessionId(Long sessionId) {
-        return quizRepository.findBySessionId(sessionId)
+    public Optional<QuizResponse> getQuizByCourseId(Long courseId) {
+        return quizRepository.findByCourseId(courseId)
                 .map(QuizResponse::new);
     }
 
@@ -41,14 +42,14 @@ public class QuizService {
     public void createQuiz(QuizCreateRequest request) {
         validateCreateRequest(request);
 
-        CourseSession session = courseSessionService.getSessionEntity(request.getSessionId());
+        Course course = courseService.getCourseEntity(request.getCourseId());
 
-        if (quizRepository.findBySessionId(session.getId()).isPresent()) {
-            throw new IllegalArgumentException("이미 이 차시에는 퀴즈가 등록되어 있습니다.");
+        if (quizRepository.findByCourseId(course.getId()).isPresent()) {
+            throw new IllegalArgumentException("이미 이 강의에는 퀴즈가 등록되어 있습니다.");
         }
 
         Quiz quiz = new Quiz();
-        quiz.setSession(session);
+        quiz.setCourse(course);
         quiz.setTitle(request.getTitle().trim());
 
         for (int qi = 0; qi < request.getQuestions().size(); qi++) {
@@ -87,6 +88,81 @@ public class QuizService {
         quizRepository.save(quiz);
     }
 
+    @Transactional(readOnly = true)
+    public QuizCreateRequest getQuizEditRequest(Long courseId) {
+        Quiz quiz = quizRepository.findByCourseId(courseId)
+                .orElseThrow(() -> new IllegalArgumentException("퀴즈를 찾을 수 없습니다."));
+
+        QuizCreateRequest request = new QuizCreateRequest();
+        request.setCourseId(courseId);
+        request.setTitle(quiz.getTitle());
+
+        request.setQuestions(quiz.getQuestions().stream()
+                .map(q -> {
+                    QuizCreateRequest.QuestionRequest qr = new QuizCreateRequest.QuestionRequest();
+                    qr.setContent(q.getContent());
+                    qr.setChoices(q.getChoices().stream()
+                            .map(c -> {
+                                QuizCreateRequest.ChoiceRequest cr = new QuizCreateRequest.ChoiceRequest();
+                                cr.setContent(c.getContent());
+                                cr.setCorrect(c.isCorrect());
+                                return cr;
+                            })
+                            .toList());
+                    return qr;
+                })
+                .toList());
+
+        return request;
+    }
+
+    @Transactional
+    public void updateQuiz(Long courseId, QuizCreateRequest request) {
+        validateCreateRequest(request);
+
+        Quiz quiz = quizRepository.findByCourseId(courseId)
+                .orElseThrow(() -> new IllegalArgumentException("수정할 퀴즈를 찾을 수 없습니다."));
+
+        quiz.setTitle(request.getTitle().trim());
+        quiz.getQuestions().clear();
+
+        for (int qi = 0; qi < request.getQuestions().size(); qi++) {
+            QuizCreateRequest.QuestionRequest qReq = request.getQuestions().get(qi);
+
+            QuizQuestion question = new QuizQuestion();
+            question.setQuiz(quiz);
+            question.setContent(qReq.getContent().trim());
+            question.setSortOrder(qi);
+
+            boolean hasCorrect = false;
+
+            for (int ci = 0; ci < qReq.getChoices().size(); ci++) {
+                QuizCreateRequest.ChoiceRequest cReq = qReq.getChoices().get(ci);
+
+                QuizChoice choice = new QuizChoice();
+                choice.setQuestion(question);
+                choice.setContent(cReq.getContent().trim());
+                choice.setCorrect(cReq.isCorrect());
+                choice.setSortOrder(ci);
+
+                if (cReq.isCorrect()) {
+                    hasCorrect = true;
+                }
+
+                question.getChoices().add(choice);
+            }
+
+            if (!hasCorrect) {
+                throw new IllegalArgumentException("모든 문제는 정답이 하나 이상 있어야 합니다.");
+            }
+
+            quiz.getQuestions().add(question);
+        }
+
+        quizRepository.save(quiz);
+    }
+
+
     @Transactional
     public QuizResultResponse submitQuiz(Long quizId, QuizSubmitRequest request, String username) {
         Quiz quiz = getQuizEntity(quizId);
@@ -124,7 +200,7 @@ public class QuizService {
     }
 
     private void validateCreateRequest(QuizCreateRequest request) {
-        if (request == null || request.getSessionId() == null) {
+        if (request == null || request.getCourseId() == null) {
             throw new IllegalArgumentException("차시 정보가 없습니다.");
         }
 
@@ -152,34 +228,23 @@ public class QuizService {
     }
 
     public boolean hasPassedCourseQuiz(Long studentId, Long courseId) {
+        Optional<Quiz> quiz = quizRepository.findByCourseId(courseId);
 
-        List<CourseSession> sessions = courseSessionService.getSessionEntitiesByCourseId(courseId);
-
-        for (CourseSession session : sessions) {
-
-            Optional<Quiz> quiz = quizRepository.findBySessionId(session.getId());
-
-            if (quiz.isEmpty()) {
-                continue;
-            }
-
-            Optional<QuizAttempt> attempt =
-                    quizAttemptRepository.findTopByQuizIdAndStudentIdOrderByCreateDateDesc(
-                            quiz.get().getId(),
-                            studentId
-                    );
-
-            if (attempt.isEmpty()) {
-                continue;
-            }
-
-            QuizAttempt result = attempt.get();
-
-            if ((double) result.getScore() / result.getTotalCount() >= 0.6) {
-                return true;
-            }
+        if (quiz.isEmpty()) {
+            return false;
         }
 
-        return false;
+        Optional<QuizAttempt> attempt =
+                quizAttemptRepository.findTopByQuizIdAndStudentIdOrderByCreateDateDesc(
+                        quiz.get().getId(),
+                        studentId
+                );
+
+        if (attempt.isEmpty()) {
+            return false;
+        }
+
+        QuizAttempt result = attempt.get();
+        return (double) result.getScore() / result.getTotalCount() >= 0.6;
     }
 }
