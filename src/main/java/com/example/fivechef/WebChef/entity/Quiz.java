@@ -18,8 +18,8 @@ public class Quiz {
     private Long id;
 
     @OneToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "session_id", nullable = false, unique = true)
-    private CourseSession session;
+    @JoinColumn(name = "course_id", nullable = false, unique = true)
+    private Course course;
 
     @Column(nullable = false, length = 200)
     private String title;
