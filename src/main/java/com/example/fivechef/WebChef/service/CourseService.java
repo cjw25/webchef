@@ -165,6 +165,16 @@ public class CourseService {
     }
 
     @Transactional(readOnly = true)
+    public List<CourseResponse> getRelatedCourses(Long courseId, CourseCategory category) {
+        return courseRepository.findTop8ByCategoryAndIdNotAndStatusOrderByViewCountDesc(
+                        category, courseId, CourseStatus.OPEN
+                )
+                .stream()
+                .map(CourseResponse::new)
+                .toList();
+    }
+
+    @Transactional(readOnly = true)
     public Course getCourseEntity(Long id) {
         return courseRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("강의를 찾을 수 없습니다."));
