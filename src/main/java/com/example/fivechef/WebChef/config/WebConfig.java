@@ -17,7 +17,6 @@ public class WebConfig implements WebMvcConfigurer {
     @Value("${file.inquiry-upload-dir:uploads/inquiry}")
     private String inquiryUploadDir;
 
-
     @Value("${file.notice-upload-dir:uploads/notice}")
     private String noticeUploadDir;
 
@@ -27,37 +26,24 @@ public class WebConfig implements WebMvcConfigurer {
     @Value("${file.community-upload-dir:uploads/community}")
     private String communityUploadDir;
 
+    @Value("${file.course-comment-upload-dir:uploads/course-comment}")   // 👈 추가
+    private String courseCommentUploadDir;
 
     @Override
     public void addResourceHandlers(ResourceHandlerRegistry registry) {
 
-        Path coursePath = Paths.get(courseUploadDir)
-                .toAbsolutePath()
-                .normalize();
-
-        Path inquiryPath = Paths.get(inquiryUploadDir)
-                .toAbsolutePath()
-                .normalize();
-
-
-        Path noticePath = Paths.get(noticeUploadDir)
-                .toAbsolutePath()
-                .normalize();
-
-        Path tipsPath = Paths.get(tipsUploadDir)
-                .toAbsolutePath()
-                .normalize();
-
-        Path communityPath = Paths.get(communityUploadDir)
-                .toAbsolutePath()
-                .normalize();
+        Path coursePath = Paths.get(courseUploadDir).toAbsolutePath().normalize();
+        Path inquiryPath = Paths.get(inquiryUploadDir).toAbsolutePath().normalize();
+        Path noticePath = Paths.get(noticeUploadDir).toAbsolutePath().normalize();
+        Path tipsPath = Paths.get(tipsUploadDir).toAbsolutePath().normalize();
+        Path communityPath = Paths.get(communityUploadDir).toAbsolutePath().normalize();
+        Path courseCommentPath = Paths.get(courseCommentUploadDir).toAbsolutePath().normalize();   // 👈 추가
 
         registry.addResourceHandler("/uploads/course/**")
                 .addResourceLocations(coursePath.toUri().toString());
 
         registry.addResourceHandler("/uploads/inquiry/**")
                 .addResourceLocations(inquiryPath.toUri().toString());
-
 
         registry.addResourceHandler("/uploads/notice/**")
                 .addResourceLocations(noticePath.toUri().toString());
@@ -67,6 +53,9 @@ public class WebConfig implements WebMvcConfigurer {
 
         registry.addResourceHandler("/uploads/community/**")
                 .addResourceLocations(communityPath.toUri().toString());
+
+        registry.addResourceHandler("/uploads/course-comment/**")   // 👈 추가
+                .addResourceLocations(courseCommentPath.toUri().toString());
 
     }
 }
