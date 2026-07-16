@@ -5,31 +5,33 @@ using Unity.Netcode;
 public class ChatManager : NetworkBehaviour
 {
     public static ChatManager Instance;
+
+    [Header("UI 연결")]
     public TMP_InputField chatInput;
-    public TMP_Text chatWindow; // 화면 전체 채팅 로그용
+    public Transform contentTransform;
+    public GameObject chatMessagePrefab;
 
     private void Awake() => Instance = this;
 
-    // 채팅 입력창에서 엔터를 쳤을 때 호출
+    // 엔터키를 쳤을 때 유니티 UI가 호출할 함수
     public void OnChatSubmit(string text)
     {
-        // 1. 내용이 비어있으면 바로 리턴
+        Debug.Log(text);
+        // 입력값이 없거나 공백만 있는 경우 무시
         if (string.IsNullOrWhiteSpace(text))
         {
-            chatInput.text = ""; // 입력창 초기화
+            chatInput.text = "";
             return;
         }
 
-        // 2. 입력된 텍스트를 변수에 먼저 저장
-        string messageToSend = text;
+        // 서버로 전송
+        SendChatMessageServerRpc(NetworkManager.Singleton.LocalClientId, text);
 
-        // 3. 서버로 메시지 전송
-        SendChatMessageServerRpc(NetworkManager.Singleton.LocalClientId, messageToSend);
-
-        // 4. 전송 후 입력창 비우기 및 포커스 해제
+        // 입력창 초기화
         chatInput.text = "";
         chatInput.DeactivateInputField();
     }
+
     [ServerRpc(RequireOwnership = false)]
     private void SendChatMessageServerRpc(ulong senderId, string message)
     {
@@ -39,68 +41,36 @@ public class ChatManager : NetworkBehaviour
     [ClientRpc]
     private void ReceiveChatMessageClientRpc(ulong senderId, string message)
     {
-        Debug.Log($"[네트워크] 메시지 수신됨: {message}, 보낸 사람: {senderId}");
+        Debug.Log($"[네트워크] 수신됨 - 유저: {senderId}, 내용: {message}");
 
-        // 1. 전체 채팅 로그창 업데이트
-        if (chatWindow != null)
+        // 1. 전체 채팅창 UI 업데이트
+        if (contentTransform != null && chatMessagePrefab != null)
         {
-            chatWindow.text += $"\n[유저 {senderId}]: {message}";
+            GameObject newMsg = Instantiate(chatMessagePrefab, contentTransform);
+
+            // --- 위치 강제 보정 로직 추가 ---
+            RectTransform rect = newMsg.GetComponent<RectTransform>();
+            rect.localScale = Vector3.one;
+            rect.localPosition = Vector3.zero; // 부모 Content의 좌측 상단으로 강제 이동
+                                               // ------------------------------
+
+            newMsg.GetComponent<TMP_Text>().text = $"[유저 {senderId}]: {message}";
         }
 
-        // 2. 네트워크상의 Client 목록에서 senderId를 찾아 정확하게 참조
+        // 2. 말풍선 표시
         if (NetworkManager.Singleton.ConnectedClients.TryGetValue(senderId, out var client))
         {
-            // 해당 클라이언트의 PlayerObject를 가져옵니다.
-            var playerObject = client.PlayerObject;
-
-            if (playerObject != null)
+            if (client.PlayerObject != null && client.PlayerObject.TryGetComponent<PlayerMove>(out var playerMove))
             {
-                var playerMove = playerObject.GetComponent<PlayerMove>();
-                if (playerMove != null)
-                {
-                    Debug.Log($"[성공] {senderId}번 유저의 말풍선 함수를 직접 호출합니다.");
-                    playerMove.DisplaySpeechBubble(message);
-                }
-                else
-                {
-                    Debug.LogError($"[에러] {senderId}번 유저의 PlayerObject에 PlayerMove 스크립트가 없습니다!");
-                }
+                // PlayerMove 내부의 로직 호출
+                playerMove.DisplaySpeechBubble(message);
             }
             else
             {
-                Debug.LogError($"[에러] {senderId}번 유저의 PlayerObject가 null입니다!");
+                Debug.LogError($"[에러] {senderId}번 유저의 PlayerObject가 null이거나 PlayerMove 컴포넌트가 없습니다.");
             }
         }
-        else
-        {
-            Debug.LogError($"[에러] 네트워크 상에서 {senderId}번 클라이언트를 찾을 수 없습니다.");
-        }
     }
-    public bool IsTyping()
-    {
-        // chatInput이 있고, 현재 키보드 입력을 받고 있는 상태인지 확인
-        if (chatInput == null) return false;
-        return chatInput.isFocused;
-    }
-    void Update()
-    {
-        if (Input.GetKeyDown(KeyCode.Return))
-        {
-            Debug.Log("엔터 키 입력 감지됨!");
 
-            if (chatInput != null)
-            {
-                Debug.Log($"입력창 텍스트: {chatInput.text}"); // 텍스트가 비어있는지 확인
-
-                // 여기서 직접 함수를 호출해 봅니다.
-                OnChatSubmit(chatInput.text);
-            }
-            else
-            {
-                Debug.LogError("ChatInput 컴포넌트가 연결되지 않았습니다!");
-            }
-
-           
-        }
-    }
+    public bool IsTyping() => chatInput != null && chatInput.isFocused;
 }

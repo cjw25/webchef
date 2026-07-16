@@ -1,6 +1,6 @@
 %YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
---- !u!1 &6564974102688261394
+--- !u!1 &8431508283012753980
 GameObject:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -8,9 +8,9 @@ GameObject:
   m_PrefabAsset: {fileID: 0}
   serializedVersion: 6
   m_Component:
-  - component: {fileID: 4434999571398884272}
-  - component: {fileID: 3735003303708578266}
-  - component: {fileID: 5795994934872181317}
+  - component: {fileID: 6090077815806756387}
+  - component: {fileID: 2388210001318548101}
+  - component: {fileID: 3273737363441158022}
   m_Layer: 0
   m_Name: ChatManager
   m_TagString: Untagged
@@ -18,35 +18,35 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!4 &4434999571398884272
+--- !u!4 &6090077815806756387
 Transform:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 6564974102688261394}
+  m_GameObject: {fileID: 8431508283012753980}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 1.3067111, y: 1.1072075, z: 0.04504037}
+  m_LocalPosition: {x: 1581.8171, y: 462.5012, z: 7.6875253}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &3735003303708578266
+--- !u!114 &2388210001318548101
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 6564974102688261394}
+  m_GameObject: {fileID: 8431508283012753980}
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  GlobalObjectIdHash: 2491333621
-  InScenePlacedSourceGlobalObjectIdHash: 0
+  GlobalObjectIdHash: 3405622421
+  InScenePlacedSourceGlobalObjectIdHash: 3910927747
   AlwaysReplicateAsRoot: 0
   SynchronizeTransform: 1
   ActiveSceneSynchronization: 0
@@ -54,17 +54,18 @@ MonoBehaviour:
   SpawnWithObservers: 1
   DontDestroyWithOwner: 0
   AutoObjectParentSync: 1
---- !u!114 &5795994934872181317
+--- !u!114 &3273737363441158022
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 6564974102688261394}
+  m_GameObject: {fileID: 8431508283012753980}
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: d22151784e069ac4eaaa286a5002a40c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  chatInput: {fileID: 8217440862322762769, guid: a4b03bd2c2aa30949abda3bf8a7f6678, type: 3}
-  chatWindow: {fileID: 4237004279268259128, guid: d39dc5d9f4412d0478556a0287979a19, type: 3}
+  chatInput: {fileID: 3389090464652926317, guid: 24176ce1a4f9ce34c8d0990add2c607b, type: 3}
+  contentTransform: {fileID: 3991250122249322594, guid: edb6e9a4ac09f984bba77c7cd3feb7ed, type: 3}
+  chatMessagePrefab: {fileID: 2174286728398712427, guid: 14c38b7180b837145b80c35fee589d6a, type: 3}
