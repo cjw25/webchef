@@ -8,7 +8,7 @@ public class RoomManager : MonoBehaviour
 {
     public static RoomManager Instance { get; private set; }
     public string targetDoorName;
-    public bool isTransferring { get; private set; } = false;
+    public bool IsTransferring { get; private set; } = false;
 
     private void Awake()
     {
@@ -23,7 +23,7 @@ public class RoomManager : MonoBehaviour
 
     private void Start()
     {
-        isTransferring = false;
+        IsTransferring = false;
 
         // ★ 서버가 씬 로드를 완벽히 마쳤을 때 실행할 이벤트 연결
         if (NetworkManager.Singleton != null && NetworkManager.Singleton.SceneManager != null)
@@ -46,9 +46,9 @@ public class RoomManager : MonoBehaviour
     /// </summary>
     public void RequestChangeRoom(string sceneName, string targetDoorName)
     {
-        if (isTransferring) return;
+        if (IsTransferring) return;
 
-        isTransferring = true;
+        IsTransferring = true;
         this.targetDoorName = targetDoorName;
 
         // 씬 이동 직전, 모든 플레이어의 물리를 안전하게 꺼줍니다.
@@ -84,7 +84,7 @@ public class RoomManager : MonoBehaviour
 
     public void ClearTransferLock()
     {
-        isTransferring = false;
+        IsTransferring = false;
         SetAllPlayersPhysicsState(true); // 문 밖으로 완벽히 나갔을 때 물리 복구
     }
 

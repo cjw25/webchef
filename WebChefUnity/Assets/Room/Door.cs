@@ -44,13 +44,13 @@ public class Door : MonoBehaviour
                 localPlayer.transform.position = finalPos;
 
             RoomManager.Instance.targetDoorName = "";
-            //RoomManager.Instance.SetAllPlayersPhysicsState(true);
+           // RoomManager.Instance.SetAllPlayersPhysicsState(true);
         }
     }
 
     private void OnTriggerEnter2D(Collider2D collision)
     {
-        if (RoomManager.Instance.isTransferring) return;
+        if (RoomManager.Instance.IsTransferring) return;
         if (collision.CompareTag("Player") && collision.GetComponent<NetworkObject>()?.IsOwner == true)
         {
             RoomManager.Instance.RequestChangeRoom(nextSceneName, targetDoorName);
