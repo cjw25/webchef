@@ -7,8 +7,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
     <link rel="stylesheet" th:href="@{/css/header.css}">
-    <link rel="stylesheet" th:href="@{/css/course-view.css}">
     <link rel="stylesheet" th:href="@{/css/footer.css}">
+    <link rel="stylesheet" th:href="@{/css/chatbot-widget.css}">
+    <link rel="stylesheet" th:href="@{/css/course-view.css}">
 
 
 </head>
@@ -299,11 +300,11 @@
 
     </main>
 
-
+    <div th:replace="~{fragments/footer :: footer}"></div>
 
 </div>
 
 <script src="/js/course-view.js"></script>
-<div th:replace="~{fragments/footer :: footer}"></div>
+
 </body>
 </html>

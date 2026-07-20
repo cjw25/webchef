@@ -106,6 +106,12 @@
   margin-top: 18px;
 }
 
+.view-student-actions {
+  display: flex;
+  gap: 8px;
+  margin-top: 18px;
+}
+
 .btn-outline {
   padding: 10px 16px;
   border: 1px solid var(--wc-accent);
