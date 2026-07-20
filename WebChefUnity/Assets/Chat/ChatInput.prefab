@@ -325,7 +325,7 @@ MonoBehaviour:
   m_OnEndEdit:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 3273737363441158022, guid: 75d9a281da7defd4b8e333d21cabd088, type: 3}
+      - m_Target: {fileID: 5795994934872181317, guid: 75d9a281da7defd4b8e333d21cabd088, type: 3}
         m_TargetAssemblyTypeName: ChatManager, Assembly-CSharp
         m_MethodName: OnChatSubmit
         m_Mode: 5
