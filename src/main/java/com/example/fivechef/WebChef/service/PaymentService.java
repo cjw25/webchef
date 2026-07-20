@@ -82,6 +82,9 @@ public class PaymentService {
 
         paymentRepository.save(payment);
 
+        System.out.println("ClientKey = [" + tossClientKey + "]");
+        System.out.println("SecretKey = [" + tossSecretKey + "]");
+
         return PaymentReadyResponse.ok(
                 tossClientKey,
                 orderId,

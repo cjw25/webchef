@@ -102,55 +102,6 @@
         </div>
 
         <div class="result-block"
-             th:if="${searchResult != null and searchResult.hasRecipeResult()}">
-
-            <div class="section-title">
-                <h3>추천 레시피</h3>
-                <p>입력한 재료와 관련 있는 레시피입니다.</p>
-            </div>
-
-            <div class="recipe-grid">
-                <article class="recipe-card"
-                         th:each="recipe : ${searchResult.recipes}">
-
-                    <div class="recipe-thumb">
-                        <img th:if="${recipe.thumbnailUrl != null and recipe.thumbnailUrl != ''}"
-                             th:src="${recipe.thumbnailUrl}"
-                             alt="레시피 이미지">
-
-                        <img th:if="${recipe.thumbnailUrl == null or recipe.thumbnailUrl == ''}"
-                             th:src="@{/img/default-recipe.png}"
-                             alt="기본 레시피 이미지">
-                    </div>
-
-                    <div class="recipe-info">
-                        <div class="recipe-meta">
-                            <span th:text="${recipe.category}">한식</span>
-                            <span th:text="${recipe.difficulty}">쉬움</span>
-                        </div>
-
-                        <h4 th:text="${recipe.title}">김치 계란 볶음밥</h4>
-
-                        <p class="recipe-desc"
-                           th:text="${recipe.description}">
-                            간단하게 만들 수 있는 자취 요리입니다.
-                        </p>
-
-                        <div class="recipe-bottom">
-                            <span>
-                                조리시간
-                                <strong th:text="${recipe.cookingTime != null ? recipe.cookingTime + '분' : '미정'}">15분</strong>
-                            </span>
-
-                            <span th:text="${recipe.mainIngredient}">계란</span>
-                        </div>
-                    </div>
-
-                </article>
-            </div>
-        </div>
-
-        <div class="result-block"
              th:if="${searchResult != null and searchResult.hasCourseResult()}">
 
             <div class="section-title">
@@ -159,27 +110,57 @@
             </div>
 
             <div class="course-grid">
+
                 <article class="course-card"
                          th:each="course : ${searchResult.courses}">
 
+                    <!-- 강의 썸네일 -->
+                    <div class="course-thumb">
+
+                        <img th:if="${course.thumbnailUrl != null and course.thumbnailUrl != ''}"
+                             th:src="${course.thumbnailUrl}"
+                             alt="강의 썸네일">
+
+                        <img th:if="${course.thumbnailUrl == null or course.thumbnailUrl == ''}"
+                             th:src="@{/img/default-course.png}"
+                             alt="기본 썸네일">
+
+                    </div>
+
+                    <!-- 카테고리 / 난이도 -->
                     <div class="course-top">
                         <span th:text="${course.category}">한식</span>
                         <span th:text="${course.difficulty}">쉬움</span>
                     </div>
 
-                    <h4 th:text="${course.title}">자취생을 위한 계란 요리</h4>
+                    <!-- 제목 -->
+                    <h4 th:text="${course.title}">
+                        자취생을 위한 계란 요리
+                    </h4>
 
-                    <p th:text="${course.description}">
-                        기본 재료로 쉽게 따라할 수 있는 강의입니다.
-                    </p>
 
+                    <!-- 가격 -->
+                    <div class="course-price">
+                        <div class="course-price">
+                            <strong th:text="${course.price != null ?
+                                #numbers.formatInteger(course.price,3,'COMMA') + '원'
+                                : '무료'}">
+                            </strong>
+                        </div>
+                    </div>
+
+                    <!-- 버튼 -->
                     <a th:href="@{|/course/view/${course.id}|}" class="course-link">
                         강의 보러가기
                     </a>
 
                 </article>
+
             </div>
+
         </div>
+
+
 
     </section>
 

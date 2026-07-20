@@ -16,8 +16,16 @@ public class FridgeCourseResponse {
 
     private final String description;
 
+    // 추가
+    private final String thumbnailUrl;
+
+    // 추가
+    private final Integer price;
+
     public FridgeCourseResponse(Course course) {
+
         this.id = course.getId();
+
         this.title = course.getTitle();
 
         this.category = course.getCategory() == null
@@ -29,5 +37,11 @@ public class FridgeCourseResponse {
                 : course.getDifficulty().toString();
 
         this.description = course.getDescription();
+
+        // 추가
+        this.thumbnailUrl = course.getThumbnailUrl();
+
+        // 추가
+        this.price = course.getPrice();
     }
 }

@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>접근 제한 | WebChef</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" th:href="@{/css/access-denied.css}">
+</head>
+<body>
+
+<div class="ad-overlay">
+    <div class="ad-modal">
+
+        <div class="ad-icon">🔒</div>
+
+        <h2 class="ad-title">접근 제한</h2>
+
+        <p class="ad-message" th:text="${errorMessage}">현재 구독권으로는 이 강의를 수강할 수 없습니다.</p>
+
+        <div class="ad-actions">
+            <button type="button" class="ad-btn-cancel" onclick="history.back()">취소</button>
+            <a th:href="@{${redirectUrl}}" class="ad-btn-confirm">확인</a>
+        </div>
+
+    </div>
+</div>
+
+</body>
+</html>
