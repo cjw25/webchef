@@ -44,7 +44,7 @@ public class Door : MonoBehaviour
                 localPlayer.transform.position = finalPos;
 
             RoomManager.Instance.targetDoorName = "";
-            RoomManager.Instance.SetAllPlayersPhysicsState(true);
+            //RoomManager.Instance.SetAllPlayersPhysicsState(true);
         }
     }
 
