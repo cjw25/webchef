@@ -143,7 +143,10 @@ public class CourseResponse {
         }
 
         if (url.contains("youtube.com/embed/")) {
-            return url;
+            if (url.contains("enablejsapi=1")) {
+                return url;
+            }
+            return url + (url.contains("?") ? "&" : "?") + "enablejsapi=1";
         }
 
         String videoId = null;
@@ -172,7 +175,7 @@ public class CourseResponse {
             videoId = videoId.substring(0, videoId.indexOf("/"));
         }
 
-        return "https://www.youtube.com/embed/" + videoId;
+        return "https://www.youtube.com/embed/" + videoId + "?enablejsapi=1";
     }
 
     public boolean isFree() {
