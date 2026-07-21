@@ -2,7 +2,7 @@
 <html lang="ko" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <title>WebChef 메타버스 | WebChef</title>
+    <title>메타버스 | WebChef</title>
 
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
@@ -17,53 +17,29 @@
 
 <main class="metaverse-page">
 
-    <section class="metaverse-hero">
+    <section class="metaverse-top">
         <div>
-            <span class="metaverse-badge">2D METAVERSE</span>
+            <span>2D METAVERSE</span>
             <h1>WebChef 메타버스</h1>
-            <p>Unity WebGL로 제작한 WebChef 2D 메타버스 공간입니다.</p>
+            <p>Unity WebGL로 구현한 WebChef 2D 학습 공간입니다.</p>
         </div>
 
-        <a th:href="@{/}" class="metaverse-home-btn">메인으로</a>
+        <a th:href="@{/course/list}" class="metaverse-back-btn">
+            강의 목록으로 이동
+        </a>
     </section>
 
-    <section class="metaverse-frame-section">
-
-        <div class="metaverse-frame-header">
-            <div>
-                <span>UNITY WEBGL</span>
-                <h2>메타버스 입장</h2>
-            </div>
-
-            <button type="button"
-                    class="metaverse-full-btn"
-                    onclick="openMetaverseFullScreen()">
-                새 창으로 열기
-            </button>
-        </div>
-
-        <div class="metaverse-frame-box">
-            <iframe
-                    id="unityFrame"
-                    class="metaverse-frame"
-                    th:src="@{/unity/index.html}"
-                    src="/unity/index.html"
-                    title="WebChef Unity WebGL"
-                    allowfullscreen>
-            </iframe>
-        </div>
-
+    <section class="metaverse-frame-box">
+        <iframe
+                class="metaverse-frame"
+                th:src="@{/unity/WebChefUnity/index.html}"
+                allowfullscreen>
+        </iframe>
     </section>
 
 </main>
 
 <div th:replace="~{fragments/footer :: footer}"></div>
-
-<script>
-    function openMetaverseFullScreen() {
-        window.open("/unity/index.html", "_blank");
-    }
-</script>
 
 </body>
 </html>
