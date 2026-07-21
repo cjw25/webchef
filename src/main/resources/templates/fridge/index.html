@@ -111,48 +111,39 @@
 
             <div class="course-grid">
 
-                <article class="course-card"
-                         th:each="course : ${searchResult.courses}">
+                <article class="course-card" th:each="course : ${searchResult.courses}">
 
-                    <!-- 강의 썸네일 -->
                     <div class="course-thumb">
-
                         <img th:if="${course.thumbnailUrl != null and course.thumbnailUrl != ''}"
-                             th:src="${course.thumbnailUrl}"
-                             alt="강의 썸네일">
+                             th:src="${course.thumbnailUrl}">
 
                         <img th:if="${course.thumbnailUrl == null or course.thumbnailUrl == ''}"
-                             th:src="@{/img/default-course.png}"
-                             alt="기본 썸네일">
-
+                             th:src="@{/img/default-course.png}">
                     </div>
 
-                    <!-- 카테고리 / 난이도 -->
-                    <div class="course-top">
-                        <span th:text="${course.category}">한식</span>
-                        <span th:text="${course.difficulty}">쉬움</span>
-                    </div>
+                    <div class="course-card-body">
 
-                    <!-- 제목 -->
-                    <h4 th:text="${course.title}">
-                        자취생을 위한 계란 요리
-                    </h4>
+                        <div class="course-top">
+                            <span th:text="${course.category}"></span>
+                            <span th:text="${course.difficulty}"></span>
+                        </div>
 
+                        <h4 th:text="${course.title}"></h4>
 
-                    <!-- 가격 -->
-                    <div class="course-price">
                         <div class="course-price">
-                            <strong th:text="${course.price != null ?
-                                #numbers.formatInteger(course.price,3,'COMMA') + '원'
-                                : '무료'}">
+                            <strong
+                                    th:text="${course.price != null ?
+                #numbers.formatInteger(course.price,3,'COMMA')+'원'
+                :'무료'}">
                             </strong>
                         </div>
-                    </div>
 
-                    <!-- 버튼 -->
-                    <a th:href="@{|/course/view/${course.id}|}" class="course-link">
-                        강의 보러가기
-                    </a>
+                        <a th:href="@{|/course/view/${course.id}|}"
+                           class="course-link">
+                            강의 보러가기
+                        </a>
+
+                    </div>
 
                 </article>
 
