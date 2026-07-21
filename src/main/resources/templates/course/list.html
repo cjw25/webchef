@@ -76,6 +76,12 @@
             </div>
 
             <div class="course-sort-box">
+                <a th:href="@{/course/list(category=${selectedCategory}, keyword=${keyword}, sort='speed')}"
+                   class="sort-link"
+                   th:classappend="${sort == 'speed'} ? ' active' : ''">
+                    ⚡ 스피드 요리
+                </a>
+
                 <a th:href="@{/course/list(category=${selectedCategory}, keyword=${keyword}, sort='popular')}"
                    class="sort-link"
                    th:classappend="${sort == null or sort == '' or sort == 'popular'} ? ' active' : ''">

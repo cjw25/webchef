@@ -27,8 +27,8 @@
 
             <div class="view-hero-media">
 
-                <!-- 유튜브 링크인 경우 -->
                 <iframe th:if="${course.hasVideo() and (course.videoUrl.contains('youtube.com') or course.videoUrl.contains('youtu.be'))}"
+                        id="mainYoutubePlayer"
                         th:src="@{${course.youtubeEmbedUrl}}"
                         class="view-hero-video"
                         frameborder="0"
@@ -83,11 +83,8 @@
                           th:text="${course.price} + '원'">0원</span>
                 </div>
 
-                <!-- 학생용: 퀴즈 풀기 버튼 (강의 단위) -->
-                <div class="view-student-actions"
-                     th:if="${hasQuiz and isLogin and loginRole == 'USER'}">
-                    <a th:href="@{'/course/' + ${course.id} + '/quiz'}" class="btn-outline">퀴즈 풀기</a>
-                </div>
+
+
 
                 <!-- 강사 전용 관리 버튼 -->
                 <div class="view-owner-actions"
@@ -299,6 +296,31 @@
         </section>
 
     </main>
+
+    <!-- 학생용: 퀴즈 풀기 버튼 (강의 단위) -->
+    <div class="view-student-actions"
+         id="quizActionBox"
+         th:if="${hasQuiz and isLogin and loginRole == 'USER'}"
+         style="display:none;">
+        <a th:href="@{'/course/' + ${course.id} + '/quiz'}" class="btn-outline">퀴즈 풀기</a>
+    </div>
+
+    <!-- 영상 종료 시 뜨는 퀴즈 안내 모달 -->
+    <div id="quizModalOverlay"
+         class="quiz-modal-overlay"
+         th:if="${hasQuiz and isLogin and loginRole == 'USER'}"
+         style="display:none;">
+        <div class="quiz-modal-box">
+            <button type="button" class="quiz-modal-close" id="quizModalClose" aria-label="닫기">&times;</button>
+            <div class="quiz-modal-icon">🎉</div>
+            <h3 class="quiz-modal-title">영상 시청을 완료했어요!</h3>
+            <p class="quiz-modal-desc">배운 내용을 퀴즈로 확인해볼까요?</p>
+            <div class="quiz-modal-actions">
+                <button type="button" class="btn-outline" id="quizModalLater">나중에 할게요</button>
+                <a th:href="@{'/course/' + ${course.id} + '/quiz'}" class="btn-quiz-primary">퀴즈 풀러가기</a>
+            </div>
+        </div>
+    </div>
 
     <div th:replace="~{fragments/footer :: footer}"></div>
 
