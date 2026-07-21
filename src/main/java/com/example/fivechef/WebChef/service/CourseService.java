@@ -671,7 +671,7 @@ public class CourseService {
             result = result.substring(0, result.indexOf("&"));
         }
 
-        if (result.contains("/")) {
+        if (result.contains("/")) { 
             result = result.substring(0, result.indexOf("/"));
         }
 
