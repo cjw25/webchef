@@ -59,9 +59,9 @@
       var buildUrl = "Build";
       var loaderUrl = buildUrl + "/BulidFile.loader.js";
       var config = {
-        dataUrl: buildUrl + "/BulidFile.data",
-        frameworkUrl: buildUrl + "/BulidFile.framework.js",
-        codeUrl: buildUrl + "/BulidFile.wasm",
+        dataUrl: buildUrl + "/BulidFile.data.unityweb",
+        frameworkUrl: buildUrl + "/BulidFile.framework.js.unityweb",
+        codeUrl: buildUrl + "/BulidFile.wasm.unityweb",
         streamingAssetsUrl: "StreamingAssets",
         companyName: "DefaultCompany",
         productName: "WebChef_Wip",
@@ -117,7 +117,7 @@
               }).then((unityInstance) => {
                 loadingBar.style.display = "none";
                 fullscreenButton.onclick = () => {
-                  unityInstance.SetFullscreen(1);
+                  document.makeFullscreen('unity-container');
                 };
               }).catch((message) => {
                 alert(message);
