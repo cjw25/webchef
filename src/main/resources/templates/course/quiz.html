@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
+
   <meta charset="UTF-8">
   <title th:text="${quiz.title} + ' | WebChef'">퀴즈</title>
 
@@ -8,11 +9,21 @@
 
   <link rel="stylesheet" th:href="@{/css/header.css}">
   <link rel="stylesheet" th:href="@{/css/quiz.css}">
+
+    <meta charset="UTF-8">
+    <title th:text="${quiz.title} + ' | WebChef'">퀴즈</title>
+
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <link rel="stylesheet" th:href="@{/css/header.css}">
+    <link rel="stylesheet" th:href="@{/css/quiz.css}">
+
 </head>
 
 <body>
 
 <div class="page">
+
 
   <div th:replace="~{fragments/header :: header}"></div>
 
@@ -59,6 +70,53 @@
   </main>
 
   <div th:replace="~{fragments/footer :: footer}"></div>
+
+    <div th:replace="~{fragments/header :: header}"></div>
+
+    <main class="quiz-wrap">
+
+        <div class="quiz-crumb">
+            <a th:href="@{'/course/view/' + ${courseId}}">강의 상세</a>
+            &nbsp;›&nbsp;
+            <span th:text="${quiz.title}">퀴즈</span>
+        </div>
+
+        <h1 class="quiz-page-title" th:text="${quiz.title}">퀴즈</h1>
+
+        <form th:action="@{'/course/quiz/' + ${quiz.id} + '/submit'(courseId=${courseId})}"
+              method="post"
+              class="quiz-take-card">
+
+            <div class="quiz-take-question" th:each="question, qIter : ${quiz.questions}">
+
+                <p class="quiz-take-question-title"
+                   th:text="(${qIter.count}) + '. ' + ${question.content}">문제 내용</p>
+
+                <div th:each="choice : ${question.choices}" class="quiz-take-choice">
+                    <input type="radio"
+                           th:id="'choice-' + ${choice.id}"
+                           th:name="'answers[' + ${question.id} + ']'"
+                           th:value="${choice.id}">
+                    <label th:for="'choice-' + ${choice.id}" th:text="${choice.content}">보기</label>
+                </div>
+
+            </div>
+
+            <p class="quiz-empty" th:if="${quiz.questions.isEmpty()}">
+                등록된 문제가 없어요.
+            </p>
+
+            <div class="quiz-form-actions" th:if="${!quiz.questions.isEmpty()}">
+                <a th:href="@{'/course/view/' + ${courseId}}" class="btn-outline">취소</a>
+                <button type="submit" class="btn-submit-quiz">제출하기</button>
+            </div>
+
+        </form>
+
+    </main>
+
+    <div th:replace="~{fragments/footer :: footer}"></div>
+
 
 </div>
 

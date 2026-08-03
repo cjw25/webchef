@@ -244,6 +244,7 @@
                                target="_blank"
                                class="btn-session-watch">시청</a>
 
+
                             <!-- 강사 전용: 차시 삭제 -->
                             <form th:if="${isLogin and loginRole == 'INSTRUCTOR' and course.instructorUsername == loginUsername}"
                                   th:action="@{'/course/session/delete/' + ${session.id}}"
@@ -252,6 +253,27 @@
                                 <button type="submit" class="btn-session-delete"
                                         onclick="return confirm('이 차시를 삭제할까요?')">삭제</button>
                             </form>
+
+                            <!-- 학생/전체: 퀴즈가 있으면 풀기 버튼 -->
+                            <a th:if="${session.hasQuiz}"
+                               th:href="@{'/course/session/' + ${session.id} + '/quiz'(courseId=${course.id})}"
+                               class="btn-quiz-take">퀴즈 풀기</a>
+
+                            <!-- 강사 전용: 퀴즈 관리 버튼 -->
+                            <span th:if="${isLogin and loginRole == 'INSTRUCTOR' and course.instructorUsername == loginUsername}">
+                                <a th:if="${!session.hasQuiz}"
+                                   th:href="@{'/course/session/' + ${session.id} + '/quiz/create'(courseId=${course.id})}"
+                                   class="btn-quiz-manage">퀴즈 만들기</a>
+                                <span th:if="${session.hasQuiz}" class="quiz-registered-badge">퀴즈 등록됨</span>
+
+                                <form th:action="@{'/course/session/delete/' + ${session.id}}"
+                                      method="post" class="inline-form">
+                                    <input type="hidden" name="courseId" th:value="${course.id}">
+                                    <button type="submit" class="btn-session-delete"
+                                            onclick="return confirm('이 차시를 삭제할까요?')">삭제</button>
+                                </form>
+                            </span>
+
 
                         </div>
 
