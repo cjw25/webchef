@@ -22,7 +22,7 @@ public class UnityBuildController {
     ) throws IOException {
 
         ClassPathResource resource =
-                new ClassPathResource("static/unity/Build/" + fileName);
+                new ClassPathResource("static/unity/WebChefUnity/Build/" + fileName);
 
         if (!resource.exists()) {
             return ResponseEntity.notFound().build();

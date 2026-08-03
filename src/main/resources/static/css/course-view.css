@@ -106,6 +106,12 @@
   margin-top: 18px;
 }
 
+.view-student-actions {
+  display: flex;
+  gap: 8px;
+  margin-top: 18px;
+}
+
 .btn-outline {
   padding: 10px 16px;
   border: 1px solid var(--wc-accent);
@@ -490,5 +496,82 @@
     width: 100%;
     height: 100%;
     object-fit: cover;
+}
 
+/* ===== 퀴즈 안내 모달 ===== */
+.quiz-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(33, 29, 46, 0.55);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.quiz-modal-box {
+  position: relative;
+  background: #fff;
+  border-radius: 16px;
+  padding: 32px 28px 24px;
+  width: 100%;
+  max-width: 360px;
+  text-align: center;
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.2);
+  animation: quiz-modal-pop 0.25s ease;
+}
+
+@keyframes quiz-modal-pop {
+  from { opacity: 0; transform: scale(0.92); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+.quiz-modal-close {
+  position: absolute;
+  top: 10px;
+  right: 14px;
+  border: none;
+  background: none;
+  font-size: 22px;
+  line-height: 1;
+  color: var(--wc-text-soft);
+  cursor: pointer;
+}
+
+.quiz-modal-icon { font-size: 36px; margin-bottom: 10px; }
+
+.quiz-modal-title {
+  font-size: 18px;
+  font-weight: 800;
+  color: var(--wc-text);
+  margin: 0 0 8px;
+}
+
+.quiz-modal-desc {
+  font-size: 14px;
+  color: var(--wc-text-soft);
+  margin: 0 0 22px;
+}
+
+.quiz-modal-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.quiz-modal-actions .btn-outline,
+.quiz-modal-actions .btn-quiz-primary {
+  flex: 1;
+  padding: 11px 0;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 700;
+  text-decoration: none;
+  cursor: pointer;
+  text-align: center;
+}
+
+.btn-quiz-primary {
+  background: var(--wc-accent);
+  color: #fff;
+  border: 1px solid var(--wc-accent);
 }

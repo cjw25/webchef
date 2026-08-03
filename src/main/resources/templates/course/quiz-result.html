@@ -1,7 +1,6 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
-
   <meta charset="UTF-8">
   <title>퀴즈 결과 | WebChef</title>
 
@@ -9,14 +8,8 @@
 
   <link rel="stylesheet" th:href="@{/css/header.css}">
   <link rel="stylesheet" th:href="@{/css/quiz.css}">
-
-    <meta charset="UTF-8">
-    <title>퀴즈 결과 | WebChef</title>
-
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-
-    <link rel="stylesheet" th:href="@{/css/header.css}">
-    <link rel="stylesheet" th:href="@{/css/quiz.css}">
+  <link rel="stylesheet" th:href="@{/css/footer.css}">
+  <link rel="stylesheet" th:href="@{/css/chatbot-widget.css}">
 
 </head>
 
@@ -24,24 +17,15 @@
 
 <div class="page">
 
-
   <div th:replace="~{fragments/header :: header}"></div>
 
   <main class="quiz-wrap">
 
     <div class="quiz-result-card">
 
-    <div th:replace="~{fragments/header :: header}"></div>
-
-    <main class="quiz-wrap">
-
-        <div class="quiz-result-card">
-
-
             <span class="quiz-result-badge"
                   th:classappend="${result.passed} ? 'passed' : 'failed'"
                   th:text="${result.passed} ? '합격' : '불합격'">결과</span>
-
 
       <p class="quiz-result-score">
         <span th:text="${result.score}">0</span> / <span th:text="${result.totalCount}">0</span>
@@ -61,26 +45,6 @@
   </main>
 
   <div th:replace="~{fragments/footer :: footer}"></div>
-
-            <p class="quiz-result-score">
-                <span th:text="${result.score}">0</span> / <span th:text="${result.totalCount}">0</span>
-            </p>
-
-            <p class="quiz-result-sub">
-                <span th:if="${result.passed}">축하해요! 이 차시의 퀴즈를 통과했어요.</span>
-                <span th:if="${!result.passed}">아쉬워요, 조금 더 복습하고 다시 도전해보세요.</span>
-            </p>
-
-            <div class="quiz-result-actions">
-                <a th:href="@{'/course/view/' + ${courseId}}" class="btn-back-course">강의로 돌아가기</a>
-            </div>
-
-        </div>
-
-    </main>
-
-    <div th:replace="~{fragments/footer :: footer}"></div>
-
 
 </div>
 

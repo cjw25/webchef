@@ -67,7 +67,16 @@ public class CourseController {
     ) {
         String username = principal == null ? null : principal.getName();
 
-        CourseResponse course = courseService.getCourseDetailResponse(id, username);
+        CourseResponse course;
+
+        try {
+            course = courseService.getCourseDetailResponse(id, username);
+        } catch (IllegalArgumentException e) {
+            model.addAttribute("errorMessage", e.getMessage());
+            model.addAttribute("redirectUrl",
+                    principal == null ? "/user/login" : "/payment/course/" + id);
+            return "course/access-denied";
+        }
 
         model.addAttribute("course", course);
 
@@ -75,7 +84,6 @@ public class CourseController {
         model.addAttribute("sessions", courseSessionService.getSessions(id));
         model.addAttribute("comments", courseCommentService.getComments(id, page));
         model.addAttribute("commentPage", page);
-        model.addAttribute("relatedCourses", courseService.getRelatedCourses(id, course.getCategory()));
         model.addAttribute("hasQuiz", quizService.getQuizByCourseId(id).isPresent());
 
         boolean isLogin = principal != null;

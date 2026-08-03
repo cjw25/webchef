@@ -8167,17 +8167,6 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 75d9a281da7defd4b8e333d21cabd088, type: 3}
---- !u!114 &8463410566071965381 stripped
-MonoBehaviour:
-  m_CorrespondingSourceObject: {fileID: 3273737363441158022, guid: 75d9a281da7defd4b8e333d21cabd088, type: 3}
-  m_PrefabInstance: {fileID: 8463410566071965380}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: d22151784e069ac4eaaa286a5002a40c, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!1001 &8539682975051807696
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -8209,10 +8198,6 @@ PrefabInstance:
     - target: {fileID: 4317692463890765126, guid: 402e57adb9196ed4794f22b4592f6673, type: 3}
       propertyPath: m_OnEndEdit.m_PersistentCalls.m_Calls.Array.data[0].m_Target
       value: 
-      objectReference: {fileID: 8463410566071965381}
-    - target: {fileID: 4317692463890765126, guid: 402e57adb9196ed4794f22b4592f6673, type: 3}
-      propertyPath: m_OnEndEdit.m_PersistentCalls.m_Calls.Array.data[0].m_MethodName
-      value: OnChatSubmit
       objectReference: {fileID: 0}
     - target: {fileID: 4436891931016220178, guid: 402e57adb9196ed4794f22b4592f6673, type: 3}
       propertyPath: m_AnchorMax.x

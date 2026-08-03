@@ -16,8 +16,11 @@ import org.springframework.web.multipart.MultipartFile;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.UUID;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 @RequiredArgsConstructor
 @Service
@@ -30,6 +33,7 @@ public class CourseService {
 
     private static final List<String> ALLOWED_EXTENSIONS = List.of("jpg", "jpeg", "png", "gif", "webp");
     private static final long MAX_FILE_SIZE = 10 * 1024 * 1024;
+    private static final int SPEED_COOK_TIME_LIMIT_MINUTES = 5;
 
     @Value("${file.course-upload-dir:uploads/course}")
     private String uploadDir;
@@ -57,16 +61,21 @@ public class CourseService {
             String username,
             String sort
     ) {
+        User loginUser = getLoginUserOrNull(username);
+        SubscriptionPlanType userPlan = loginUser == null
+                ? null
+                : subscriptionService.getCurrentPlan(loginUser);
+
+        // 스피드 요리(조리시간 5분 이하) 필터링은 텍스트 파싱이 필요해 별도 처리
+        if ("speed".equals(sort)) {
+            return getSpeedCourses(page, keyword, category, loginUser, userPlan);
+        }
+
         Sort sortOption = "difficulty".equals(sort)
                 ? Sort.by(Sort.Order.asc("difficultyOrder"))
                 : Sort.by(Sort.Order.desc("viewCount"));
 
         Pageable pageable = PageRequest.of(page, 12, sortOption);
-
-        User loginUser = getLoginUserOrNull(username);
-        SubscriptionPlanType userPlan = loginUser == null
-                ? null
-                : subscriptionService.getCurrentPlan(loginUser);
 
         return courseRepository.findAll((root, query, criteriaBuilder) -> {
             List<Predicate> predicates = new ArrayList<>();
@@ -111,6 +120,103 @@ public class CourseService {
 
             return criteriaBuilder.and(predicates.toArray(new Predicate[0]));
         }, pageable).map(course -> toListResponse(course, loginUser, userPlan));
+    }
+
+    @Transactional(readOnly = true)
+    public Page<CourseResponse> getSpeedCourses(
+            int page,
+            String keyword,
+            CourseCategory category,
+            User loginUser,
+            SubscriptionPlanType userPlan
+    ) {
+        List<Course> allMatched = courseRepository.findAll((root, query, criteriaBuilder) -> {
+            List<Predicate> predicates = new ArrayList<>();
+
+            predicates.add(criteriaBuilder.equal(root.get("status"), CourseStatus.OPEN));
+
+            if (category != null) {
+                predicates.add(criteriaBuilder.equal(root.get("category"), category));
+            }
+
+            if (keyword != null && !keyword.trim().isEmpty()) {
+                String likeKeyword = "%" + keyword.trim() + "%";
+
+                predicates.add(criteriaBuilder.or(
+                        criteriaBuilder.like(root.get("title"), likeKeyword),
+                        criteriaBuilder.like(root.get("description"), likeKeyword)
+                ));
+            }
+
+            if (loginUser != null
+                    && loginUser.getRole() == Role.USER
+                    && userPlan == SubscriptionPlanType.BASIC) {
+
+                predicates.add(criteriaBuilder.or(
+                        criteriaBuilder.isNull(root.get("requiredPlanType")),
+                        criteriaBuilder.equal(root.get("requiredPlanType"), SubscriptionPlanType.BASIC)
+                ));
+            }
+
+            return criteriaBuilder.and(predicates.toArray(new Predicate[0]));
+        });
+
+        List<Course> speedCourses = allMatched.stream()
+                .filter(course -> {
+                    Integer minutes = parseCookTimeMinutes(course.getCookTime());
+                    return minutes != null && minutes <= SPEED_COOK_TIME_LIMIT_MINUTES;
+                })
+                .sorted(Comparator.comparing(course -> parseCookTimeMinutes(course.getCookTime())))
+                .toList();
+
+        int pageSize = 12;
+        int start = Math.min(page * pageSize, speedCourses.size());
+        int end = Math.min(start + pageSize, speedCourses.size());
+
+        List<CourseResponse> content = speedCourses.subList(start, end).stream()
+                .map(course -> toListResponse(course, loginUser, userPlan))
+                .toList();
+
+        Pageable pageable = PageRequest.of(page, pageSize);
+        return new PageImpl<>(content, pageable, speedCourses.size());
+    }
+
+    /**
+     * cookTime 자유 텍스트에서 분(minute) 단위 숫자를 최선으로 추출.
+     * 예: "20분" -> 20, "1시간" -> 60, "1시간 30분" -> 90, "5" -> 5
+     * 파싱 불가능한 텍스트는 null 반환 (필터링에서 제외됨)
+     */
+    private Integer parseCookTimeMinutes(String cookTime) {
+        if (cookTime == null || cookTime.isBlank()) {
+            return null;
+        }
+
+        String text = cookTime.trim();
+        int totalMinutes = 0;
+        boolean found = false;
+
+        Matcher hourMatcher = Pattern.compile("(\\d+)\\s*시간").matcher(text);
+        if (hourMatcher.find()) {
+            totalMinutes += Integer.parseInt(hourMatcher.group(1)) * 60;
+            found = true;
+        }
+
+        Matcher minuteMatcher = Pattern.compile("(\\d+)\\s*분").matcher(text);
+        if (minuteMatcher.find()) {
+            totalMinutes += Integer.parseInt(minuteMatcher.group(1));
+            found = true;
+        }
+
+        // "시간"/"분" 단위 표기가 전혀 없이 숫자만 있는 경우 -> 분으로 간주
+        if (!found) {
+            Matcher numberMatcher = Pattern.compile("(\\d+)").matcher(text);
+            if (numberMatcher.find()) {
+                totalMinutes = Integer.parseInt(numberMatcher.group(1));
+                found = true;
+            }
+        }
+
+        return found ? totalMinutes : null;
     }
 
     @Transactional(readOnly = true)
@@ -565,7 +671,7 @@ public class CourseService {
             result = result.substring(0, result.indexOf("&"));
         }
 
-        if (result.contains("/")) {
+        if (result.contains("/")) { 
             result = result.substring(0, result.indexOf("/"));
         }
 
